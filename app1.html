@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firebase Google Login</title>
+    <style>
+        /* Reset & base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #f6f9fc 0%, #eaf3f9 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 56px;
+            padding: 3.5rem 3rem;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 30px 60px -20px rgba(0, 20, 40, 0.3),
+                        0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: transform 0.2s ease;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #0b2b40;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .subhead {
+            color: #3b5c6e;
+            font-size: 1rem;
+            font-weight: 400;
+            margin-bottom: 2.2rem;
+            border-bottom: 2px solid rgba(60, 130, 180, 0.15);
+            padding-bottom: 1.2rem;
+        }
+
+        /* Google button – modern & accessible */
+        .google-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: #ffffff;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1e2f3d;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto 1.8rem auto;
+            border: 1px solid #dce3e9;
+            letter-spacing: 0.2px;
+        }
+
+        .google-btn:hover {
+            background: #f8fafc;
+            box-shadow: 0 8px 18px rgba(0, 100, 200, 0.12);
+            border-color: #a0b8cc;
+            transform: scale(1.01);
+        }
+
+        .google-btn:active {
+            transform: scale(0.97);
+            background: #f0f4f8;
+        }
+
+        .google-btn svg {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        /* user info card */
+        .user-card {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            padding: 1.5rem 1.2rem;
+            border-radius: 32px;
+            margin-top: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        #userInfo {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #113544;
+            word-break: break-word;
+        }
+
+        #userInfo strong {
+            font-weight: 600;
+            color: #004466;
+        }
+
+        .user-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 100px;
+            object-fit: cover;
+            margin-bottom: 12px;
+            border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+        }
+
+        .sign-out-wrapper {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .sign-out-btn {
+            background: transparent;
+            border: 1px solid #b6ccdd;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #2f536b;
+            cursor: pointer;
+            transition: 0.15s;
+            backdrop-filter: blur(4px);
+            background: rgba(255,255,255,0.4);
+        }
+
+        .sign-out-btn:hover {
+            background: #e6eef5;
+            border-color: #7f9bb3;
+            color: #0a2533;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #d4e3ed;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #1c4a62;
+            letter-spacing: 0.3px;
+            margin-top: 0.8rem;
+        }
+
+        .footnote {
+            margin-top: 1.8rem;
+            font-size: 0.8rem;
+            color: #53768b;
+            border-top: 1px solid rgba(90, 140, 180, 0.1);
+            padding-top: 1.2rem;
+            opacity: 0.7;
+        }
+
+        /* small screens */
+        @media (max-width: 480px) {
+            .card {
+                padding: 2.5rem 1.5rem;
+                border-radius: 36px;
+            }
+            h2 { font-size: 1.8rem; }
+            .google-btn { font-size: 1rem; padding: 12px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🌟 ConnectBD</h2>
+        <div class="subhead">Social dashboard</div>
+
+        <!-- Google login button with inline SVG (official colors) -->
+        <button id="googleLogin" class="google-btn">
+            <!-- Google logo SVG -->
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+            </svg>
+            <span>Sign up / Login with Google</span>
+        </button>
+
+        <!-- dynamic user info area -->
+        <div class="user-card" id="userInfoContainer">
+            <div id="userInfo">
+                <span style="color: #3d6b84; font-weight: 300;">👤 Not signed in</span>
+            </div>
+            <!-- sign-out button (hidden by default) -->
+            <div id="signOutWrapper" class="sign-out-wrapper" style="display: none;">
+                <button id="signOutBtn" class="sign-out-btn">Sign out</button>
+            </div>
+            <div id="statusBadge" class="status-badge">🔐 disconnected</div>
+        </div>
+
+        <div class="footnote">✨ Firebase • Google Auth</div>
+    </div>
+
+    <!-- Firebase modules + logic -->
+    <script type="module">
+        // ----- Firebase imports (v10.12.2) -----
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup,
+            signOut,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // ----- Your Firebase config -----
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
+            authDomain: "connectbd-4a8f2.firebaseapp.com",
+            projectId: "connectbd-4a8f2",
+            storageBucket: "connectbd-4a8f2.firebasestorage.app",
+            messagingSenderId: "38217840543",
+            appId: "1:38217840543:web:aeedd8517f697b16c12faa",
+            measurementId: "G-RPBSS1M9LD"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // ----- DOM elements -----
+        const userInfoEl = document.getElementById("userInfo");
+        const signOutWrapper = document.getElementById("signOutWrapper");
+        const signOutBtn = document.getElementById("signOutBtn");
+        const statusBadge = document.getElementById("statusBadge");
+
+        // ----- Helper: render user info -----
+        function renderUser(user) {
+            if (user) {
+                // Build a small avatar if photoURL exists
+                let avatarHtml = '';
+                if (user.photoURL) {
+                    avatarHtml = `<img src="${user.photoURL}" alt="avatar" class="user-avatar" referrerpolicy="no-referrer" />`;
+                }
+
+                userInfoEl.innerHTML = `
+                    ${avatarHtml}
+                    <div><strong>${user.displayName || 'User'}</strong></div>
+                    <div style="font-size:0.9rem; color: #1f4c66; margin-top: 6px;">${user.email}</div>
+                    <div style="font-size:0.8rem; opacity:0.6; margin-top: 8px; background: rgba(0,0,0,0.02); padding: 4px 12px; border-radius: 40px; display: inline-block;">UID: ${user.uid.substring(0,12)}…</div>
+                `;
+
+                // show sign-out button
+                signOutWrapper.style.display = 'flex';
+                statusBadge.textContent = '✅ signed in';
+                statusBadge.style.background = '#c7e0d4';
+                statusBadge.style.color = '#0a3f31';
+            } else {
+                userInfoEl.innerHTML = `
+                    <span style="color: #3d6b84; font-weight: 300;">👤 Not signed in</span>
+                `;
+                signOutWrapper.style.display = 'none';
+                statusBadge.textContent = '🔐 disconnected';
+                statusBadge.style.background = '#d4e3ed';
+                statusBadge.style.color = '#1c4a62';
+            }
+        }
+
+        // ----- Listen to auth state changes (persists across reloads) -----
+        onAuthStateChanged(auth, (user) => {
+            renderUser(user);
+            // optional: if user is signed in, you could also hide/show login button
+            const loginBtn = document.getElementById("googleLogin");
+            if (user) {
+                loginBtn.style.opacity = '0.6';
+                loginBtn.style.cursor = 'default';
+                loginBtn.querySelector('span').textContent = '✅ Signed in';
+            } else {
+                loginBtn.style.opacity = '1';
+                loginBtn.style.cursor = 'pointer';
+                loginBtn.querySelector('span').textContent = 'Sign up / Login with Google';
+            }
+        });
+
+        // ----- Google Login (popup) -----
+        document.getElementById("googleLogin").onclick = async () => {
+            // Prevent double-click if already signed in
+            if (auth.currentUser) {
+                alert('You are already signed in. Sign out first if you want to switch accounts.');
+                return;
+            }
+
+            const provider = new GoogleAuthProvider();
+            // optional: add custom parameters
+            // provider.setCustomParameters({ prompt: 'select_account' });
+
+            try {
+                const result = await signInWithPopup(auth, provider);
+                // success! onAuthStateChanged will trigger renderUser
+                // but we also show a friendly toast/alert
+                const user = result.user;
+                alert(`Welcome ${user.displayName || 'User'}!`);
+            } catch (error) {
+                // Handle errors gracefully
+                console.warn('Login error:', error);
+                if (error.code === 'auth/popup-closed-by-user') {
+                    alert('Login popup was closed. Please try again.');
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    // ignore, user may have clicked multiple times
+                } else {
+                    alert(`Login failed: ${error.message}`);
+                }
+            }
+        };
+
+        // ----- Sign Out -----
+        signOutBtn.onclick = async () => {
+            try {
+                await signOut(auth);
+                // onAuthStateChanged will update UI
+                alert('Signed out successfully.');
+            } catch (error) {
+                alert(`Sign out error: ${error.message}`);
+            }
+        };
+
+        // small extra: click on status badge to show current auth state (debug)
+        statusBadge.addEventListener('click', () => {
+            const user = auth.currentUser;
+            if (user) {
+                alert(`Signed in as ${user.displayName || user.email}`);
+            } else {
+                alert('No user signed in.');
+            }
+        });
+
+        console.log('🔥 Firebase Google Login ready');
+    </script>
+</body>
+</html>
