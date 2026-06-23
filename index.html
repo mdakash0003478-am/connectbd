@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ConnectBD - Firebase Login</title>
+    <title>ConnectBD Chat - Real-time Group Chat</title>
     <style>
-        /* Reset & base */
         * {
             margin: 0;
             padding: 0;
@@ -23,212 +22,391 @@
             padding: 20px;
         }
 
-        .card {
-            background: rgba(255, 255, 255, 0.8);
+        .app-container {
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border-radius: 56px;
-            padding: 3.5rem 3rem;
-            max-width: 520px;
+            border-radius: 40px;
+            padding: 2rem;
+            max-width: 900px;
             width: 100%;
             box-shadow: 0 30px 60px -20px rgba(0, 20, 40, 0.3),
                         0 8px 20px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.5);
-            transition: transform 0.2s ease;
-            text-align: center;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* ===== কোম্পানির লোগো স্টাইল ===== */
-        .company-logo {
-            width: 90px;
-            height: 90px;
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(60, 130, 180, 0.15);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .app-logo {
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 12px;
             background: white;
-            padding: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border: 3px solid rgba(255,255,255,0.9);
-            transition: transform 0.3s ease;
-            display: inline-block;
+            padding: 4px;
+            border: 2px solid rgba(255, 255, 255, 0.9);
         }
 
-        .company-logo:hover {
-            transform: scale(1.08) rotate(-3deg);
-        }
-
-        /* টেক্সট লোগো (ইমেজ না থাকলে) */
-        .text-logo {
-            font-size: 2.8rem;
+        .app-title {
+            font-size: 1.6rem;
             font-weight: 700;
             color: #0b2b40;
-            margin-bottom: 8px;
-            letter-spacing: -1px;
         }
 
-        .text-logo span {
+        .app-title span {
             color: #1976D2;
         }
 
-        .text-logo small {
-            font-size: 1rem;
+        .app-title small {
+            font-size: 0.8rem;
             font-weight: 400;
             color: #3b5c6e;
             display: block;
-            margin-top: -8px;
+            margin-top: -4px;
         }
 
-        h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #0b2b40;
-            letter-spacing: -0.5px;
-            margin-bottom: 0.25rem;
-        }
-
-        .subhead {
-            color: #3b5c6e;
-            font-size: 1rem;
-            font-weight: 400;
-            margin-bottom: 2.2rem;
-            border-bottom: 2px solid rgba(60, 130, 180, 0.15);
-            padding-bottom: 1.2rem;
-        }
-
-        /* Google button */
-        .google-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: #ffffff;
-            border: none;
-            padding: 14px 30px;
-            border-radius: 60px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #1e2f3d;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-            cursor: pointer;
-            width: 100%;
-            max-width: 360px;
-            margin: 0 auto 1.8rem auto;
-            border: 1px solid #dce3e9;
-            letter-spacing: 0.2px;
-        }
-
-        .google-btn:hover:not(:disabled) {
-            background: #f8fafc;
-            box-shadow: 0 8px 18px rgba(0, 100, 200, 0.12);
-            border-color: #a0b8cc;
-            transform: scale(1.01);
-        }
-
-        .google-btn:active:not(:disabled) {
-            transform: scale(0.97);
-            background: #f0f4f8;
-        }
-
-        .google-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .google-btn svg {
-            width: 22px;
-            height: 22px;
-            flex-shrink: 0;
-        }
-
-        .user-card {
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            padding: 1.5rem 1.2rem;
-            border-radius: 32px;
-            margin-top: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        #userInfo {
-            font-size: 1rem;
-            line-height: 1.7;
-            color: #113544;
-            word-break: break-word;
-        }
-
-        #userInfo strong {
-            font-weight: 600;
-            color: #004466;
-        }
-
-        .user-avatar {
-            width: 72px;
-            height: 72px;
-            border-radius: 100px;
-            object-fit: cover;
-            margin-bottom: 12px;
-            border: 3px solid white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.06);
-        }
-
-        .sign-out-wrapper {
-            margin-top: 1.5rem;
+        .header-right {
             display: flex;
-            justify-content: center;
+            align-items: center;
+            gap: 12px;
         }
 
-        .sign-out-btn {
+        .user-profile-mini {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 6px 16px 6px 10px;
+            border-radius: 40px;
+            border: 1px solid rgba(200, 215, 225, 0.5);
+        }
+
+        .user-profile-mini img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        .user-profile-mini .user-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #0b2b40;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .header-btn {
             background: transparent;
             border: 1px solid #b6ccdd;
-            padding: 8px 24px;
+            padding: 6px 16px;
             border-radius: 40px;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 500;
             color: #2f536b;
             cursor: pointer;
             transition: 0.15s;
-            backdrop-filter: blur(4px);
-            background: rgba(255,255,255,0.4);
         }
 
-        .sign-out-btn:hover {
+        .header-btn:hover {
             background: #e6eef5;
             border-color: #7f9bb3;
-            color: #0a2533;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
 
-        .status-badge {
-            display: inline-block;
-            background: #d4e3ed;
-            padding: 0.2rem 1rem;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: #1c4a62;
-            letter-spacing: 0.3px;
-            margin-top: 0.8rem;
-            cursor: pointer;
-            transition: 0.2s;
+        .header-btn.primary {
+            background: #1976D2;
+            border-color: #1976D2;
+            color: white;
         }
 
-        .status-badge:hover {
-            transform: scale(1.05);
+        .header-btn.primary:hover {
+            background: #1565C0;
         }
 
-        .footnote {
-            margin-top: 1.8rem;
-            font-size: 0.8rem;
-            color: #53768b;
-            border-top: 1px solid rgba(90, 140, 180, 0.1);
+        /* Main chat area */
+        .chat-main {
+            display: flex;
+            gap: 1.5rem;
+            flex: 1;
+            min-height: 0;
             padding-top: 1.2rem;
-            opacity: 0.7;
         }
 
-        /* Toast notification */
+        /* Sidebar - Groups */
+        .sidebar {
+            width: 200px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #53768b;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .group-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+            color: #1f4c66;
+        }
+
+        .group-item:hover {
+            background: rgba(25, 118, 210, 0.08);
+        }
+
+        .group-item.active {
+            background: rgba(25, 118, 210, 0.15);
+            font-weight: 600;
+            color: #0b2b40;
+        }
+
+        .group-item .group-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #d4e3ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .group-item .group-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .group-item .badge {
+            background: #1976D2;
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .create-group-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px;
+            border: 1px dashed #b6ccdd;
+            border-radius: 12px;
+            background: transparent;
+            color: #2f536b;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.15s;
+        }
+
+        .create-group-btn:hover {
+            background: rgba(25, 118, 210, 0.05);
+            border-color: #1976D2;
+        }
+
+        /* Chat messages */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(60, 130, 180, 0.1);
+        }
+
+        .chat-header .chat-group-name {
+            font-weight: 600;
+            color: #0b2b40;
+            font-size: 1.1rem;
+        }
+
+        .chat-header .member-count {
+            font-size: 0.75rem;
+            color: #53768b;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 4px;
+            margin: 8px 0;
+            max-height: 350px;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 85%;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.own {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message .msg-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 2px solid white;
+        }
+
+        .message .msg-bubble {
+            background: white;
+            padding: 10px 14px;
+            border-radius: 18px;
+            border-top-left-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            word-wrap: break-word;
+            flex: 1;
+        }
+
+        .message.own .msg-bubble {
+            background: #1976D2;
+            color: white;
+            border-top-left-radius: 18px;
+            border-top-right-radius: 4px;
+        }
+
+        .message .msg-sender {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1976D2;
+            margin-bottom: 2px;
+        }
+
+        .message.own .msg-sender {
+            color: #bbdefb;
+        }
+
+        .message .msg-text {
+            font-size: 0.92rem;
+            line-height: 1.4;
+        }
+
+        .message .msg-time {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message.own .msg-time {
+            color: #bbdefb;
+        }
+
+        /* Input area */
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(60, 130, 180, 0.1);
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #dce3e9;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            outline: none;
+            background: rgba(255, 255, 255, 0.6);
+            transition: 0.15s;
+        }
+
+        .input-area input:focus {
+            border-color: #1976D2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.08);
+        }
+
+        .input-area input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .input-area button {
+            padding: 10px 24px;
+            border: none;
+            background: #1976D2;
+            color: white;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.15s;
+            white-space: nowrap;
+        }
+
+        .input-area button:hover:not(:disabled) {
+            background: #1565C0;
+            transform: scale(1.02);
+        }
+
+        .input-area button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -256,74 +434,129 @@
             background: #d32f2f;
         }
 
+        /* Scrollbar */
+        .messages-container::-webkit-scrollbar,
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb,
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #b6ccdd;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 700px) {
+            .app-container { padding: 1.2rem; }
+            .chat-main { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                max-height: 120px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                padding: 10px;
+                align-items: center;
+            }
+            .sidebar-title { display: none; }
+            .group-item {
+                padding: 4px 12px;
+                font-size: 0.8rem;
+                margin-bottom: 0;
+                background: rgba(255,255,255,0.5);
+                border-radius: 20px;
+            }
+            .create-group-btn { width: auto; margin-top: 0; padding: 4px 12px; }
+            .header { flex-direction: column; align-items: stretch; }
+            .header-right { justify-content: space-between; }
+            .user-profile-mini .user-name { max-width: 80px; }
+            .messages-container { max-height: 250px; min-height: 180px; }
+        }
+
         @media (max-width: 480px) {
-            .card {
-                padding: 2.5rem 1.5rem;
-                border-radius: 36px;
-            }
-            h2 { font-size: 1.5rem; }
-            .google-btn { font-size: 1rem; padding: 12px 20px; }
-            .company-logo {
-                width: 70px;
-                height: 70px;
-                padding: 6px;
-            }
-            .text-logo {
-                font-size: 2.2rem;
-            }
+            .app-container { padding: 1rem; border-radius: 28px; }
+            .app-title { font-size: 1.2rem; }
+            .message { max-width: 95%; }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <!-- ===== কোম্পানির লোগো ===== -->
-        <!-- গিটহাব থেকে সরাসরি লোড করবে -->
-        <img 
-            src="https://raw.githubusercontent.com/mdakash0003478-am/connectbd/main/logo.png.jpeg" 
-            alt="ConnectBD Logo" 
-            class="company-logo"
-            id="companyLogo"
-            onerror="handleLogoError()"
-        />
-
-        <!-- টেক্সট লোগো (ইমেজ লোড না হলে দেখাবে) -->
-        <div class="text-logo" id="textLogo" style="display: none;">
-            Connect<span>BD</span>
-            <small>সোশ্যাল ড্যাশবোর্ড</small>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <img 
+                    src="https://raw.githubusercontent.com/mdakash0003478-am/connectbd/main/logo.png.jpeg" 
+                    alt="ConnectBD" 
+                    class="app-logo"
+                    onerror="this.style.display='none'"
+                />
+                <div class="app-title">
+                    Connect<span>BD</span>
+                    <small>রিয়েল-টাইম চ্যাট</small>
+                </div>
+            </div>
+            <div class="header-right">
+                <div id="userProfileMini" class="user-profile-mini" style="display: none;">
+                    <img id="miniAvatar" src="" alt="avatar" />
+                    <span class="user-name" id="miniName">User</span>
+                </div>
+                <button id="loginBtn" class="header-btn primary">🔑 লগইন</button>
+                <button id="logoutBtn" class="header-btn" style="display: none;">সাইন আউট</button>
+            </div>
         </div>
 
-        <h2>🌟 ConnectBD</h2>
-        <div class="subhead">সোশ্যাল ড্যাশবোর্ড</div>
-
-        <!-- Google login button -->
-        <button id="googleLogin" class="google-btn">
-            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
-                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
-                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
-                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
-            </svg>
-            <span>Google দিয়ে সাইন ইন করুন</span>
-        </button>
-
-        <!-- dynamic user info area -->
-        <div class="user-card" id="userInfoContainer">
-            <div id="userInfo">
-                <span style="color: #3d6b84; font-weight: 300;">👤 সাইন ইন করা নেই</span>
+        <!-- Chat Main -->
+        <div class="chat-main">
+            <!-- Sidebar -->
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-title">📌 গ্রুপসমূহ</div>
+                <div id="groupList">
+                    <div class="group-item active" data-group="general">
+                        <span class="group-icon">💬</span>
+                        <span class="group-name">জেনারেল</span>
+                        <span class="badge">5</span>
+                    </div>
+                    <div class="group-item" data-group="tech">
+                        <span class="group-icon">💻</span>
+                        <span class="group-name">টেক</span>
+                    </div>
+                    <div class="group-item" data-group="random">
+                        <span class="group-icon">🎯</span>
+                        <span class="group-name">র‍্যান্ডম</span>
+                    </div>
+                </div>
+                <button class="create-group-btn" id="createGroupBtn">+ নতুন গ্রুপ</button>
             </div>
-            <div id="signOutWrapper" class="sign-out-wrapper" style="display: none;">
-                <button id="signOutBtn" class="sign-out-btn">সাইন আউট</button>
+
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <div class="chat-header">
+                    <span class="chat-group-name" id="currentGroupName"># জেনারেল</span>
+                    <span class="member-count" id="memberCount">👥 ০ সদস্য</span>
+                </div>
+
+                <div class="messages-container" id="messagesContainer">
+                    <div style="text-align: center; color: #53768b; padding: 30px 0; font-size: 0.9rem;">
+                        👋 চ্যাট শুরু করতে লগইন করুন
+                    </div>
+                </div>
+
+                <div class="input-area">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="মেসেজ লিখুন..." 
+                        disabled
+                    />
+                    <button id="sendBtn" disabled>পাঠান</button>
+                </div>
             </div>
-            <div id="statusBadge" class="status-badge">🔐 সংযোগ বিচ্ছিন্ন</div>
         </div>
-
-        <div class="footnote">✨ Firebase • Google Auth</div>
     </div>
 
-    <!-- Toast notification -->
     <div id="toast" class="toast"></div>
 
-    <!-- Firebase modules + logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import {
@@ -333,6 +566,20 @@
             signOut,
             onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import {
+            getDatabase,
+            ref,
+            push,
+            onChildAdded,
+            set,
+            get,
+            child,
+            update,
+            onValue,
+            query,
+            limitToLast,
+            orderByChild
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
@@ -346,146 +593,274 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getDatabase(app);
 
         // DOM elements
-        const userInfoEl = document.getElementById("userInfo");
-        const signOutWrapper = document.getElementById("signOutWrapper");
-        const signOutBtn = document.getElementById("signOutBtn");
-        const statusBadge = document.getElementById("statusBadge");
-        const loginBtn = document.getElementById("googleLogin");
-        const toastEl = document.getElementById("toast");
-        const companyLogo = document.getElementById("companyLogo");
-        const textLogo = document.getElementById("textLogo");
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userProfileMini = document.getElementById('userProfileMini');
+        const miniAvatar = document.getElementById('miniAvatar');
+        const miniName = document.getElementById('miniName');
+        const groupList = document.getElementById('groupList');
+        const currentGroupName = document.getElementById('currentGroupName');
+        const memberCount = document.getElementById('memberCount');
+        const toastEl = document.getElementById('toast');
+        const createGroupBtn = document.getElementById('createGroupBtn');
 
-        // ===== লোগো এরর হ্যান্ডলার =====
-        window.handleLogoError = function() {
-            companyLogo.style.display = 'none';
-            textLogo.style.display = 'block';
-        };
+        let currentUser = null;
+        let currentGroup = 'general';
+        let groupListeners = {};
 
-        // Toast function
+        // Toast
         let toastTimeout = null;
         function showToast(message, type = 'success') {
             if (toastTimeout) {
                 clearTimeout(toastTimeout);
                 toastEl.classList.remove('show');
             }
-            
             toastEl.textContent = message;
             toastEl.className = 'toast';
-            if (type === 'error') {
-                toastEl.classList.add('error');
-            }
-            
+            if (type === 'error') toastEl.classList.add('error');
             void toastEl.offsetWidth;
             toastEl.classList.add('show');
-            
             toastTimeout = setTimeout(() => {
                 toastEl.classList.remove('show');
                 toastTimeout = null;
             }, 3500);
         }
 
-        function renderUser(user) {
+        // Render user profile
+        function updateUI(user) {
+            currentUser = user;
             if (user) {
-                let avatarHtml = '';
-                if (user.photoURL) {
-                    avatarHtml = `<img src="${user.photoURL}" alt="avatar" class="user-avatar" referrerpolicy="no-referrer" />`;
-                }
-
-                userInfoEl.innerHTML = `
-                    ${avatarHtml}
-                    <div><strong>${user.displayName || 'ইউজার'}</strong></div>
-                    <div style="font-size:0.9rem; color: #1f4c66; margin-top: 6px;">${user.email}</div>
-                    <div style="font-size:0.8rem; opacity:0.6; margin-top: 8px; background: rgba(0,0,0,0.02); padding: 4px 12px; border-radius: 40px; display: inline-block;">UID: ${user.uid.substring(0,12)}…</div>
-                `;
-
-                signOutWrapper.style.display = 'flex';
-                statusBadge.textContent = '✅ সাইন ইন করা আছে';
-                statusBadge.style.background = '#c7e0d4';
-                statusBadge.style.color = '#0a3f31';
-                
-                loginBtn.disabled = true;
-                loginBtn.querySelector('span').textContent = '✅ সাইন ইন করা আছে';
-                loginBtn.style.opacity = '0.6';
+                userProfileMini.style.display = 'flex';
+                miniAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
+                miniName.textContent = user.displayName || 'User';
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                // Load messages for current group
+                loadMessages(currentGroup);
+                // Update member count
+                updateMemberCount(currentGroup);
             } else {
-                userInfoEl.innerHTML = `
-                    <span style="color: #3d6b84; font-weight: 300;">👤 সাইন ইন করা নেই</span>
+                userProfileMini.style.display = 'none';
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                messageInput.disabled = true;
+                sendBtn.disabled = true;
+                messagesContainer.innerHTML = `
+                    <div style="text-align: center; color: #53768b; padding: 30px 0; font-size: 0.9rem;">
+                        👋 চ্যাট শুরু করতে লগইন করুন
+                    </div>
                 `;
-                signOutWrapper.style.display = 'none';
-                statusBadge.textContent = '🔐 সংযোগ বিচ্ছিন্ন';
-                statusBadge.style.background = '#d4e3ed';
-                statusBadge.style.color = '#1c4a62';
-                
-                loginBtn.disabled = false;
-                loginBtn.querySelector('span').textContent = 'Google দিয়ে সাইন ইন করুন';
-                loginBtn.style.opacity = '1';
+                // Remove listeners
+                Object.keys(groupListeners).forEach(key => {
+                    if (groupListeners[key]) {
+                        groupListeners[key]();
+                        delete groupListeners[key];
+                    }
+                });
             }
         }
 
-        onAuthStateChanged(auth, (user) => {
-            renderUser(user);
-        });
-
-        loginBtn.onclick = async () => {
-            if (auth.currentUser) {
-                showToast('আপনি ইতিমধ্যে সাইন ইন করা আছে!');
-                return;
+        // Load messages for a group
+        function loadMessages(group) {
+            // Remove old listener
+            if (groupListeners[group]) {
+                groupListeners[group]();
+                delete groupListeners[group];
             }
 
+            const messagesRef = query(
+                ref(db, `groups/${group}/messages`),
+                orderByChild('timestamp'),
+                limitToLast(50)
+            );
+
+            // Clear container but keep placeholder
+            messagesContainer.innerHTML = '';
+
+            const listener = onChildAdded(messagesRef, (snapshot) => {
+                const msg = snapshot.val();
+                const msgKey = snapshot.key;
+                if (!msg) return;
+
+                // Check if message already exists in DOM (avoid duplicates)
+                const existing = messagesContainer.querySelector(`[data-key="${msgKey}"]`);
+                if (existing) return;
+
+                const isOwn = msg.uid === currentUser?.uid;
+                const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' }) : '';
+
+                const div = document.createElement('div');
+                div.className = `message ${isOwn ? 'own' : ''}`;
+                div.dataset.key = msgKey;
+
+                const avatar = msg.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(msg.displayName || 'U') + '&background=1976D2&color=fff';
+
+                div.innerHTML = `
+                    <img src="${avatar}" alt="avatar" class="msg-avatar" />
+                    <div class="msg-bubble">
+                        <div class="msg-sender">${isOwn ? 'আপনি' : (msg.displayName || 'ইউজার')}</div>
+                        <div class="msg-text">${msg.text}</div>
+                        <div class="msg-time">${time}</div>
+                    </div>
+                `;
+
+                messagesContainer.appendChild(div);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+
+            groupListeners[group] = () => {
+                listener();
+            };
+
+            // Also load member count
+            updateMemberCount(group);
+        }
+
+        // Update member count
+        function updateMemberCount(group) {
+            const membersRef = ref(db, `groups/${group}/members`);
+            onValue(membersRef, (snapshot) => {
+                const members = snapshot.val();
+                const count = members ? Object.keys(members).length : 0;
+                memberCount.textContent = `👥 ${count} সদস্য`;
+            }, { onlyOnce: true });
+        }
+
+        // Send message
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !currentUser || !currentGroup) return;
+
+            const messagesRef = ref(db, `groups/${currentGroup}/messages`);
+            const newMsgRef = push(messagesRef);
+
+            await set(newMsgRef, {
+                text: text,
+                uid: currentUser.uid,
+                displayName: currentUser.displayName || 'ইউজার',
+                photoURL: currentUser.photoURL || '',
+                timestamp: Date.now()
+            });
+
+            // Update member presence
+            const memberRef = ref(db, `groups/${currentGroup}/members/${currentUser.uid}`);
+            await set(memberRef, {
+                displayName: currentUser.displayName || 'ইউজার',
+                photoURL: currentUser.photoURL || '',
+                lastSeen: Date.now()
+            });
+
+            messageInput.value = '';
+            messageInput.focus();
+        }
+
+        // Group switching
+        groupList.addEventListener('click', (e) => {
+            const item = e.target.closest('.group-item');
+            if (!item) return;
+            const group = item.dataset.group;
+            if (!group || group === currentGroup) return;
+
+            // Update active state
+            document.querySelectorAll('.group-item').forEach(el => el.classList.remove('active'));
+            item.classList.add('active');
+
+            currentGroup = group;
+            currentGroupName.textContent = `# ${group.charAt(0).toUpperCase() + group.slice(1)}`;
+            
+            if (currentUser) {
+                loadMessages(group);
+            }
+        });
+
+        // Create new group
+        createGroupBtn.addEventListener('click', () => {
+            const name = prompt('নতুন গ্রুপের নাম লিখুন (ইংরেজি):');
+            if (!name) return;
+            const cleanName = name.trim().toLowerCase().replace(/\s+/g, '_');
+            if (!cleanName) return;
+
+            const groupRef = ref(db, `groups/${cleanName}`);
+            get(groupRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    showToast('এই নামে গ্রুপ ইতিমধ্যে আছে!', 'error');
+                    return;
+                }
+
+                // Create group
+                set(groupRef, {
+                    name: cleanName,
+                    createdAt: Date.now(),
+                    createdBy: currentUser?.uid || 'anonymous'
+                }).then(() => {
+                    // Add to group list
+                    const groupItem = document.createElement('div');
+                    groupItem.className = 'group-item';
+                    groupItem.dataset.group = cleanName;
+                    groupItem.innerHTML = `
+                        <span class="group-icon">📢</span>
+                        <span class="group-name">${name}</span>
+                    `;
+                    groupList.appendChild(groupItem);
+                    showToast(`"${name}" গ্রুপ তৈরি হয়েছে! 🎉`);
+                    
+                    // Switch to new group
+                    groupItem.click();
+                });
+            });
+        });
+
+        // Login
+        loginBtn.onclick = async () => {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
-
-            loginBtn.disabled = true;
-            loginBtn.querySelector('span').textContent = '⏳ খোলা হচ্ছে...';
-
             try {
                 const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-                showToast(`স্বাগতম ${user.displayName || 'ইউজার'}! 🎉`);
+                showToast(`স্বাগতম ${result.user.displayName || 'ইউজার'}! 🎉`);
             } catch (error) {
-                console.warn('Login error:', error);
-                
-                if (error.code === 'auth/popup-closed-by-user') {
-                    showToast('লগইন পপ-আপ বন্ধ করা হয়েছে। আবার চেষ্টা করুন।', 'error');
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    // ignore
-                } else if (error.code === 'auth/network-request-failed') {
-                    showToast('নেটওয়ার্ক সমস্যা! আপনার ইন্টারনেট কানেকশন চেক করুন।', 'error');
-                } else {
+                if (error.code !== 'auth/popup-closed-by-user') {
                     showToast(`লগইন ব্যর্থ: ${error.message}`, 'error');
                 }
-                
-                loginBtn.disabled = false;
-                loginBtn.querySelector('span').textContent = 'Google দিয়ে সাইন ইন করুন';
             }
         };
 
-        let isSigningOut = false;
-        signOutBtn.onclick = async () => {
-            if (isSigningOut) return;
-            isSigningOut = true;
-            
+        // Logout
+        logoutBtn.onclick = async () => {
             try {
                 await signOut(auth);
-                showToast('সফলভাবে সাইন আউট করা হয়েছে।');
+                showToast('সাইন আউট করা হয়েছে।');
             } catch (error) {
                 showToast(`সাইন আউট ব্যর্থ: ${error.message}`, 'error');
-            } finally {
-                isSigningOut = false;
             }
         };
 
-        statusBadge.addEventListener('click', () => {
-            const user = auth.currentUser;
-            if (user) {
-                showToast(`সাইন ইন করা আছে: ${user.displayName || user.email}`);
-            } else {
-                showToast('কোনো ইউজার সাইন ইন করা নেই।');
-            }
+        // Send on enter or button click
+        sendBtn.onclick = sendMessage;
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
         });
 
-        console.log('🔥 Firebase Google Login ready');
+        // Auth state
+        onAuthStateChanged(auth, (user) => {
+            updateUI(user);
+        });
+
+        // Auto-load general group messages if user already logged in
+        setTimeout(() => {
+            if (currentUser) {
+                loadMessages('general');
+            }
+        }, 500);
+
+        console.log('🔥 ConnectBD Chat ready');
     </script>
 </body>
 </html>
