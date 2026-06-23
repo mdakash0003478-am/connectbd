@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ConnectBD - প্রোফাইল</title>
+    <title>ConnectBD - Firebase Login</title>
     <style>
         /* Reset & base */
         * {
@@ -13,244 +13,222 @@
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-            background: #f0f2f5;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #f6f9fc 0%, #eaf3f9 100%);
             min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        /* ===== কভার ফটো সেকশন ===== */
-        .cover-section {
-            position: relative;
-            height: 280px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            overflow: hidden;
-        }
-
-        .cover-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .cover-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 20px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.6));
-        }
-
-        .cover-upload-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.9);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #1a1a2e;
-            cursor: pointer;
-            transition: 0.3s;
-            backdrop-filter: blur(4px);
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 8px;
+            margin: 0;
+            padding: 20px;
         }
 
-        .cover-upload-btn:hover {
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 56px;
+            padding: 3.5rem 3rem;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 30px 60px -20px rgba(0, 20, 40, 0.3),
+                        0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: transform 0.2s ease;
+            text-align: center;
+        }
+
+        /* ===== কোম্পানির লোগো স্টাইল ===== */
+        .company-logo {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 12px;
             background: white;
-            transform: scale(1.05);
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 3px solid rgba(255,255,255,0.9);
+            transition: transform 0.3s ease;
+            display: inline-block;
         }
 
-        /* ===== প্রোফাইল ফটো সেকশন ===== */
-        .profile-section {
-            position: relative;
-            padding: 0 30px 30px;
-            margin-top: -70px;
-            display: flex;
-            align-items: flex-end;
-            gap: 25px;
-            flex-wrap: wrap;
+        .company-logo:hover {
+            transform: scale(1.08) rotate(-3deg);
         }
 
-        .profile-avatar-wrapper {
-            position: relative;
+        /* টেক্সট লোগো (ইমেজ না থাকলে) */
+        .text-logo {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #0b2b40;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .text-logo span {
+            color: #1976D2;
+        }
+
+        .text-logo small {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #3b5c6e;
+            display: block;
+            margin-top: -8px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #0b2b40;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .subhead {
+            color: #3b5c6e;
+            font-size: 1rem;
+            font-weight: 400;
+            margin-bottom: 2.2rem;
+            border-bottom: 2px solid rgba(60, 130, 180, 0.15);
+            padding-bottom: 1.2rem;
+        }
+
+        /* Google button */
+        .google-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: #ffffff;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1e2f3d;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto 1.8rem auto;
+            border: 1px solid #dce3e9;
+            letter-spacing: 0.2px;
+        }
+
+        .google-btn:hover:not(:disabled) {
+            background: #f8fafc;
+            box-shadow: 0 8px 18px rgba(0, 100, 200, 0.12);
+            border-color: #a0b8cc;
+            transform: scale(1.01);
+        }
+
+        .google-btn:active:not(:disabled) {
+            transform: scale(0.97);
+            background: #f0f4f8;
+        }
+
+        .google-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .google-btn svg {
+            width: 22px;
+            height: 22px;
             flex-shrink: 0;
         }
 
-        .profile-avatar {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 4px solid white;
+        .user-card {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            padding: 1.5rem 1.2rem;
+            border-radius: 32px;
+            margin-top: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        #userInfo {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #113544;
+            word-break: break-word;
+        }
+
+        #userInfo strong {
+            font-weight: 600;
+            color: #004466;
+        }
+
+        .user-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 100px;
             object-fit: cover;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: 0.3s;
+            margin-bottom: 12px;
+            border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.06);
         }
 
-        .profile-avatar:hover {
-            transform: scale(1.02);
-        }
-
-        .avatar-upload-btn {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: #1877f2;
-            color: white;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: 0.3s;
+        .sign-out-wrapper {
+            margin-top: 1.5rem;
             display: flex;
-            align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(24,119,242,0.4);
         }
 
-        .avatar-upload-btn:hover {
-            background: #1558b0;
-            transform: scale(1.1);
-        }
-
-        .profile-info {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .profile-name {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 4px;
-        }
-
-        .profile-email {
-            color: #65676b;
-            font-size: 1rem;
-        }
-
-        .profile-bio {
-            margin-top: 8px;
-            color: #1a1a2e;
-            font-size: 0.95rem;
-            padding: 8px 16px;
-            background: #f0f2f5;
-            border-radius: 12px;
-            display: inline-block;
-            max-width: 100%;
-        }
-
-        /* ===== এডিট মোড ===== */
-        .edit-mode {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 8px;
-        }
-
-        .edit-input {
-            padding: 10px 16px;
-            border: 2px solid #e4e6eb;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-family: inherit;
-            transition: 0.3s;
-            width: 100%;
-            max-width: 350px;
-        }
-
-        .edit-input:focus {
-            outline: none;
-            border-color: #1877f2;
-            box-shadow: 0 0 0 3px rgba(24,119,242,0.1);
-        }
-
-        .edit-textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        .edit-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 20px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.3s;
+        .sign-out-btn {
+            background: transparent;
+            border: 1px solid #b6ccdd;
+            padding: 8px 24px;
+            border-radius: 40px;
             font-size: 0.9rem;
+            font-weight: 500;
+            color: #2f536b;
+            cursor: pointer;
+            transition: 0.15s;
+            backdrop-filter: blur(4px);
+            background: rgba(255,255,255,0.4);
         }
 
-        .btn-primary {
-            background: #1877f2;
-            color: white;
+        .sign-out-btn:hover {
+            background: #e6eef5;
+            border-color: #7f9bb3;
+            color: #0a2533;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
 
-        .btn-primary:hover {
-            background: #1558b0;
+        .status-badge {
+            display: inline-block;
+            background: #d4e3ed;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #1c4a62;
+            letter-spacing: 0.3px;
+            margin-top: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
-        .btn-secondary {
-            background: #e4e6eb;
-            color: #1a1a2e;
+        .status-badge:hover {
+            transform: scale(1.05);
         }
 
-        .btn-secondary:hover {
-            background: #d1d3d8;
+        .footnote {
+            margin-top: 1.8rem;
+            font-size: 0.8rem;
+            color: #53768b;
+            border-top: 1px solid rgba(90, 140, 180, 0.1);
+            padding-top: 1.2rem;
+            opacity: 0.7;
         }
 
-        .btn-success {
-            background: #42b72a;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #36a420;
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        /* ===== অ্যাকশন বাটন ===== */
-        .action-bar {
-            padding: 16px 30px 30px;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            border-top: 1px solid #e4e6eb;
-        }
-
-        /* ===== Toast ===== */
+        /* Toast notification */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -278,116 +256,74 @@
             background: #d32f2f;
         }
 
-        /* ===== Responsive ===== */
-        @media (max-width: 600px) {
-            .profile-section {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                margin-top: -50px;
-                padding: 0 20px 20px;
+        @media (max-width: 480px) {
+            .card {
+                padding: 2.5rem 1.5rem;
+                border-radius: 36px;
             }
-
-            .profile-avatar {
-                width: 110px;
-                height: 110px;
+            h2 { font-size: 1.5rem; }
+            .google-btn { font-size: 1rem; padding: 12px 20px; }
+            .company-logo {
+                width: 70px;
+                height: 70px;
+                padding: 6px;
             }
-
-            .profile-name {
-                font-size: 1.5rem;
+            .text-logo {
+                font-size: 2.2rem;
             }
-
-            .cover-section {
-                height: 180px;
-            }
-
-            .edit-input {
-                max-width: 100%;
-            }
-
-            .action-bar {
-                justify-content: center;
-            }
-        }
-
-        /* loading skeleton */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 8px;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        /* Hidden file input */
-        .hidden-input {
-            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="app">
-        <!-- ===== কভার ফটো ===== -->
-        <div class="cover-section" id="coverSection">
-            <img 
-                id="coverImage" 
-                class="cover-image" 
-                src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" 
-                alt="Cover"
-            />
-            <button class="cover-upload-btn" id="coverUploadBtn">
-                📷 কভার পরিবর্তন
-            </button>
-            <input type="file" id="coverInput" class="hidden-input" accept="image/*" />
+    <div class="card">
+        <!-- ===== কোম্পানির লোগো ===== -->
+        <!-- গিটহাব থেকে সরাসরি লোড করবে -->
+        <img 
+            src="https://raw.githubusercontent.com/mdakash0003478-am/connectbd/main/logo.png.jpeg" 
+            alt="ConnectBD Logo" 
+            class="company-logo"
+            id="companyLogo"
+            onerror="handleLogoError()"
+        />
+
+        <!-- টেক্সট লোগো (ইমেজ লোড না হলে দেখাবে) -->
+        <div class="text-logo" id="textLogo" style="display: none;">
+            Connect<span>BD</span>
+            <small>সোশ্যাল ড্যাশবোর্ড</small>
         </div>
 
-        <!-- ===== প্রোফাইল সেকশন ===== -->
-        <div class="profile-section">
-            <div class="profile-avatar-wrapper">
-                <img 
-                    id="profileAvatar" 
-                    class="profile-avatar" 
-                    src="https://ui-avatars.com/api/?name=User&background=1877f2&color=fff&size=140" 
-                    alt="Profile"
-                />
-                <button class="avatar-upload-btn" id="avatarUploadBtn">📷</button>
-                <input type="file" id="avatarInput" class="hidden-input" accept="image/*" />
+        <h2>🌟 ConnectBD</h2>
+        <div class="subhead">সোশ্যাল ড্যাশবোর্ড</div>
+
+        <!-- Google login button -->
+        <button id="googleLogin" class="google-btn">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+            </svg>
+            <span>Google দিয়ে সাইন ইন করুন</span>
+        </button>
+
+        <!-- dynamic user info area -->
+        <div class="user-card" id="userInfoContainer">
+            <div id="userInfo">
+                <span style="color: #3d6b84; font-weight: 300;">👤 সাইন ইন করা নেই</span>
             </div>
-
-            <div class="profile-info">
-                <div id="displayMode">
-                    <div class="profile-name" id="displayName">ইউজার</div>
-                    <div class="profile-email" id="displayEmail">user@email.com</div>
-                    <div class="profile-bio" id="displayBio">👋 হ্যালো! আমি ConnectBD ব্যবহার করছি</div>
-                </div>
-
-                <div id="editMode" style="display: none;" class="edit-mode">
-                    <input type="text" id="editNameInput" class="edit-input" placeholder="আপনার নাম" />
-                    <textarea id="editBioInput" class="edit-input edit-textarea" placeholder="আপনার বিবরণ"></textarea>
-                    <div class="edit-actions">
-                        <button class="btn btn-success" id="saveProfileBtn">💾 সংরক্ষণ</button>
-                        <button class="btn btn-secondary" id="cancelEditBtn">বাতিল</button>
-                    </div>
-                </div>
+            <div id="signOutWrapper" class="sign-out-wrapper" style="display: none;">
+                <button id="signOutBtn" class="sign-out-btn">সাইন আউট</button>
             </div>
+            <div id="statusBadge" class="status-badge">🔐 সংযোগ বিচ্ছিন্ন</div>
         </div>
 
-        <!-- ===== অ্যাকশন বার ===== -->
-        <div class="action-bar">
-            <button class="btn btn-primary" id="editProfileBtn">✏️ প্রোফাইল এডিট</button>
-            <button class="btn btn-danger" id="signOutBtn">🚪 সাইন আউট</button>
-            <button class="btn btn-secondary" id="resetCoverBtn">🔄 কভার রিসেট</button>
-        </div>
+        <div class="footnote">✨ Firebase • Google Auth</div>
     </div>
 
-    <!-- Toast -->
+    <!-- Toast notification -->
     <div id="toast" class="toast"></div>
 
-    <!-- Firebase -->
+    <!-- Firebase modules + logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import {
@@ -397,22 +333,7 @@
             signOut,
             onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import {
-            getFirestore,
-            doc,
-            setDoc,
-            getDoc,
-            updateDoc
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import {
-            getStorage,
-            ref,
-            uploadBytes,
-            getDownloadURL,
-            deleteObject
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-        // ===== Firebase Config =====
         const firebaseConfig = {
             apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
             authDomain: "connectbd-4a8f2.firebaseapp.com",
@@ -425,234 +346,146 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
 
-        // ===== DOM Elements =====
-        const profileAvatar = document.getElementById('profileAvatar');
-        const coverImage = document.getElementById('coverImage');
-        const displayName = document.getElementById('displayName');
-        const displayEmail = document.getElementById('displayEmail');
-        const displayBio = document.getElementById('displayBio');
-        const displayMode = document.getElementById('displayMode');
-        const editMode = document.getElementById('editMode');
-        const editNameInput = document.getElementById('editNameInput');
-        const editBioInput = document.getElementById('editBioInput');
-        const editProfileBtn = document.getElementById('editProfileBtn');
-        const saveProfileBtn = document.getElementById('saveProfileBtn');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const signOutBtn = document.getElementById('signOutBtn');
-        const avatarUploadBtn = document.getElementById('avatarUploadBtn');
-        const avatarInput = document.getElementById('avatarInput');
-        const coverUploadBtn = document.getElementById('coverUploadBtn');
-        const coverInput = document.getElementById('coverInput');
-        const resetCoverBtn = document.getElementById('resetCoverBtn');
-        const toastEl = document.getElementById('toast');
+        // DOM elements
+        const userInfoEl = document.getElementById("userInfo");
+        const signOutWrapper = document.getElementById("signOutWrapper");
+        const signOutBtn = document.getElementById("signOutBtn");
+        const statusBadge = document.getElementById("statusBadge");
+        const loginBtn = document.getElementById("googleLogin");
+        const toastEl = document.getElementById("toast");
+        const companyLogo = document.getElementById("companyLogo");
+        const textLogo = document.getElementById("textLogo");
 
-        // ===== Toast =====
+        // ===== লোগো এরর হ্যান্ডলার =====
+        window.handleLogoError = function() {
+            companyLogo.style.display = 'none';
+            textLogo.style.display = 'block';
+        };
+
+        // Toast function
         let toastTimeout = null;
         function showToast(message, type = 'success') {
             if (toastTimeout) {
                 clearTimeout(toastTimeout);
                 toastEl.classList.remove('show');
             }
+            
             toastEl.textContent = message;
             toastEl.className = 'toast';
-            if (type === 'error') toastEl.classList.add('error');
+            if (type === 'error') {
+                toastEl.classList.add('error');
+            }
+            
             void toastEl.offsetWidth;
             toastEl.classList.add('show');
+            
             toastTimeout = setTimeout(() => {
                 toastEl.classList.remove('show');
                 toastTimeout = null;
             }, 3500);
         }
 
-        // ===== ইউজার ডেটা লোড/সেভ =====
-        async function loadUserData(user) {
-            if (!user) return;
-            try {
-                const docRef = doc(db, 'users', user.uid);
-                const docSnap = await getDoc(docRef);
-                
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    displayName.textContent = data.displayName || user.displayName || 'ইউজার';
-                    displayBio.textContent = data.bio || '👋 হ্যালো! আমি ConnectBD ব্যবহার করছি';
-                    
-                    if (data.photoURL) {
-                        profileAvatar.src = data.photoURL;
-                    } else if (user.photoURL) {
-                        profileAvatar.src = user.photoURL;
-                    }
-                    
-                    if (data.coverPhoto) {
-                        coverImage.src = data.coverPhoto;
-                    }
-                } else {
-                    // নতুন ইউজার - ডেটা সেভ করুন
-                    await setDoc(docRef, {
-                        displayName: user.displayName || 'ইউজার',
-                        email: user.email,
-                        photoURL: user.photoURL || '',
-                        bio: '👋 হ্যালো! আমি ConnectBD ব্যবহার করছি',
-                        coverPhoto: coverImage.src,
-                        createdAt: new Date()
-                    });
+        function renderUser(user) {
+            if (user) {
+                let avatarHtml = '';
+                if (user.photoURL) {
+                    avatarHtml = `<img src="${user.photoURL}" alt="avatar" class="user-avatar" referrerpolicy="no-referrer" />`;
                 }
-                displayEmail.textContent = user.email;
-            } catch (error) {
-                console.error('Error loading user data:', error);
+
+                userInfoEl.innerHTML = `
+                    ${avatarHtml}
+                    <div><strong>${user.displayName || 'ইউজার'}</strong></div>
+                    <div style="font-size:0.9rem; color: #1f4c66; margin-top: 6px;">${user.email}</div>
+                    <div style="font-size:0.8rem; opacity:0.6; margin-top: 8px; background: rgba(0,0,0,0.02); padding: 4px 12px; border-radius: 40px; display: inline-block;">UID: ${user.uid.substring(0,12)}…</div>
+                `;
+
+                signOutWrapper.style.display = 'flex';
+                statusBadge.textContent = '✅ সাইন ইন করা আছে';
+                statusBadge.style.background = '#c7e0d4';
+                statusBadge.style.color = '#0a3f31';
+                
+                loginBtn.disabled = true;
+                loginBtn.querySelector('span').textContent = '✅ সাইন ইন করা আছে';
+                loginBtn.style.opacity = '0.6';
+            } else {
+                userInfoEl.innerHTML = `
+                    <span style="color: #3d6b84; font-weight: 300;">👤 সাইন ইন করা নেই</span>
+                `;
+                signOutWrapper.style.display = 'none';
+                statusBadge.textContent = '🔐 সংযোগ বিচ্ছিন্ন';
+                statusBadge.style.background = '#d4e3ed';
+                statusBadge.style.color = '#1c4a62';
+                
+                loginBtn.disabled = false;
+                loginBtn.querySelector('span').textContent = 'Google দিয়ে সাইন ইন করুন';
+                loginBtn.style.opacity = '1';
             }
         }
 
-        async function saveUserData(user, data) {
+        onAuthStateChanged(auth, (user) => {
+            renderUser(user);
+        });
+
+        loginBtn.onclick = async () => {
+            if (auth.currentUser) {
+                showToast('আপনি ইতিমধ্যে সাইন ইন করা আছে!');
+                return;
+            }
+
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+
+            loginBtn.disabled = true;
+            loginBtn.querySelector('span').textContent = '⏳ খোলা হচ্ছে...';
+
             try {
-                const docRef = doc(db, 'users', user.uid);
-                await updateDoc(docRef, data);
-                showToast('✅ প্রোফাইল আপডেট করা হয়েছে!');
-                return true;
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                showToast(`স্বাগতম ${user.displayName || 'ইউজার'}! 🎉`);
             } catch (error) {
-                console.error('Error saving user data:', error);
-                showToast('❌ আপডেট ব্যর্থ: ' + error.message, 'error');
-                return false;
+                console.warn('Login error:', error);
+                
+                if (error.code === 'auth/popup-closed-by-user') {
+                    showToast('লগইন পপ-আপ বন্ধ করা হয়েছে। আবার চেষ্টা করুন।', 'error');
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    // ignore
+                } else if (error.code === 'auth/network-request-failed') {
+                    showToast('নেটওয়ার্ক সমস্যা! আপনার ইন্টারনেট কানেকশন চেক করুন।', 'error');
+                } else {
+                    showToast(`লগইন ব্যর্থ: ${error.message}`, 'error');
+                }
+                
+                loginBtn.disabled = false;
+                loginBtn.querySelector('span').textContent = 'Google দিয়ে সাইন ইন করুন';
             }
-        }
+        };
 
-        // ===== ইমেজ আপলোড =====
-        async function uploadImage(file, path) {
-            try {
-                const storageRef = ref(storage, path);
-                await uploadBytes(storageRef, file);
-                const url = await getDownloadURL(storageRef);
-                return url;
-            } catch (error) {
-                console.error('Upload error:', error);
-                showToast('❌ ইমেজ আপলোড ব্যর্থ', 'error');
-                return null;
-            }
-        }
-
-        // ===== প্রোফাইল ছবি আপলোড =====
-        avatarUploadBtn.addEventListener('click', () => avatarInput.click());
-        avatarInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+        let isSigningOut = false;
+        signOutBtn.onclick = async () => {
+            if (isSigningOut) return;
+            isSigningOut = true;
             
-            const user = auth.currentUser;
-            if (!user) {
-                showToast('❌ দয়া করে লগইন করুন', 'error');
-                return;
-            }
-
-            // প্রিভিউ
-            const reader = new FileReader();
-            reader.onload = (e) => profileAvatar.src = e.target.result;
-            reader.readAsDataURL(file);
-
-            // আপলোড
-            const url = await uploadImage(file, `avatars/${user.uid}/${Date.now()}.jpg`);
-            if (url) {
-                await saveUserData(user, { photoURL: url });
-                profileAvatar.src = url;
-                showToast('✅ প্রোফাইল ছবি আপডেট হয়েছে!');
-            }
-            avatarInput.value = '';
-        });
-
-        // ===== কভার ফটো আপলোড =====
-        coverUploadBtn.addEventListener('click', () => coverInput.click());
-        coverInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const user = auth.currentUser;
-            if (!user) {
-                showToast('❌ দয়া করে লগইন করুন', 'error');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => coverImage.src = e.target.result;
-            reader.readAsDataURL(file);
-
-            const url = await uploadImage(file, `covers/${user.uid}/${Date.now()}.jpg`);
-            if (url) {
-                await saveUserData(user, { coverPhoto: url });
-                coverImage.src = url;
-                showToast('✅ কভার ফটো আপডেট হয়েছে!');
-            }
-            coverInput.value = '';
-        });
-
-        // ===== কভার রিসেট =====
-        resetCoverBtn.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) return;
-            const defaultCover = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800';
-            await saveUserData(user, { coverPhoto: defaultCover });
-            coverImage.src = defaultCover;
-            showToast('✅ কভার রিসেট করা হয়েছে!');
-        });
-
-        // ===== প্রোফাইল এডিট =====
-        editProfileBtn.addEventListener('click', () => {
-            editNameInput.value = displayName.textContent;
-            editBioInput.value = displayBio.textContent;
-            displayMode.style.display = 'none';
-            editMode.style.display = 'flex';
-        });
-
-        cancelEditBtn.addEventListener('click', () => {
-            displayMode.style.display = 'block';
-            editMode.style.display = 'none';
-        });
-
-        saveProfileBtn.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                showToast('❌ দয়া করে লগইন করুন', 'error');
-                return;
-            }
-
-            const newName = editNameInput.value.trim() || 'ইউজার';
-            const newBio = editBioInput.value.trim() || '👋 হ্যালো! আমি ConnectBD ব্যবহার করছি';
-
-            const success = await saveUserData(user, {
-                displayName: newName,
-                bio: newBio
-            });
-
-            if (success) {
-                displayName.textContent = newName;
-                displayBio.textContent = newBio;
-                displayMode.style.display = 'block';
-                editMode.style.display = 'none';
-            }
-        });
-
-        // ===== সাইন আউট =====
-        signOutBtn.addEventListener('click', async () => {
             try {
                 await signOut(auth);
-                showToast('✅ সাইন আউট করা হয়েছে!');
-                // Redirect to login page
-                window.location.href = 'index.html';
+                showToast('সফলভাবে সাইন আউট করা হয়েছে।');
             } catch (error) {
-                showToast('❌ সাইন আউট ব্যর্থ', 'error');
+                showToast(`সাইন আউট ব্যর্থ: ${error.message}`, 'error');
+            } finally {
+                isSigningOut = false;
             }
-        });
+        };
 
-        // ===== অথ স্টেট চেক =====
-        onAuthStateChanged(auth, async (user) => {
+        statusBadge.addEventListener('click', () => {
+            const user = auth.currentUser;
             if (user) {
-                await loadUserData(user);
+                showToast(`সাইন ইন করা আছে: ${user.displayName || user.email}`);
             } else {
-                // লগইন না থাকলে লগইন পেজে পাঠান
-                window.location.href = 'index.html';
+                showToast('কোনো ইউজার সাইন ইন করা নেই।');
             }
         });
 
-        console.log('🔥 ConnectBD প্রোফাইল পেজ রেডি!');
+        console.log('🔥 Firebase Google Login ready');
     </script>
 </body>
 </html>
