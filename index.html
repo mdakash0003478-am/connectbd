@@ -40,37 +40,46 @@
 
         /* ===== কোম্পানির লোগো স্টাইল ===== */
         .company-logo {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
-            object-fit: contain;
-            margin-bottom: 16px;
+            object-fit: cover;
+            margin-bottom: 12px;
             background: white;
-            padding: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: 2px solid rgba(255,255,255,0.8);
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 3px solid rgba(255,255,255,0.9);
             transition: transform 0.3s ease;
-        }
-
-        .company-logo:hover {
-            transform: scale(1.05) rotate(-5deg);
-        }
-
-        /* অথবা SVG লোগোর জন্য */
-        .company-logo-svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 16px;
             display: inline-block;
         }
 
-        .company-logo-svg svg {
-            width: 100%;
-            height: 100%;
+        .company-logo:hover {
+            transform: scale(1.08) rotate(-3deg);
+        }
+
+        /* টেক্সট লোগো (ইমেজ না থাকলে) */
+        .text-logo {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #0b2b40;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .text-logo span {
+            color: #1976D2;
+        }
+
+        .text-logo small {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #3b5c6e;
+            display: block;
+            margin-top: -8px;
         }
 
         h2 {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: 600;
             color: #0b2b40;
             letter-spacing: -0.5px;
@@ -252,12 +261,15 @@
                 padding: 2.5rem 1.5rem;
                 border-radius: 36px;
             }
-            h2 { font-size: 1.8rem; }
+            h2 { font-size: 1.5rem; }
             .google-btn { font-size: 1rem; padding: 12px 20px; }
             .company-logo {
-                width: 60px;
-                height: 60px;
-                padding: 8px;
+                width: 70px;
+                height: 70px;
+                padding: 6px;
+            }
+            .text-logo {
+                font-size: 2.2rem;
             }
         }
     </style>
@@ -265,37 +277,19 @@
 <body>
     <div class="card">
         <!-- ===== কোম্পানির লোগো ===== -->
-        <!-- 
-            অপশন ১: ইমেজ ফাইল ব্যবহার করলে (PNG, JPG, WebP)
-            আপনার ইমেজ ফাইলটি যেখানে আছে সেখানে পাথ দিন
-        -->
+        <!-- গিটহাব থেকে সরাসরি লোড করবে -->
         <img 
-            src="./assets/logo.png" 
+            src="https://raw.githubusercontent.com/mdakash0003478-am/connectbd/main/logo.png.jpeg" 
             alt="ConnectBD Logo" 
             class="company-logo"
-            onerror="this.style.display='none'" 
+            id="companyLogo"
+            onerror="handleLogoError()"
         />
 
-        <!-- 
-            অপশন ২: SVG লোগো ব্যবহার করলে (ডিরেক্ট HTML)
-            নিচের কমেন্ট করা কোডটি ব্যবহার করুন এবং উপরের img ট্যাগ কমেন্ট করুন
-        -->
-        <!--
-        <div class="company-logo-svg">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="48" fill="#0b2b40"/>
-                <text x="50" y="55" font-size="30" text-anchor="middle" fill="white" font-weight="bold">C</text>
-                <text x="50" y="75" font-size="12" text-anchor="middle" fill="#4FC3F7">BD</text>
-            </svg>
-        </div>
-        -->
-
-        <!-- 
-            অপশন ৩: টেক্সট লোগো (ইমেজ না থাকলে)
-            উপরের img বা SVG না থাকলে এটি দেখাবে
-        -->
-        <div id="textLogo" style="display: none; font-size: 2.5rem; font-weight: 700; color: #0b2b40; margin-bottom: 8px;">
-            Connect<span style="color: #1976D2;">BD</span>
+        <!-- টেক্সট লোগো (ইমেজ লোড না হলে দেখাবে) -->
+        <div class="text-logo" id="textLogo" style="display: none;">
+            Connect<span>BD</span>
+            <small>সোশ্যাল ড্যাশবোর্ড</small>
         </div>
 
         <h2>🌟 ConnectBD</h2>
@@ -360,25 +354,14 @@
         const statusBadge = document.getElementById("statusBadge");
         const loginBtn = document.getElementById("googleLogin");
         const toastEl = document.getElementById("toast");
+        const companyLogo = document.getElementById("companyLogo");
+        const textLogo = document.getElementById("textLogo");
 
-        // ===== লোগো দেখানোর জন্য ফাংশন =====
-        function showLogo() {
-            const imgLogo = document.querySelector('.company-logo');
-            const textLogo = document.getElementById('textLogo');
-            
-            // ইমেজ লোড না হলে টেক্সট লোগো দেখাবে
-            if (imgLogo) {
-                imgLogo.onerror = function() {
-                    this.style.display = 'none';
-                    textLogo.style.display = 'block';
-                };
-                // ইমেজ সফলভাবে লোড হলে টেক্সট লোগো লুকাবে
-                imgLogo.onload = function() {
-                    textLogo.style.display = 'none';
-                };
-            }
-        }
-        showLogo();
+        // ===== লোগো এরর হ্যান্ডলার =====
+        window.handleLogoError = function() {
+            companyLogo.style.display = 'none';
+            textLogo.style.display = 'block';
+        };
 
         // Toast function
         let toastTimeout = null;
