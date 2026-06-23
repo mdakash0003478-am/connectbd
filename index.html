@@ -1093,4 +1093,157 @@
                         <div class="msg-text">${msg.text}</div>
                         <div class="msg-time">${time}</div>
                     </div>
-                `
+                `;
+
+                messagesContainer.appendChild(div);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        }
+
+        // Send private message
+        async function sendPrivateMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !currentUser || !currentChatFriend) return;
+
+            const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
+            const messagesRef = ref(db, `privateChats/${chatId}/messages`);
+            const newMsgRef = push(messagesRef);
+
+            await set(newMsgRef, {
+                text: text,
+                uid: currentUser.uid,
+                displayName: currentUser.displayName || 'ইউজার',
+                photoURL: currentUser.photoURL || '',
+                timestamp: Date.now()
+            });
+
+            messageInput.value = '';
+            messageInput.focus();
+        }
+
+        // Search user
+        searchUserBtn.addEventListener('click', async () => {
+            const query = searchUser.value.trim().toLowerCase();
+            if (!query) {
+                searchResults.innerHTML = '';
+                return;
+            }
+
+            if (!currentUser) {
+                showToast('লগইন করুন প্রথমে!', 'error');
+                return;
+            }
+
+            // Search in all users cache
+            let foundUsers = [];
+            Object.keys(allUsersCache).forEach(uid => {
+                const user = allUsersCache[uid];
+                if (uid === currentUser.uid) return;
+                const name = (user.displayName || '').toLowerCase();
+                const email = (user.email || '').toLowerCase();
+                if (name.includes(query) || email.includes(query)) {
+                    foundUsers.push({ uid, ...user });
+                }
+            });
+
+            if (foundUsers.length === 0) {
+                searchResults.innerHTML = `<div style="color: #53768b; font-size: 0.8rem;">কোনো ইউজার পাওয়া যায়নি</div>`;
+                return;
+            }
+
+            let html = '';
+            foundUsers.forEach(user => {
+                const isFriend = friends[user.uid];
+                const isRequested = requests[user.uid] && requests[user.uid].status === 'pending';
+                const photo = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
+                    .displayName || 'U') + '&background=1976D2&color=fff';
+
+                html += `
+                    <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <img src="${photo}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;" />
+                        <span style="flex: 1; font-size: 0.85rem;">${user.displayName || 'ইউজার'}</span>
+                        ${isFriend ? '<span style="color: #4caf50; font-size: 0.7rem;">✅ বন্ধু</span>' :
+                        isRequested ? '<span style="color: #ff9800; font-size: 0.7rem;">⏳ রিকোয়েস্ট পাঠানো</span>' :
+                        `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
+                        }
+                    </div>
+                `;
+            });
+
+            searchResults.innerHTML = html;
+
+            // Add click listeners for add friend buttons
+            document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    sendFriendRequest(btn.dataset.uid);
+                });
+            });
+        });
+
+        // Search friend filter
+        searchFriend.addEventListener('input', renderFriends);
+
+        // Send message on enter or button click
+        sendBtn.onclick = sendPrivateMessage;
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendPrivateMessage();
+        });
+
+        // Login
+        loginBtn.onclick = async () => {
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            try {
+                const result = await signInWithPopup(auth, provider);
+                // Save user to database
+                await set(ref(db, `users/${result.user.uid}`), {
+                    displayName: result.user.displayName || 'ইউজার',
+                    email: result.user.email || '',
+                    photoURL: result.user.photoURL || '',
+                    online: true,
+                    lastSeen: Date.now()
+                });
+                showToast(`স্বাগতম ${result.user.displayName || 'ইউজার'}! 🎉`);
+            } catch (error) {
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showToast(`লগইন ব্যর্থ: ${error.message}`, 'error');
+                }
+            }
+        };
+
+        // Logout
+        logoutBtn.onclick = async () => {
+            try {
+                if (currentUser) {
+                    await set(ref(db, `users/${currentUser.uid}/online`), false);
+                    await set(ref(db, `users/${currentUser.uid}/lastSeen`), Date.now());
+                }
+                await signOut(auth);
+                showToast('সাইন আউট করা হয়েছে।');
+            } catch (error) {
+                showToast(`সাইন আউট ব্যর্থ: ${error.message}`, 'error');
+            }
+        };
+
+        // Auth state
+        onAuthStateChanged(auth, (user) => {
+            updateUI(user);
+            if (user) {
+                // Set online status
+                set(ref(db, `users/${user.uid}/online`), true);
+                set(ref(db, `users/${user.uid}/lastSeen`), Date.now());
+            }
+        });
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (currentUser) {
+                set(ref(db, `users/${currentUser.uid}/online`), false);
+                set(ref(db, `users/${currentUser.uid}/lastSeen`), Date.now());
+            }
+        });
+
+        console.log('🔥 ConnectBD Private Chat ready');
+    </script>
+</body>
+</html>
