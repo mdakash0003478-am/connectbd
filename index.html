@@ -1011,7 +1011,7 @@
             signInWithPopup,
             signOut,
             onAuthStateChanged,
-            updateProfile
+            updateProfile as firebaseUpdateProfile
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import {
             getDatabase,
@@ -1099,7 +1099,6 @@
         let allUsersCache = {};
         let unreadCounts = {};
         let typingTimeout = null;
-        let selectedFile = null;
 
         // Toast
         let toastTimeout = null;
@@ -1151,7 +1150,6 @@
                 timestamp: Date.now()
             });
 
-            // Update unread count
             const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
             const snapshot = await get(unreadRef);
             const count = (snapshot.val() || 0) + 1;
@@ -1230,15 +1228,15 @@
             }
         }
 
-        // ===== Update profile =====
-        async function updateProfile(displayName, photoURL) {
+        // ===== Update profile (FIXED: renamed to updateUserProfile) =====
+        async function updateUserProfile(displayName, photoURL) {
             if (!currentUser) return;
             try {
                 await update(ref(db, `users/${currentUser.uid}`), {
                     displayName: displayName,
                     photoURL: photoURL
                 });
-                await updateProfile(auth.currentUser, {
+                await firebaseUpdateProfile(auth.currentUser, {
                     displayName: displayName,
                     photoURL: photoURL
                 });
@@ -1563,7 +1561,6 @@
             fileUploadBtn.disabled = false;
             messageInput.focus();
             
-            // Listen for typing
             const typingRef = ref(db, `typing/${currentUser.uid}/${friendUid}`);
             onValue(typingRef, (snapshot) => {
                 const isTyping = snapshot.val();
@@ -1932,7 +1929,6 @@
             profileModal.classList.add('active');
         });
 
-        // Profile picture upload in modal
         modalUploadPic.addEventListener('click', () => {
             const input = document.createElement('input');
             input.type = 'file';
@@ -1951,7 +1947,6 @@
                 const url = await uploadImage(file, path);
                 if (url) {
                     modalProfilePic.src = url;
-                    modalPhotoURL.value = url;
                     showToast('✅ প্রোফাইল ছবি আপলোড হয়েছে!');
                 }
             };
@@ -1969,7 +1964,7 @@
                 showToast('নাম দেওয়া আবশ্যক!', 'error');
                 return;
             }
-            await updateProfile(displayName, photoURL);
+            await updateUserProfile(displayName, photoURL);
             profileModal.classList.remove('active');
         });
 
