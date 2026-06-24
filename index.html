@@ -490,7 +490,13 @@
             word-break: break-word;
         }
 
-        .message .msg-text img {
+        .message .msg-text .image-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        .message .msg-text .image-container img {
             max-width: 100%;
             max-height: 300px;
             border-radius: 8px;
@@ -500,8 +506,46 @@
             display: block;
         }
 
-        .message .msg-text img:hover {
+        .message .msg-text .image-container img:hover {
             transform: scale(1.02);
+        }
+
+        .message .msg-text .image-container .image-actions {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .message .msg-text .image-container:hover .image-actions {
+            opacity: 1;
+        }
+
+        .message .msg-text .image-container .image-actions button {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message .msg-text .image-container .image-actions button:hover {
+            background: rgba(0,0,0,0.9);
+            transform: scale(1.1);
+        }
+
+        .message .msg-text .image-container .image-actions .download-btn:hover {
+            background: #1976D2;
         }
 
         .message .msg-time {
@@ -827,11 +871,55 @@
             display: flex;
         }
 
-        .image-preview-overlay img {
+        .image-preview-overlay .preview-content {
+            position: relative;
             max-width: 90%;
             max-height: 90%;
+        }
+
+        .image-preview-overlay img {
+            max-width: 100%;
+            max-height: 90vh;
             object-fit: contain;
             border-radius: 8px;
+        }
+
+        .image-preview-overlay .preview-actions {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .image-preview-overlay .preview-actions button {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-preview-overlay .preview-actions button:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+        }
+
+        .image-preview-overlay .preview-actions .download-btn-preview {
+            background: #1976D2;
+            border-color: #1976D2;
+        }
+
+        .image-preview-overlay .preview-actions .download-btn-preview:hover {
+            background: #1565C0;
         }
 
         @media (max-width: 768px) {
@@ -862,8 +950,7 @@
             .input-area .input-wrapper {
                 flex-wrap: wrap;
             }
-            .message .msg-text img {
-                max-width: 100%;
+            .message .msg-text .image-container img {
                 max-height: 150px;
             }
         }
@@ -882,8 +969,7 @@
             .sidebar {
                 max-height: 180px;
             }
-            .message .msg-text img {
-                max-width: 100%;
+            .message .msg-text .image-container img {
                 max-height: 120px;
             }
         }
@@ -996,9 +1082,15 @@
         </div>
     </div>
 
-    <!-- Image Preview Modal -->
+    <!-- Image Preview Modal with Download -->
     <div class="image-preview-overlay" id="imagePreview">
-        <img id="previewImage" src="" alt="Preview" />
+        <div class="preview-content">
+            <img id="previewImage" src="" alt="Preview" />
+            <div class="preview-actions">
+                <button class="download-btn-preview" id="downloadPreviewBtn" title="ডাউনলোড">⬇️</button>
+                <button id="closePreviewBtn" title="বন্ধ">✕</button>
+            </div>
+        </div>
     </div>
 
     <div id="toast" class="toast"></div>
@@ -1086,6 +1178,8 @@
         // Image Preview
         const imagePreview = document.getElementById('imagePreview');
         const previewImage = document.getElementById('previewImage');
+        const downloadPreviewBtn = document.getElementById('downloadPreviewBtn');
+        const closePreviewBtn = document.getElementById('closePreviewBtn');
 
         let currentUser = null;
         let currentChatFriend = null;
@@ -1115,6 +1209,23 @@
             }, 3500);
         }
 
+        // ===== Download Image Function =====
+        function downloadImage(imageSrc, filename = 'image.jpg') {
+            try {
+                // Create a temporary link
+                const link = document.createElement('a');
+                link.href = imageSrc;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast('✅ ছবি ডাউনলোড শুরু হয়েছে!');
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('ডাউনলোড করতে ব্যর্থ!', 'error');
+            }
+        }
+
         // ===== Convert Image to Base64 =====
         function imageToBase64(file) {
             return new Promise((resolve, reject) => {
@@ -1135,13 +1246,15 @@
             try {
                 showToast('📤 ছবি প্রস্তুত হচ্ছে...', 'success');
                 
-                // Convert to base64
                 const base64Image = await imageToBase64(file);
                 
-                // Send as message
                 const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
                 const messagesRef = ref(db, `privateChats/${chatId}/messages`);
                 const newMsgRef = push(messagesRef);
+
+                // Get file extension for download
+                const fileExt = file.name.split('.').pop() || 'jpg';
+                const fileName = `image_${Date.now()}.${fileExt}`;
 
                 await set(newMsgRef, {
                     text: '📷',
@@ -1150,10 +1263,10 @@
                     displayName: currentUser.displayName || 'ইউজার',
                     photoURL: currentUser.photoURL || '',
                     timestamp: Date.now(),
-                    isBase64: true
+                    isBase64: true,
+                    fileName: fileName
                 });
 
-                // Update unread count
                 try {
                     const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
                     const snapshot = await get(unreadRef);
@@ -1626,7 +1739,7 @@
                     const textElement = msgElement.querySelector('.msg-text');
                     if (textElement) {
                         if (msg.image) {
-                            textElement.innerHTML = `<img src="${msg.image}" alt="Image" onclick="document.getElementById('previewImage').src='${msg.image}';document.getElementById('imagePreview').classList.add('active')" />`;
+                            textElement.innerHTML = createImageHTML(msg.image, msg.fileName);
                         } else {
                             textElement.innerHTML = msg.text + (msg.edited ? ' <span style="font-size:0.6rem;">(edited)</span>' : '');
                         }
@@ -1644,7 +1757,19 @@
             });
         }
 
-        // Append message
+        // ===== Create Image HTML with Download Button =====
+        function createImageHTML(imageSrc, fileName = 'image.jpg') {
+            return `
+                <div class="image-container">
+                    <img src="${imageSrc}" alt="Image" onclick="openImagePreview('${imageSrc}', '${fileName}')" />
+                    <div class="image-actions">
+                        <button class="download-btn" onclick="event.stopPropagation(); downloadImageFromSrc('${imageSrc}', '${fileName}')" title="ডাউনলোড করুন">⬇️</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== Append message with image download =====
         function appendMessage(msgKey, msg) {
             const isOwn = msg.uid === currentUser.uid;
             const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('bn-BD', { hour: '2-digit',
@@ -1660,8 +1785,8 @@
 
             let content = '';
             if (msg.image) {
-                // For base64 images, show directly
-                content = `<img src="${msg.image}" alt="Image" onclick="document.getElementById('previewImage').src='${msg.image}';document.getElementById('imagePreview').classList.add('active')" />`;
+                const fileName = msg.fileName || `image_${Date.now()}.jpg`;
+                content = createImageHTML(msg.image, fileName);
             } else {
                 content = msg.text + (msg.edited ? ' <span style="font-size:0.6rem;">(edited)</span>' : '');
             }
@@ -1694,7 +1819,38 @@
             }
         }
 
-        // Delete message
+        // ===== Global functions for inline onclick =====
+        window.openImagePreview = function(imageSrc, fileName) {
+            previewImage.src = imageSrc;
+            imagePreview.classList.add('active');
+            // Store current image src for download
+            previewImage.dataset.src = imageSrc;
+            previewImage.dataset.filename = fileName || 'image.jpg';
+        };
+
+        window.downloadImageFromSrc = function(imageSrc, fileName) {
+            downloadImage(imageSrc, fileName || 'image.jpg');
+        };
+
+        // ===== Image Preview Download Button =====
+        downloadPreviewBtn.addEventListener('click', () => {
+            const src = previewImage.dataset.src || previewImage.src;
+            const filename = previewImage.dataset.filename || 'image.jpg';
+            downloadImage(src, filename);
+        });
+
+        // ===== Close Preview =====
+        closePreviewBtn.addEventListener('click', () => {
+            imagePreview.classList.remove('active');
+        });
+
+        imagePreview.addEventListener('click', (e) => {
+            if (e.target === imagePreview) {
+                imagePreview.classList.remove('active');
+            }
+        });
+
+        // ===== Delete message =====
         async function deleteMessage(msgKey) {
             if (!currentUser || !currentChatFriend) return;
             if (!confirm('এই মেসেজ ডিলিট করতে চান?')) return;
@@ -1712,7 +1868,7 @@
             }
         }
 
-        // Edit message
+        // ===== Edit message =====
         async function editMessage(msgKey, oldText) {
             if (!currentUser || !currentChatFriend) return;
             const newText = prompt('মেসেজ এডিট করুন:', oldText);
@@ -1732,7 +1888,7 @@
             }
         }
 
-        // Send message
+        // ===== Send message =====
         async function sendPrivateMessage() {
             const text = messageInput.value.trim();
             if (!text || !currentUser || !currentChatFriend) return;
@@ -1758,7 +1914,7 @@
             messageInput.focus();
         }
 
-        // ===== File Upload Handler (Base64) =====
+        // ===== File Upload Handler =====
         fileUploadBtn.addEventListener('click', () => {
             if (!currentUser || !currentChatFriend) {
                 showToast('প্রথমে একটি চ্যাট নির্বাচন করুন!', 'error');
@@ -1771,28 +1927,20 @@
             const file = e.target.files[0];
             if (!file) return;
 
-            // Check if it's an image
             if (!file.type.startsWith('image/')) {
                 showToast('শুধু ছবি আপলোড করতে পারবেন!', 'error');
                 fileInput.value = '';
                 return;
             }
 
-            // Max 2MB for Base64 (to avoid database size issues)
             if (file.size > 2 * 1024 * 1024) {
                 showToast('ছবি 2MB এর কম হতে হবে!', 'error');
                 fileInput.value = '';
                 return;
             }
 
-            // Send image using Base64
             await sendImageMessageBase64(file);
             fileInput.value = '';
-        });
-
-        // ===== Image Preview =====
-        imagePreview.addEventListener('click', () => {
-            imagePreview.classList.remove('active');
         });
 
         // ===== Search =====
@@ -1995,18 +2143,21 @@
         // ===== EXPOSE functions =====
         window.fixAllUsers = fixAllUsers;
         window.saveUserData = saveUserData;
+        window.downloadImage = downloadImage;
         window.db = db;
         window.auth = auth;
 
-        console.log('🔥 ConnectBD Private Chat ready with Base64 Image Upload!');
+        console.log('🔥 ConnectBD Private Chat ready with Image Download!');
         console.log('📌 Features:');
         console.log('  ✅ Image Upload (Base64 - No Storage needed)');
+        console.log('  ✅ Image Download (⬇️ button on image)');
         console.log('  ✅ Profile Picture Upload');
         console.log('  ✅ Chat Message Delete/Edit');
         console.log('  ✅ Typing Indicator');
         console.log('  ✅ Online/Offline Status');
         console.log('  ✅ Unread Message Count');
         console.log('🔧 To fix all users, run: fixAllUsers()');
+        console.log('💡 Click image to preview, then download from preview modal');
     </script>
 </body>
 </html>
