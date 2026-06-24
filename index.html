@@ -256,8 +256,16 @@
 
         .friend-item .friend-phone {
             font-size: 0.7rem;
-            color: #53768b;
+            color: #4caf50;
             margin-left: 4px;
+        }
+
+        .friend-item .friend-phone.verified {
+            color: #4caf50;
+        }
+
+        .friend-item .friend-phone.unverified {
+            color: #ff9800;
         }
 
         .friend-item .status-dot {
@@ -789,7 +797,7 @@
             background: white;
             border-radius: 24px;
             padding: 2rem;
-            max-width: 400px;
+            max-width: 420px;
             width: 90%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: fadeIn 0.3s ease;
@@ -853,6 +861,58 @@
             outline: none;
         }
 
+        .modal .form-group .input-with-btn {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal .form-group .input-with-btn input {
+            flex: 1;
+        }
+
+        .modal .form-group .input-with-btn button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 12px;
+            background: #1976D2;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .modal .form-group .input-with-btn button:hover:not(:disabled) {
+            background: #1565C0;
+        }
+
+        .modal .form-group .input-with-btn button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal .form-group .otp-status {
+            font-size: 0.75rem;
+            margin-top: 4px;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .modal .form-group .otp-status.verified {
+            color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .modal .form-group .otp-status.pending {
+            color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .modal .form-group .otp-status.error {
+            color: #d32f2f;
+            background: #ffebee;
+        }
+
         .modal .modal-actions {
             display: flex;
             gap: 10px;
@@ -876,6 +936,11 @@
 
         .modal .modal-actions .save-btn:hover {
             background: #1565C0;
+        }
+
+        .modal .modal-actions .save-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .modal .modal-actions .cancel-btn {
@@ -954,6 +1019,14 @@
 
         .image-preview-overlay .preview-actions .download-btn-preview:hover {
             background: #1565C0;
+        }
+
+        /* reCAPTCHA container */
+        #recaptcha-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
         }
 
         @media (max-width: 768px) {
@@ -1097,7 +1170,7 @@
         </div>
     </div>
 
-    <!-- Profile Modal -->
+    <!-- Profile Modal with Phone Verification -->
     <div class="modal-overlay" id="profileModal">
         <div class="modal">
             <h2>👤 প্রোফাইল</h2>
@@ -1114,17 +1187,28 @@
                 <input type="email" id="modalEmail" disabled />
             </div>
             <div class="form-group">
-                <label>ফোন নম্বর</label>
-                <input type="text" id="modalPhone" placeholder="01XXXXXXXXX" />
+                <label>📱 ফোন নম্বর</label>
+                <div class="input-with-btn">
+                    <input type="text" id="modalPhone" placeholder="01XXXXXXXXX" />
+                    <button id="verifyPhoneBtn">ভেরিফাই</button>
+                </div>
+                <div id="otpStatus" class="otp-status"></div>
+            </div>
+            <div class="form-group" id="otpGroup" style="display:none;">
+                <label>OTP কোড</label>
+                <div class="input-with-btn">
+                    <input type="text" id="modalOtp" placeholder="6 ডিজিটের কোড" maxlength="6" />
+                    <button id="confirmOtpBtn">কনফার্ম</button>
+                </div>
             </div>
             <div class="modal-actions">
                 <button class="cancel-btn" id="modalCancel">বাতিল</button>
-                <button class="save-btn" id="modalSave">সেভ করুন</button>
+                <button class="save-btn" id="modalSave" disabled>সেভ করুন</button>
             </div>
         </div>
     </div>
 
-    <!-- Image Preview Modal with Download -->
+    <!-- Image Preview Modal -->
     <div class="image-preview-overlay" id="imagePreview">
         <div class="preview-content">
             <img id="previewImage" src="" alt="Preview" />
@@ -1134,6 +1218,9 @@
             </div>
         </div>
     </div>
+
+    <!-- reCAPTCHA Container -->
+    <div id="recaptcha-container"></div>
 
     <div id="toast" class="toast"></div>
 
@@ -1148,7 +1235,9 @@
             signInWithPopup,
             signOut,
             onAuthStateChanged,
-            updateProfile as firebaseUpdateProfile
+            updateProfile as firebaseUpdateProfile,
+            RecaptchaVerifier,
+            signInWithPhoneNumber
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import {
             getDatabase,
@@ -1214,9 +1303,14 @@
         const modalDisplayName = document.getElementById('modalDisplayName');
         const modalEmail = document.getElementById('modalEmail');
         const modalPhone = document.getElementById('modalPhone');
+        const modalOtp = document.getElementById('modalOtp');
         const modalSave = document.getElementById('modalSave');
         const modalCancel = document.getElementById('modalCancel');
         const modalUploadPic = document.getElementById('modalUploadPic');
+        const verifyPhoneBtn = document.getElementById('verifyPhoneBtn');
+        const confirmOtpBtn = document.getElementById('confirmOtpBtn');
+        const otpStatus = document.getElementById('otpStatus');
+        const otpGroup = document.getElementById('otpGroup');
 
         // Search type selector
         const searchTypeButtons = document.querySelectorAll('.search-type-selector button');
@@ -1252,6 +1346,9 @@
         let allUsersCache = {};
         let unreadCounts = {};
         let typingTimeout = null;
+        let isPhoneVerified = false;
+        let tempPhone = '';
+        let confirmationResult = null; // For Firebase Phone Auth
 
         // Toast
         let toastTimeout = null;
@@ -1270,6 +1367,171 @@
                 toastEl.classList.remove('show');
                 toastTimeout = null;
             }, 3500);
+        }
+
+        // ===== Firebase Phone Verification Functions =====
+        
+        // Setup reCAPTCHA
+        function setupRecaptcha() {
+            try {
+                if (window.recaptchaVerifier) {
+                    window.recaptchaVerifier.clear();
+                }
+                
+                window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                    'size': 'invisible',
+                    'callback': (response) => {
+                        console.log('✅ reCAPTCHA solved');
+                    },
+                    'expired-callback': () => {
+                        console.log('⏰ reCAPTCHA expired');
+                    }
+                });
+                
+                console.log('✅ reCAPTCHA setup complete');
+                return true;
+            } catch (error) {
+                console.error('❌ reCAPTCHA setup error:', error);
+                showToast('reCAPTCHA সেটআপ করতে ব্যর্থ!', 'error');
+                return false;
+            }
+        }
+
+        // Send OTP using Firebase Phone Auth
+        async function sendOTP(phone) {
+            try {
+                // Clean phone number - remove any non-numeric characters
+                const cleanPhone = phone.replace(/[^0-9]/g, '');
+                
+                // Validate phone number
+                if (cleanPhone.length < 10) {
+                    showToast('সঠিক ফোন নম্বর দিন! (01XXXXXXXXX)', 'error');
+                    return false;
+                }
+
+                // Format phone number for Bangladesh
+                let formattedPhone;
+                if (cleanPhone.startsWith('01') && cleanPhone.length === 11) {
+                    // Bangladesh mobile number
+                    formattedPhone = `+88${cleanPhone}`;
+                } else if (cleanPhone.startsWith('88') && cleanPhone.length === 13) {
+                    formattedPhone = `+${cleanPhone}`;
+                } else if (cleanPhone.startsWith('+88')) {
+                    formattedPhone = cleanPhone;
+                } else {
+                    formattedPhone = `+88${cleanPhone}`;
+                }
+
+                console.log('📞 Sending OTP to:', formattedPhone);
+                
+                // Setup reCAPTCHA if not already setup
+                if (!window.recaptchaVerifier) {
+                    const setup = setupRecaptcha();
+                    if (!setup) return false;
+                }
+
+                // Send OTP
+                const result = await signInWithPhoneNumber(
+                    auth, 
+                    formattedPhone, 
+                    window.recaptchaVerifier
+                );
+                
+                confirmationResult = result;
+                tempPhone = cleanPhone;
+                
+                showToast('📱 OTP পাঠানো হয়েছে! আপনার ফোন চেক করুন।');
+                
+                otpStatus.textContent = '✅ OTP পাঠানো হয়েছে! আপনার ফোনে SMS চেক করুন।';
+                otpStatus.className = 'otp-status pending';
+                
+                // Show OTP input
+                otpGroup.style.display = 'block';
+                modalOtp.value = '';
+                modalOtp.focus();
+                modalSave.disabled = true;
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Send OTP error:', error);
+                
+                let errorMessage = 'OTP পাঠাতে ব্যর্থ!';
+                if (error.code === 'auth/invalid-phone-number') {
+                    errorMessage = 'ভুল ফোন নম্বর! সঠিক নম্বর দিন।';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'অনেক বেশি রিকোয়েস্ট! কিছুক্ষণ পর চেষ্টা করুন।';
+                } else if (error.code === 'auth/network-request-failed') {
+                    errorMessage = 'ইন্টারনেট কানেকশন চেক করুন!';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                showToast(errorMessage, 'error');
+                otpStatus.textContent = `❌ ${errorMessage}`;
+                otpStatus.className = 'otp-status error';
+                return false;
+            }
+        }
+
+        // Verify OTP using Firebase Phone Auth
+        async function verifyOTP(phone, otp) {
+            try {
+                if (!confirmationResult) {
+                    showToast('প্রথমে OTP পাঠান!', 'error');
+                    return false;
+                }
+
+                if (!otp || otp.length < 6) {
+                    showToast('6 ডিজিটের OTP দিন!', 'error');
+                    return false;
+                }
+
+                console.log('🔑 Verifying OTP:', otp);
+                
+                // Confirm OTP
+                const result = await confirmationResult.confirm(otp);
+                
+                console.log('✅ Phone verified successfully!', result.user);
+                
+                // Update user's phone number in database
+                const cleanPhone = phone.replace(/[^0-9]/g, '');
+                await update(ref(db, `users/${currentUser.uid}`), {
+                    phone: cleanPhone,
+                    phoneVerified: true
+                });
+                
+                isPhoneVerified = true;
+                tempPhone = cleanPhone;
+                
+                otpStatus.textContent = '✅ ফোন নম্বর ভেরিফাইড!';
+                otpStatus.className = 'otp-status verified';
+                modalSave.disabled = false;
+                otpGroup.style.display = 'none';
+                
+                showToast('✅ ফোন নম্বর সফলভাবে ভেরিফাইড!');
+                
+                // Update current user object
+                currentUser.phone = cleanPhone;
+                currentUser.phoneVerified = true;
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Verify OTP error:', error);
+                
+                let errorMessage = 'OTP ভেরিফাই করতে ব্যর্থ!';
+                if (error.code === 'auth/invalid-verification-code') {
+                    errorMessage = 'ভুল OTP! আবার চেষ্টা করুন।';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'অনেক বেশি চেষ্টা! কিছুক্ষণ পর চেষ্টা করুন।';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                showToast(errorMessage, 'error');
+                otpStatus.textContent = `❌ ${errorMessage}`;
+                otpStatus.className = 'otp-status error';
+                return false;
+            }
         }
 
         // ===== Compress Image =====
@@ -1395,6 +1657,7 @@
                     email: user.email || '',
                     photoURL: user.photoURL || '',
                     phone: phone || existingData?.phone || '',
+                    phoneVerified: phone ? true : (existingData?.phoneVerified || false),
                     online: true,
                     lastSeen: Date.now()
                 };
@@ -1441,7 +1704,8 @@
                             displayName: user.displayName || 'ইউজার',
                             email: user.email || 'user@email.com',
                             photoURL: user.photoURL || '',
-                            phone: user.phone || ''
+                            phone: user.phone || '',
+                            phoneVerified: user.phoneVerified || false
                         });
                         fixed++;
                         console.log(`✅ Fixed user: ${uid}`);
@@ -1457,8 +1721,8 @@
             }
         }
 
-        // ===== Update profile with phone =====
-        async function updateUserProfile(displayName, photoURL, phone) {
+        // ===== Update profile with phone verification =====
+        async function updateUserProfile(displayName, photoURL, phone, phoneVerified = false) {
             if (!currentUser) return;
             try {
                 let finalPhotoURL = photoURL;
@@ -1479,11 +1743,21 @@
                     }
                 }
                 
-                await update(ref(db, `users/${currentUser.uid}`), {
+                const updateData = {
                     displayName: displayName,
-                    photoURL: finalPhotoURL,
-                    phone: phone || ''
-                });
+                    photoURL: finalPhotoURL
+                };
+
+                // Only update phone if verified or if no phone exists
+                if (phone && phoneVerified) {
+                    updateData.phone = phone;
+                    updateData.phoneVerified = true;
+                } else if (!phone) {
+                    updateData.phone = '';
+                    updateData.phoneVerified = false;
+                }
+
+                await update(ref(db, `users/${currentUser.uid}`), updateData);
                 
                 try {
                     await firebaseUpdateProfile(auth.currentUser, {
@@ -1517,6 +1791,9 @@
 
                 loadFriendsAndRequests();
                 loadAllUsers();
+                
+                // Setup reCAPTCHA for phone verification
+                setupRecaptcha();
                 
                 console.log('🔧 To fix all users, run: fixAllUsers()');
             } else {
@@ -1618,11 +1895,18 @@
                     if (searchTerm && !name.toLowerCase().includes(searchTerm)) return;
 
                     const isActive = currentChatFriend === uid;
+                    let phoneStatus = '';
+                    if (friend.phone) {
+                        phoneStatus = friend.phoneVerified ? 
+                            `<span class="friend-phone verified">✅ 📱${friend.phone}</span>` : 
+                            `<span class="friend-phone unverified">⚠️ 📱${friend.phone}</span>`;
+                    }
+
                     html += `
                         <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
                             <img src="${photo}" alt="${name}" />
                             <span class="friend-name">${name}</span>
-                            ${friend.phone ? `<span class="friend-phone">📱${friend.phone}</span>` : ''}
+                            ${phoneStatus}
                             ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
                             <span class="status-dot ${friend.online ? '' : 'offline'}"></span>
                         </div>
@@ -1705,6 +1989,7 @@
                     displayName: senderData.displayName || 'ইউজার',
                     photoURL: senderData.photoURL || '',
                     phone: senderData.phone || '',
+                    phoneVerified: senderData.phoneVerified || false,
                     online: false,
                     addedAt: Date.now()
                 });
@@ -1713,6 +1998,7 @@
                     displayName: currentUser.displayName || 'ইউজার',
                     photoURL: currentUser.photoURL || '',
                     phone: currentUser.phone || '',
+                    phoneVerified: currentUser.phoneVerified || false,
                     online: true,
                     addedAt: Date.now()
                 });
@@ -1767,6 +2053,7 @@
                     displayName: currentUser.displayName || 'ইউজার',
                     photoURL: currentUser.photoURL || '',
                     phone: currentUser.phone || '',
+                    phoneVerified: currentUser.phoneVerified || false,
                     status: 'pending',
                     timestamp: Date.now()
                 });
@@ -1830,12 +2117,19 @@
                 const photo = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
                     .displayName || 'U') + '&background=1976D2&color=fff';
 
+                let phoneStatus = '';
+                if (user.phone) {
+                    phoneStatus = user.phoneVerified ? 
+                        `✅ 📱${user.phone}` : 
+                        `⚠️ 📱${user.phone}`;
+                }
+
                 html += `
                     <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
                         <img src="${photo}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;" />
                         <span style="flex: 1; font-size: 0.85rem;">
                             ${user.displayName || 'ইউজার'}
-                            ${user.phone ? `<span style="font-size:0.7rem;color:#53768b;"> 📱${user.phone}</span>` : ''}
+                            ${phoneStatus ? `<span style="font-size:0.7rem;color:#53768b;"> ${phoneStatus}</span>` : ''}
                             <span style="font-size:0.65rem;color:#53768b;display:block;">${user.email || ''}</span>
                         </span>
                         ${isFriend ? '<span style="color: #4caf50; font-size: 0.7rem;">✅ বন্ধু</span>' :
@@ -2227,26 +2521,118 @@
                 await saveUserData(user);
                 await set(ref(db, `users/${user.uid}/online`), true);
                 await set(ref(db, `users/${user.uid}/lastSeen`), Date.now());
+                
+                // Setup reCAPTCHA
+                setTimeout(() => {
+                    setupRecaptcha();
+                }, 1000);
             }
         });
 
-        // ===== Profile Modal =====
+        // ===== Profile Modal with Phone Verification =====
         userProfileMini.addEventListener('click', () => {
             if (!currentUser) return;
+            isPhoneVerified = false;
+            tempPhone = '';
+            confirmationResult = null;
             modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
             modalDisplayName.value = currentUser.displayName || '';
             modalEmail.value = currentUser.email || '';
             modalPhone.value = currentUser.phone || '';
+            modalOtp.value = '';
+            otpGroup.style.display = 'none';
+            otpStatus.textContent = '';
+            otpStatus.className = 'otp-status';
+            modalSave.disabled = false;
             profileModal.classList.add('active');
+            
+            // Setup reCAPTCHA when modal opens
+            setTimeout(() => {
+                setupRecaptcha();
+            }, 500);
         });
 
         logoClick.addEventListener('click', () => {
             if (!currentUser) return;
+            isPhoneVerified = false;
+            tempPhone = '';
+            confirmationResult = null;
             modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
             modalDisplayName.value = currentUser.displayName || '';
             modalEmail.value = currentUser.email || '';
             modalPhone.value = currentUser.phone || '';
+            modalOtp.value = '';
+            otpGroup.style.display = 'none';
+            otpStatus.textContent = '';
+            otpStatus.className = 'otp-status';
+            modalSave.disabled = false;
             profileModal.classList.add('active');
+            
+            setTimeout(() => {
+                setupRecaptcha();
+            }, 500);
+        });
+
+        // ===== Verify Phone Button =====
+        verifyPhoneBtn.addEventListener('click', async () => {
+            const phone = modalPhone.value.trim();
+            if (!phone) {
+                showToast('ফোন নম্বর দিন!', 'error');
+                return;
+            }
+            
+            const cleanPhone = phone.replace(/[^0-9]/g, '');
+            if (cleanPhone.length < 10) {
+                showToast('সঠিক ফোন নম্বর দিন (01XXXXXXXXX)', 'error');
+                return;
+            }
+
+            // Check if phone already exists for another user
+            let phoneExists = false;
+            Object.keys(allUsersCache).forEach(uid => {
+                if (uid !== currentUser.uid && allUsersCache[uid].phone === cleanPhone) {
+                    phoneExists = true;
+                }
+            });
+
+            if (phoneExists) {
+                showToast('এই ফোন নম্বরটি অন্য কেউ ব্যবহার করছে!', 'error');
+                return;
+            }
+
+            verifyPhoneBtn.disabled = true;
+            verifyPhoneBtn.textContent = 'পাঠানো হচ্ছে...';
+            
+            const success = await sendOTP(phone);
+            
+            verifyPhoneBtn.disabled = false;
+            verifyPhoneBtn.textContent = 'ভেরিফাই';
+            
+            if (success) {
+                modalSave.disabled = true;
+            }
+        });
+
+        // ===== Confirm OTP Button =====
+        confirmOtpBtn.addEventListener('click', async () => {
+            const otp = modalOtp.value.trim();
+            if (!otp || otp.length < 6) {
+                showToast('6 ডিজিটের OTP দিন!', 'error');
+                return;
+            }
+
+            confirmOtpBtn.disabled = true;
+            confirmOtpBtn.textContent = 'চেক করা হচ্ছে...';
+            
+            const phone = modalPhone.value.trim();
+            const success = await verifyOTP(phone, otp);
+            
+            confirmOtpBtn.disabled = false;
+            confirmOtpBtn.textContent = 'কনফার্ম';
+            
+            if (success) {
+                modalSave.disabled = false;
+            }
         });
 
         // ===== Profile Upload Handler =====
@@ -2294,11 +2680,23 @@
             const displayName = modalDisplayName.value.trim();
             const photoURL = modalProfilePic.src;
             const phone = modalPhone.value.trim();
+            
             if (!displayName) {
                 showToast('নাম দেওয়া আবশ্যক!', 'error');
                 return;
             }
-            await updateUserProfile(displayName, photoURL, phone);
+
+            // If phone is provided but not verified, don't save
+            if (phone && !isPhoneVerified && phone !== currentUser.phone) {
+                showToast('দয়া করে ফোন নম্বর ভেরিফাই করুন!', 'error');
+                return;
+            }
+
+            // If phone is being removed, allow it
+            const phoneToSave = isPhoneVerified ? phone : currentUser.phone || '';
+            const phoneVerified = isPhoneVerified || currentUser.phoneVerified || false;
+
+            await updateUserProfile(displayName, photoURL, phoneToSave, phoneVerified);
             profileModal.classList.remove('active');
         });
 
@@ -2323,8 +2721,11 @@
         window.db = db;
         window.auth = auth;
 
-        console.log('🔥 ConnectBD Private Chat ready!');
+        console.log('🔥 ConnectBD Private Chat ready with REAL Firebase Phone Authentication!');
+        console.log('📱 Now OTP will be sent to your REAL phone number via SMS!');
         console.log('📌 Features:');
+        console.log('  ✅ Real Phone Number Verification (Firebase Auth)');
+        console.log('  ✅ OTP sent via SMS to your phone');
         console.log('  ✅ Image Upload (Base64 - No Storage needed)');
         console.log('  ✅ Image Download');
         console.log('  ✅ Profile Picture Upload (Auto Compressed)');
@@ -2334,6 +2735,7 @@
         console.log('  ✅ Online/Offline Status');
         console.log('  ✅ Unread Message Count');
         console.log('🔧 To fix all users, run: fixAllUsers()');
+        console.log('📱 REAL SMS will be sent to your phone number!');
     </script>
 </body>
 </html>
