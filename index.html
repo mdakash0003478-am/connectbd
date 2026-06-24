@@ -276,15 +276,6 @@
             text-align: center;
         }
 
-        .friend-item .typing-indicator {
-            font-size: 0.6rem;
-            color: #1976D2;
-            font-style: italic;
-            position: absolute;
-            bottom: 2px;
-            right: 12px;
-        }
-
         .request-item {
             display: flex;
             align-items: center;
@@ -497,6 +488,19 @@
             line-height: 1.4;
         }
 
+        .message .msg-text img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin: 4px 0;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .message .msg-text img:hover {
+            transform: scale(1.02);
+        }
+
         .message .msg-time {
             font-size: 0.6rem;
             opacity: 0.6;
@@ -547,12 +551,6 @@
             color: #1976D2;
         }
 
-        .message .msg-text.editing {
-            background: rgba(255, 255, 0, 0.1);
-            border-radius: 4px;
-            padding: 2px;
-        }
-
         .typing-indicator-global {
             font-size: 0.7rem;
             color: #1976D2;
@@ -567,9 +565,17 @@
             margin-top: 8px;
             padding-top: 10px;
             border-top: 1px solid rgba(60, 130, 180, 0.1);
+            flex-wrap: wrap;
         }
 
-        .input-area input {
+        .input-area .input-wrapper {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .input-area input[type="text"] {
             flex: 1;
             padding: 10px 16px;
             border: 1px solid #dce3e9;
@@ -578,20 +584,45 @@
             outline: none;
             background: rgba(255, 255, 255, 0.6);
             transition: 0.15s;
+            min-width: 0;
         }
 
-        .input-area input:focus {
+        .input-area input[type="text"]:focus {
             border-color: #1976D2;
             background: white;
             box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.08);
         }
 
-        .input-area input:disabled {
+        .input-area input[type="text"]:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .input-area button {
+        .input-area .file-upload-btn {
+            padding: 10px 16px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .input-area .file-upload-btn:hover:not(:disabled) {
+            background: #388e3c;
+            transform: scale(1.02);
+        }
+
+        .input-area .file-upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .input-area .send-btn {
             padding: 10px 24px;
             border: none;
             background: #1976D2;
@@ -604,12 +635,12 @@
             white-space: nowrap;
         }
 
-        .input-area button:hover:not(:disabled) {
+        .input-area .send-btn:hover:not(:disabled) {
             background: #1565C0;
             transform: scale(1.02);
         }
 
-        .input-area button:disabled {
+        .input-area .send-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -697,6 +728,25 @@
             border: 3px solid #1976D2;
         }
 
+        .modal .profile-pic-wrapper {
+            position: relative;
+            width: 100px;
+            margin: 0 auto 1rem;
+        }
+
+        .modal .profile-pic-wrapper .upload-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            cursor: pointer;
+        }
+
         .modal .form-group {
             margin-bottom: 1rem;
         }
@@ -755,6 +805,32 @@
             background: #d0d0d0;
         }
 
+        /* Image Preview Modal */
+        .image-preview-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .image-preview-overlay.active {
+            display: flex;
+        }
+
+        .image-preview-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
         @media (max-width: 768px) {
             .app-container {
                 padding: 1.2rem;
@@ -780,6 +856,13 @@
                 max-height: 250px;
                 min-height: 180px;
             }
+            .input-area .input-wrapper {
+                flex-wrap: wrap;
+            }
+            .message .msg-text img {
+                max-width: 150px;
+                max-height: 150px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -795,6 +878,10 @@
             }
             .sidebar {
                 max-height: 180px;
+            }
+            .message .msg-text img {
+                max-width: 120px;
+                max-height: 120px;
             }
         }
     </style>
@@ -873,8 +960,11 @@
                 </div>
 
                 <div class="input-area">
-                    <input type="text" id="messageInput" placeholder="মেসেজ লিখুন..." disabled />
-                    <button id="sendBtn" disabled>পাঠান</button>
+                    <div class="input-wrapper">
+                        <input type="text" id="messageInput" placeholder="মেসেজ লিখুন..." disabled />
+                        <button class="file-upload-btn" id="fileUploadBtn" disabled>📎</button>
+                        <button class="send-btn" id="sendBtn" disabled>পাঠান</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -884,7 +974,10 @@
     <div class="modal-overlay" id="profileModal">
         <div class="modal">
             <h2>👤 প্রোফাইল</h2>
-            <img id="modalProfilePic" class="profile-pic" src="" alt="Profile" />
+            <div class="profile-pic-wrapper">
+                <img id="modalProfilePic" class="profile-pic" src="" alt="Profile" />
+                <div class="upload-overlay" id="modalUploadPic">📸 পরিবর্তন</div>
+            </div>
             <div class="form-group">
                 <label>ডিসপ্লে নাম</label>
                 <input type="text" id="modalDisplayName" />
@@ -893,10 +986,6 @@
                 <label>ইমেইল</label>
                 <input type="email" id="modalEmail" disabled />
             </div>
-            <div class="form-group">
-                <label>প্রোফাইল ছবি (URL)</label>
-                <input type="text" id="modalPhotoURL" placeholder="https://example.com/photo.jpg" />
-            </div>
             <div class="modal-actions">
                 <button class="cancel-btn" id="modalCancel">বাতিল</button>
                 <button class="save-btn" id="modalSave">সেভ করুন</button>
@@ -904,7 +993,15 @@
         </div>
     </div>
 
+    <!-- Image Preview Modal -->
+    <div class="image-preview-overlay" id="imagePreview">
+        <img id="previewImage" src="" alt="Preview" />
+    </div>
+
     <div id="toast" class="toast"></div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="fileInput" accept="image/*" style="display: none;" />
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -913,7 +1010,8 @@
             GoogleAuthProvider,
             signInWithPopup,
             signOut,
-            onAuthStateChanged
+            onAuthStateChanged,
+            updateProfile
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import {
             getDatabase,
@@ -932,6 +1030,12 @@
             onChildRemoved,
             onChildChanged
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import {
+            getStorage,
+            ref as storageRef,
+            uploadBytes,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
@@ -947,6 +1051,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
+        const storage = getStorage(app);
 
         // DOM Elements
         const messagesContainer = document.getElementById('messagesContainer');
@@ -970,15 +1075,21 @@
         const toastEl = document.getElementById('toast');
         const typingIndicator = document.getElementById('typingIndicator');
         const logoClick = document.getElementById('logoClick');
+        const fileUploadBtn = document.getElementById('fileUploadBtn');
+        const fileInput = document.getElementById('fileInput');
 
         // Modal Elements
         const profileModal = document.getElementById('profileModal');
         const modalProfilePic = document.getElementById('modalProfilePic');
         const modalDisplayName = document.getElementById('modalDisplayName');
         const modalEmail = document.getElementById('modalEmail');
-        const modalPhotoURL = document.getElementById('modalPhotoURL');
         const modalSave = document.getElementById('modalSave');
         const modalCancel = document.getElementById('modalCancel');
+        const modalUploadPic = document.getElementById('modalUploadPic');
+
+        // Image Preview
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
 
         let currentUser = null;
         let currentChatFriend = null;
@@ -988,7 +1099,7 @@
         let allUsersCache = {};
         let unreadCounts = {};
         let typingTimeout = null;
-        let isTyping = false;
+        let selectedFile = null;
 
         // Toast
         let toastTimeout = null;
@@ -1009,6 +1120,44 @@
             }, 3500);
         }
 
+        // ===== Upload Image to Firebase Storage =====
+        async function uploadImage(file, path) {
+            try {
+                const imageRef = storageRef(storage, path);
+                const snapshot = await uploadBytes(imageRef, file);
+                const downloadURL = await getDownloadURL(snapshot.ref);
+                return downloadURL;
+            } catch (error) {
+                console.error('Image upload error:', error);
+                showToast('ছবি আপলোড করতে ব্যর্থ!', 'error');
+                return null;
+            }
+        }
+
+        // ===== Send Image Message =====
+        async function sendImageMessage(imageURL) {
+            if (!imageURL || !currentUser || !currentChatFriend) return;
+
+            const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
+            const messagesRef = ref(db, `privateChats/${chatId}/messages`);
+            const newMsgRef = push(messagesRef);
+
+            await set(newMsgRef, {
+                text: '📷',
+                image: imageURL,
+                uid: currentUser.uid,
+                displayName: currentUser.displayName || 'ইউজার',
+                photoURL: currentUser.photoURL || '',
+                timestamp: Date.now()
+            });
+
+            // Update unread count
+            const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
+            const snapshot = await get(unreadRef);
+            const count = (snapshot.val() || 0) + 1;
+            await set(unreadRef, count);
+        }
+
         // ===== Save user data =====
         async function saveUserData(user) {
             try {
@@ -1027,19 +1176,16 @@
                 if (!existingData || !existingData.displayName || !existingData.email) {
                     console.log('📝 Creating/Updating user with complete data...');
                     await set(userRef, completeUserData);
-                    showToast('✅ ইউজার ডেটা সেভ করা হয়েছে!', 'success');
                     return true;
                 } else {
                     await update(userRef, {
                         online: true,
                         lastSeen: Date.now()
                     });
-                    console.log('🔄 Updated online status for existing user');
                     return false;
                 }
             } catch (error) {
                 console.error('❌ Error saving user data:', error);
-                showToast('ডেটা সেভ করতে ব্যর্থ!', 'error');
                 return false;
             }
         }
@@ -1092,7 +1238,6 @@
                     displayName: displayName,
                     photoURL: photoURL
                 });
-                // Update auth profile
                 await updateProfile(auth.currentUser, {
                     displayName: displayName,
                     photoURL: photoURL
@@ -1104,7 +1249,7 @@
             }
         }
 
-        // Update UI based on auth state
+        // Update UI
         function updateUI(user) {
             currentUser = user;
             if (user) {
@@ -1115,18 +1260,19 @@
                 logoutBtn.style.display = 'inline-block';
                 messageInput.disabled = false;
                 sendBtn.disabled = false;
+                fileUploadBtn.disabled = false;
 
                 loadFriendsAndRequests();
                 loadAllUsers();
                 
                 console.log('🔧 To fix all users, run: fixAllUsers()');
-                console.log('📝 Current user:', user.displayName, user.email);
             } else {
                 userProfileMini.style.display = 'none';
                 loginBtn.style.display = 'inline-block';
                 logoutBtn.style.display = 'none';
                 messageInput.disabled = true;
                 sendBtn.disabled = true;
+                fileUploadBtn.disabled = true;
                 messagesContainer.innerHTML = `
                     <div class="empty-state">
                         <div class="icon">🔑</div>
@@ -1146,19 +1292,18 @@
             }
         }
 
-        // Load all users for search
+        // Load all users
         function loadAllUsers() {
             const usersRef = ref(db, 'users');
             onValue(usersRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     allUsersCache = data;
-                    console.log('📊 Users loaded:', Object.keys(data).length);
                 }
             });
         }
 
-        // Load friends and friend requests
+        // Load friends
         function loadFriendsAndRequests() {
             if (!currentUser) return;
 
@@ -1166,8 +1311,7 @@
             onValue(friendsRef, (snapshot) => {
                 const data = snapshot.val();
                 friends = data || {};
-                const count = Object.keys(friends).length;
-                friendCount.textContent = count;
+                friendCount.textContent = Object.keys(friends).length;
                 renderFriends();
                 loadUnreadCounts();
             });
@@ -1192,7 +1336,7 @@
             });
         }
 
-        // Mark messages as read
+        // Mark as read
         async function markAsRead(friendUid) {
             if (!currentUser || !friendUid) return;
             const unreadRef = ref(db, `unread/${currentUser.uid}/${friendUid}`);
@@ -1201,7 +1345,7 @@
             renderFriends();
         }
 
-        // Render friends list
+        // Render friends
         function renderFriends() {
             const searchTerm = searchFriend.value.toLowerCase();
             let html = '';
@@ -1226,7 +1370,6 @@
                             <span class="friend-name">${name}</span>
                             ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
                             <span class="status-dot ${friend.online ? '' : 'offline'}"></span>
-                            ${friend.isTyping ? '<span class="typing-indicator">🔵 টাইপ করছে...</span>' : ''}
                         </div>
                     `;
                 });
@@ -1244,7 +1387,7 @@
             });
         }
 
-        // Render friend requests
+        // Render requests
         function renderRequests() {
             let html = '';
             let pendingRequests = Object.keys(requests).filter(key => requests[key].status === 'pending');
@@ -1377,20 +1520,18 @@
             }
         }
 
-        // ===== Typing indicator =====
+        // Typing indicator
         function handleTyping() {
             if (!currentUser || !currentChatFriend) return;
-            
             const typingRef = ref(db, `typing/${currentChatFriend}/${currentUser.uid}`);
             set(typingRef, true);
-            
             if (typingTimeout) clearTimeout(typingTimeout);
             typingTimeout = setTimeout(() => {
                 remove(typingRef);
             }, 2000);
         }
 
-        // Start chat with a friend
+        // Start chat
         function startChat(friendUid) {
             if (!friends[friendUid]) {
                 showToast('এই ইউজার আপনার বন্ধু নয়!', 'error');
@@ -1410,26 +1551,19 @@
             chatStatus.textContent = friend.online ? '🟢 অনলাইন' : '⚪ অফলাইন';
             chatStatus.className = `chat-status ${friend.online ? 'online' : ''}`;
 
-            // Mark messages as read
             markAsRead(friendUid);
 
-            // Update active state
             document.querySelectorAll('.friend-item').forEach(el => {
                 el.classList.toggle('active', el.dataset.uid === friendUid);
             });
 
-            // Load messages
             loadPrivateMessages(friendUid);
             messageInput.disabled = false;
             sendBtn.disabled = false;
+            fileUploadBtn.disabled = false;
             messageInput.focus();
             
             // Listen for typing
-            listenForTyping(friendUid);
-        }
-
-        // Listen for typing
-        function listenForTyping(friendUid) {
             const typingRef = ref(db, `typing/${currentUser.uid}/${friendUid}`);
             onValue(typingRef, (snapshot) => {
                 const isTyping = snapshot.val();
@@ -1444,7 +1578,7 @@
             });
         }
 
-        // Load private messages
+        // Load messages
         function loadPrivateMessages(friendUid) {
             if (messageListener) {
                 messageListener();
@@ -1460,7 +1594,6 @@
 
             messagesContainer.innerHTML = '';
 
-            // Add listener for new messages
             messageListener = onChildAdded(messagesRef, (snapshot) => {
                 const msg = snapshot.val();
                 const msgKey = snapshot.key;
@@ -1472,7 +1605,6 @@
                 appendMessage(msgKey, msg);
             });
 
-            // Listen for message edits
             onChildChanged(messagesRef, (snapshot) => {
                 const msg = snapshot.val();
                 const msgKey = snapshot.key;
@@ -1482,26 +1614,26 @@
                 if (msgElement) {
                     const textElement = msgElement.querySelector('.msg-text');
                     if (textElement) {
-                        textElement.textContent = msg.text;
-                        if (msg.edited) {
-                            textElement.textContent += ' (edited)';
+                        if (msg.image) {
+                            textElement.innerHTML = `<img src="${msg.image}" alt="Image" onclick="document.getElementById('previewImage').src='${msg.image}';document.getElementById('imagePreview').classList.add('active')" />`;
+                        } else {
+                            textElement.innerHTML = msg.text + (msg.edited ? ' <span style="font-size:0.6rem;">(edited)</span>' : '');
                         }
                     }
                 }
             });
 
-            // Listen for message deletions
             onChildRemoved(messagesRef, (snapshot) => {
                 const msgKey = snapshot.key;
                 const msgElement = messagesContainer.querySelector(`[data-key="${msgKey}"]`);
                 if (msgElement) {
                     msgElement.style.opacity = '0.3';
-                    msgElement.querySelector('.msg-text').textContent = '🔴 This message was deleted';
+                    msgElement.querySelector('.msg-text').innerHTML = '🔴 This message was deleted';
                 }
             });
         }
 
-        // Append message to container
+        // Append message
         function appendMessage(msgKey, msg) {
             const isOwn = msg.uid === currentUser.uid;
             const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('bn-BD', { hour: '2-digit',
@@ -1515,11 +1647,18 @@
             const avatar = msg.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(msg
                 .displayName || 'U') + '&background=1976D2&color=fff';
 
+            let content = '';
+            if (msg.image) {
+                content = `<img src="${msg.image}" alt="Image" onclick="document.getElementById('previewImage').src='${msg.image}';document.getElementById('imagePreview').classList.add('active')" />`;
+            } else {
+                content = msg.text + (msg.edited ? ' <span style="font-size:0.6rem;">(edited)</span>' : '');
+            }
+
             div.innerHTML = `
                 <img src="${avatar}" alt="avatar" class="msg-avatar" />
                 <div class="msg-bubble">
                     <div class="msg-sender">${isOwn ? 'আপনি' : (msg.displayName || 'ইউজার')}</div>
-                    <div class="msg-text">${msg.text}${msg.edited ? ' <span style="font-size:0.6rem;">(edited)</span>' : ''}</div>
+                    <div class="msg-text">${content}</div>
                     <div class="msg-time">${time}</div>
                     <div class="message-actions">
                         ${isOwn ? `
@@ -1533,7 +1672,6 @@
             messagesContainer.appendChild(div);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-            // Add event listeners for actions
             if (isOwn) {
                 div.querySelector('.edit-btn')?.addEventListener('click', () => {
                     editMessage(msgKey, msg.text);
@@ -1544,7 +1682,7 @@
             }
         }
 
-        // ===== Delete message =====
+        // Delete message
         async function deleteMessage(msgKey) {
             if (!currentUser || !currentChatFriend) return;
             if (!confirm('এই মেসেজ ডিলিট করতে চান?')) return;
@@ -1562,7 +1700,7 @@
             }
         }
 
-        // ===== Edit message =====
+        // Edit message
         async function editMessage(msgKey, oldText) {
             if (!currentUser || !currentChatFriend) return;
             const newText = prompt('মেসেজ এডিট করুন:', oldText);
@@ -1582,7 +1720,7 @@
             }
         }
 
-        // ===== Send private message =====
+        // Send message
         async function sendPrivateMessage() {
             const text = messageInput.value.trim();
             if (!text || !currentUser || !currentChatFriend) return;
@@ -1599,7 +1737,6 @@
                 timestamp: Date.now()
             });
 
-            // Update unread count for friend
             const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
             const snapshot = await get(unreadRef);
             const count = (snapshot.val() || 0) + 1;
@@ -1609,7 +1746,48 @@
             messageInput.focus();
         }
 
-        // Search user
+        // ===== File Upload Handler =====
+        fileUploadBtn.addEventListener('click', () => {
+            if (!currentUser || !currentChatFriend) {
+                showToast('প্রথমে একটি চ্যাট নির্বাচন করুন!', 'error');
+                return;
+            }
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast('শুধু ছবি আপলোড করতে পারবেন!', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('ছবি 5MB এর কম হতে হবে!', 'error');
+                return;
+            }
+
+            showToast('📤 ছবি আপলোড হচ্ছে...', 'success');
+            
+            const path = `chat_images/${currentUser.uid}/${Date.now()}_${file.name}`;
+            const imageURL = await uploadImage(file, path);
+            
+            if (imageURL) {
+                await sendImageMessage(imageURL);
+                showToast('✅ ছবি পাঠানো হয়েছে!');
+            }
+            
+            fileInput.value = '';
+        });
+
+        // ===== Image Preview =====
+        imagePreview.addEventListener('click', () => {
+            imagePreview.classList.remove('active');
+        });
+
+        // ===== Search =====
         searchUserBtn.addEventListener('click', async () => {
             const query = searchUser.value.trim().toLowerCase();
             if (!query) {
@@ -1632,8 +1810,6 @@
                     foundUsers.push({ uid, ...user });
                 }
             });
-
-            console.log('🔍 Search results:', foundUsers.length);
 
             if (foundUsers.length === 0) {
                 searchResults.innerHTML = `<div style="color: #53768b; font-size: 0.8rem;">কোনো ইউজার পাওয়া যায়নি</div>`;
@@ -1668,16 +1844,13 @@
             });
         });
 
-        // Search friend filter
         searchFriend.addEventListener('input', renderFriends);
 
-        // Send message on enter or button click
+        // Send message
         sendBtn.onclick = sendPrivateMessage;
         messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendPrivateMessage();
         });
-
-        // Typing indicator
         messageInput.addEventListener('input', handleTyping);
 
         // ===== Login =====
@@ -1688,15 +1861,10 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 
-                console.log('👤 User logged in:', user.displayName);
-                console.log('📧 Email:', user.email);
-                console.log('🆔 UID:', user.uid);
-                
                 await saveUserData(user);
                 showToast(`স্বাগতম ${user.displayName || 'ইউজার'}! 🎉`);
                 
                 setTimeout(async () => {
-                    console.log('🔍 Checking if fix needed...');
                     const usersRef = ref(db, 'users');
                     const snapshot = await get(usersRef);
                     const users = snapshot.val();
@@ -1713,15 +1881,12 @@
                         if (confirm('🔧 কিছু ইউজারের ডেটা ঠিক করতে হবে। এখনই ঠিক করবেন?')) {
                             await fixAllUsers();
                         }
-                    } else {
-                        console.log('✅ All users have complete data!');
                     }
                 }, 2000);
                 
             } catch (error) {
                 if (error.code !== 'auth/popup-closed-by-user') {
                     showToast(`লগইন ব্যর্থ: ${error.message}`, 'error');
-                    console.error('Login error:', error);
                 }
             }
         };
@@ -1756,7 +1921,6 @@
             modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
             modalDisplayName.value = currentUser.displayName || '';
             modalEmail.value = currentUser.email || '';
-            modalPhotoURL.value = currentUser.photoURL || '';
             profileModal.classList.add('active');
         });
 
@@ -1765,8 +1929,33 @@
             modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
             modalDisplayName.value = currentUser.displayName || '';
             modalEmail.value = currentUser.email || '';
-            modalPhotoURL.value = currentUser.photoURL || '';
             profileModal.classList.add('active');
+        });
+
+        // Profile picture upload in modal
+        modalUploadPic.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('ছবি 5MB এর কম হতে হবে!', 'error');
+                    return;
+                }
+                
+                showToast('📤 আপলোড হচ্ছে...', 'success');
+                const path = `profile_pics/${currentUser.uid}/${Date.now()}_${file.name}`;
+                const url = await uploadImage(file, path);
+                if (url) {
+                    modalProfilePic.src = url;
+                    modalPhotoURL.value = url;
+                    showToast('✅ প্রোফাইল ছবি আপলোড হয়েছে!');
+                }
+            };
+            input.click();
         });
 
         modalCancel.addEventListener('click', () => {
@@ -1775,7 +1964,7 @@
 
         modalSave.addEventListener('click', async () => {
             const displayName = modalDisplayName.value.trim();
-            const photoURL = modalPhotoURL.value.trim();
+            const photoURL = modalProfilePic.src;
             if (!displayName) {
                 showToast('নাম দেওয়া আবশ্যক!', 'error');
                 return;
@@ -1784,7 +1973,6 @@
             profileModal.classList.remove('active');
         });
 
-        // Close modal on outside click
         profileModal.addEventListener('click', (e) => {
             if (e.target === profileModal) {
                 profileModal.classList.remove('active');
@@ -1799,20 +1987,20 @@
             }
         });
 
-        // ===== EXPOSE functions to console =====
+        // ===== EXPOSE functions =====
         window.fixAllUsers = fixAllUsers;
         window.saveUserData = saveUserData;
         window.db = db;
         window.auth = auth;
 
-        console.log('🔥 ConnectBD Private Chat ready with all features!');
-        console.log('📌 Features added:');
-        console.log('  ✅ Friend Request block');
-        console.log('  ✅ Chat message delete/edit');
-        console.log('  ✅ Typing indicator');
-        console.log('  ✅ Online/Offline status');
-        console.log('  ✅ Unread message count');
-        console.log('  ✅ Profile picture update');
+        console.log('🔥 ConnectBD Private Chat ready with Image Upload!');
+        console.log('📌 Features:');
+        console.log('  ✅ Image Upload (Click 📎 button)');
+        console.log('  ✅ Profile Picture Upload');
+        console.log('  ✅ Chat Message Delete/Edit');
+        console.log('  ✅ Typing Indicator');
+        console.log('  ✅ Online/Offline Status');
+        console.log('  ✅ Unread Message Count');
         console.log('🔧 To fix all users, run: fixAllUsers()');
     </script>
 </body>
