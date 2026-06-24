@@ -1939,7 +1939,10 @@
 
         // Send friend request
         async function sendFriendRequest(toUid) {
-            if (!currentUser) return;
+            if (!currentUser) {
+                showToast('প্রথমে লগইন করুন!', 'error');
+                return;
+            }
             if (toUid === currentUser.uid) {
                 showToast('নিজেকে ফ্রেন্ড রিকোয়েস্ট পাঠানো যায় না!', 'error');
                 return;
@@ -1975,8 +1978,11 @@
                 });
 
                 showToast('ফ্রেন্ড রিকোয়েস্ট পাঠানো হয়েছে! 📨');
-                searchResults.innerHTML = `<div style="color: #4caf50;">✅ রিকোয়েস্ট পাঠানো হয়েছে</div>`;
+                searchResults.innerHTML = `<div style="color: #4caf50; padding: 8px; background: #e8f5e9; border-radius: 8px;">✅ রিকোয়েস্ট পাঠানো হয়েছে</div>`;
+                // Refresh search results
+                performSearch();
             } catch (error) {
+                console.error('Send friend request error:', error);
                 showToast(`রিকোয়েস্ট পাঠাতে ব্যর্থ: ${error.message}`, 'error');
             }
         }
@@ -1991,6 +1997,12 @@
 
             if (!currentUser) {
                 showToast('লগইন করুন প্রথমে!', 'error');
+                return;
+            }
+
+            // Ensure we have users loaded
+            if (Object.keys(allUsersCache).length === 0) {
+                searchResults.innerHTML = `<div style="color: #ff9800; padding: 8px;">⏳ ইউজার লোড হচ্ছে...</div>`;
                 return;
             }
 
@@ -2022,7 +2034,7 @@
             console.log('🔍 Search results:', foundUsers.length, 'Type:', searchType);
 
             if (foundUsers.length === 0) {
-                searchResults.innerHTML = `<div style="color: #53768b; font-size: 0.8rem;">কোনো ইউজার পাওয়া যায়নি</div>`;
+                searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ কোনো ইউজার পাওয়া যায়নি</div>`;
                 return;
             }
 
@@ -2041,16 +2053,16 @@
                 }
 
                 html += `
-                    <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
-                        <img src="${photo}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;" />
-                        <span style="flex: 1; font-size: 0.85rem;">
-                            ${user.displayName || 'ইউজার'}
-                            ${phoneStatus ? `<span style="font-size:0.7rem;color:#53768b;"> ${phoneStatus}</span>` : ''}
+                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px 4px; border-bottom: 1px solid rgba(0,0,0,0.08);">
+                        <img src="${photo}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white;" />
+                        <div style="flex: 1; font-size: 0.85rem;">
+                            <strong style="color: #0b2b40;">${user.displayName || 'ইউজার'}</strong>
+                            ${phoneStatus ? `<span style="font-size:0.7rem;color:#53768b;display:block;">${phoneStatus}</span>` : ''}
                             <span style="font-size:0.65rem;color:#53768b;display:block;">${user.email || ''}</span>
-                        </span>
-                        ${isFriend ? '<span style="color: #4caf50; font-size: 0.7rem;">✅ বন্ধু</span>' :
-                        isRequested ? '<span style="color: #ff9800; font-size: 0.7rem;">⏳ রিকোয়েস্ট পাঠানো</span>' :
-                        `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
+                        </div>
+                        ${isFriend ? '<span style="color: #4caf50; font-size: 0.75rem; font-weight: 600;">✅ বন্ধু</span>' :
+                        isRequested ? '<span style="color: #ff9800; font-size: 0.75rem; font-weight: 600;">⏳ রিকোয়েস্ট পাঠানো</span>' :
+                        `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px; background: #1976D2; color: white; border: none; border-radius: 20px; cursor: pointer;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
                         }
                     </div>
                 `;
@@ -2059,7 +2071,8 @@
             searchResults.innerHTML = html;
 
             document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     sendFriendRequest(btn.dataset.uid);
                 });
             });
