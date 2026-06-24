@@ -1750,6 +1750,40 @@
                         performSearch();
                     }
                 }
+            }, (error) => {
+                console.warn('⚠️ Could not load users (permission issue):', error);
+                // Try to load from friends list instead
+                if (currentUser) {
+                    loadFriendsAsUsers();
+                }
+            });
+        }
+
+        // Load friends as users (fallback when permission denied)
+        function loadFriendsAsUsers() {
+            if (!currentUser) return;
+            const friendsRef = ref(db, `friends/${currentUser.uid}`);
+            onValue(friendsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Add friends to users cache
+                    Object.keys(data).forEach(uid => {
+                        if (!allUsersCache[uid]) {
+                            allUsersCache[uid] = {
+                                displayName: data[uid].displayName || 'ইউজার',
+                                email: data[uid].email || '',
+                                photoURL: data[uid].photoURL || '',
+                                phone: data[uid].phone || '',
+                                phoneVerified: data[uid].phoneVerified || false,
+                                online: data[uid].online || false
+                            };
+                        }
+                    });
+                    console.log('📊 Friends loaded as users:', Object.keys(data).length);
+                    if (searchUser.value.trim()) {
+                        performSearch();
+                    }
+                }
             });
         }
 
@@ -2007,90 +2041,124 @@
             // Show loading state
             searchResults.innerHTML = `<div style="color: #1976D2; padding: 8px;">⏳ খুঁজছি...</div>`;
 
-            // Get users from database directly
+            // First try to get users from database
             const usersRef = ref(db, 'users');
             get(usersRef).then((snapshot) => {
                 const data = snapshot.val();
-                if (!data) {
-                    searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ কোনো ইউজার নেই</div>`;
-                    return;
+                if (data) {
+                    allUsersCache = data;
+                    displaySearchResults(data);
+                } else {
+                    // If no data, try friends list
+                    if (Object.keys(friends).length > 0) {
+                        searchResults.innerHTML = `<div style="color: #ff9800; padding: 8px;">⚠️ শুধুমাত্র আপনার বন্ধুদের মধ্যে খুঁজছি...</div>`;
+                        displaySearchResults(allUsersCache);
+                    } else {
+                        searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ কোনো ইউজার পাওয়া যায়নি</div>`;
+                    }
                 }
-
-                allUsersCache = data;
-                
-                let foundUsers = [];
-                Object.keys(data).forEach(uid => {
-                    const user = data[uid];
-                    if (uid === currentUser.uid) return;
-                    
-                    const email = (user.email || '').toLowerCase();
-                    const phone = (user.phone || '').toLowerCase();
-                    
-                    let match = false;
-                    switch(searchType) {
-                        case 'email':
-                            match = email.includes(query);
-                            break;
-                        case 'phone':
-                            match = phone.includes(query);
-                            break;
-                        default:
-                            match = email.includes(query) || phone.includes(query);
-                    }
-                    
-                    if (match) {
-                        foundUsers.push({ uid, ...user });
-                    }
-                });
-
-                console.log('🔍 Search results:', foundUsers.length, 'Type:', searchType);
-
-                if (foundUsers.length === 0) {
-                    searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ "${query}" দিয়ে কোনো ইউজার পাওয়া যায়নি</div>`;
-                    return;
-                }
-
-                let html = '';
-                foundUsers.forEach(user => {
-                    const isFriend = friends[user.uid];
-                    const isRequested = requests[user.uid] && requests[user.uid].status === 'pending';
-                    const photo = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
-                        .displayName || 'U') + '&background=1976D2&color=fff';
-
-                    let phoneStatus = '';
-                    if (user.phone) {
-                        phoneStatus = user.phoneVerified ? 
-                            `✅ 📱${user.phone}` : 
-                            `⚠️ 📱${user.phone}`;
-                    }
-
-                    html += `
-                        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 4px; border-bottom: 1px solid rgba(0,0,0,0.08);">
-                            <img src="${photo}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white;" />
-                            <div style="flex: 1; font-size: 0.85rem;">
-                                <strong style="color: #0b2b40;">${user.displayName || 'ইউজার'}</strong>
-                                ${phoneStatus ? `<span style="font-size:0.7rem;color:#53768b;display:block;">${phoneStatus}</span>` : ''}
-                                <span style="font-size:0.65rem;color:#53768b;display:block;">${user.email || ''}</span>
-                            </div>
-                            ${isFriend ? '<span style="color: #4caf50; font-size: 0.75rem; font-weight: 600;">✅ বন্ধু</span>' :
-                            isRequested ? '<span style="color: #ff9800; font-size: 0.75rem; font-weight: 600;">⏳ রিকোয়েস্ট পাঠানো</span>' :
-                            `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px; background: #1976D2; color: white; border: none; border-radius: 20px; cursor: pointer;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
-                            }
-                        </div>
-                    `;
-                });
-
-                searchResults.innerHTML = html;
-
-                document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        sendFriendRequest(btn.dataset.uid);
-                    });
-                });
             }).catch((error) => {
-                console.error('Search error:', error);
-                searchResults.innerHTML = `<div style="color: #d32f2f; padding: 8px;">❌ সার্চ করতে ব্যর্থ: ${error.message}</div>`;
+                console.warn('⚠️ Permission denied for users list, trying friends list only...');
+                // If permission denied, use friends list
+                if (Object.keys(friends).length > 0) {
+                    // Build friends data in cache
+                    Object.keys(friends).forEach(uid => {
+                        if (!allUsersCache[uid]) {
+                            allUsersCache[uid] = {
+                                displayName: friends[uid].displayName || 'ইউজার',
+                                email: friends[uid].email || '',
+                                photoURL: friends[uid].photoURL || '',
+                                phone: friends[uid].phone || '',
+                                phoneVerified: friends[uid].phoneVerified || false,
+                                online: friends[uid].online || false
+                            };
+                        }
+                    });
+                    searchResults.innerHTML = `<div style="color: #ff9800; padding: 8px;">⚠️ শুধুমাত্র আপনার বন্ধুদের মধ্যে খুঁজছি...</div>`;
+                    displaySearchResults(allUsersCache);
+                } else {
+                    searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ কোনো বন্ধু নেই। নতুন বন্ধু যোগ করতে পারেন!</div>`;
+                }
+            });
+        }
+
+        // Display search results
+        function displaySearchResults(usersData) {
+            const query = searchUser.value.trim().toLowerCase();
+            if (!query) {
+                searchResults.innerHTML = '';
+                return;
+            }
+
+            let foundUsers = [];
+            Object.keys(usersData).forEach(uid => {
+                const user = usersData[uid];
+                if (uid === currentUser.uid) return;
+                
+                const email = (user.email || '').toLowerCase();
+                const phone = (user.phone || '').toLowerCase();
+                
+                let match = false;
+                switch(searchType) {
+                    case 'email':
+                        match = email.includes(query);
+                        break;
+                    case 'phone':
+                        match = phone.includes(query);
+                        break;
+                    default:
+                        match = email.includes(query) || phone.includes(query);
+                }
+                
+                if (match) {
+                    foundUsers.push({ uid, ...user });
+                }
+            });
+
+            console.log('🔍 Search results:', foundUsers.length, 'Type:', searchType);
+
+            if (foundUsers.length === 0) {
+                searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ "${query}" দিয়ে কোনো ইউজার পাওয়া যায়নি</div>`;
+                return;
+            }
+
+            let html = '';
+            foundUsers.forEach(user => {
+                const isFriend = friends[user.uid];
+                const isRequested = requests[user.uid] && requests[user.uid].status === 'pending';
+                const photo = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
+                    .displayName || 'U') + '&background=1976D2&color=fff';
+
+                let phoneStatus = '';
+                if (user.phone) {
+                    phoneStatus = user.phoneVerified ? 
+                        `✅ 📱${user.phone}` : 
+                        `⚠️ 📱${user.phone}`;
+                }
+
+                html += `
+                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px 4px; border-bottom: 1px solid rgba(0,0,0,0.08);">
+                        <img src="${photo}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white;" />
+                        <div style="flex: 1; font-size: 0.85rem;">
+                            <strong style="color: #0b2b40;">${user.displayName || 'ইউজার'}</strong>
+                            ${phoneStatus ? `<span style="font-size:0.7rem;color:#53768b;display:block;">${phoneStatus}</span>` : ''}
+                            <span style="font-size:0.65rem;color:#53768b;display:block;">${user.email || ''}</span>
+                        </div>
+                        ${isFriend ? '<span style="color: #4caf50; font-size: 0.75rem; font-weight: 600;">✅ বন্ধু</span>' :
+                        isRequested ? '<span style="color: #ff9800; font-size: 0.75rem; font-weight: 600;">⏳ রিকোয়েস্ট পাঠানো</span>' :
+                        `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px; background: #1976D2; color: white; border: none; border-radius: 20px; cursor: pointer;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
+                        }
+                    </div>
+                `;
+            });
+
+            searchResults.innerHTML = html;
+
+            document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sendFriendRequest(btn.dataset.uid);
+                });
             });
         }
 
