@@ -698,16 +698,16 @@
             remove,
             onChildRemoved
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
-            authDomain: "connectbd-4a8f2.firebaseapp.com",
-            projectId: "connectbd-4a8f2",
-            storageBucket: "connectbd-4a8f2.firebasestorage.app",
-            messagingSenderId: "38217840543",
-            appId: "1:38217840543:web:aeedd8517f697b16c12faa",
-            measurementId: "G-RPBSS1M9LD"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
+  authDomain: "connectbd-4a8f2.firebaseapp.com",
+  databaseURL: "https://connectbd-4a8f2-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "connectbd-4a8f2",
+  storageBucket: "connectbd-4a8f2.firebasestorage.app",
+  messagingSenderId: "38217840543",
+  appId: "1:38217840543:web:aeedd8517f697b16c12faa",
+  measurementId: "G-RPBSS1M9LD"
+};
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
