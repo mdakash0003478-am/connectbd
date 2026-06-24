@@ -1233,7 +1233,6 @@
             onChildAdded,
             set,
             get,
-            child,
             update,
             onValue,
             query,
@@ -1746,6 +1745,10 @@
                 if (data) {
                     allUsersCache = data;
                     console.log('📊 Users loaded:', Object.keys(data).length);
+                    // If there's a search query, re-run search
+                    if (searchUser.value.trim()) {
+                        performSearch();
+                    }
                 }
             });
         }
@@ -1978,7 +1981,6 @@
                 });
 
                 showToast('ফ্রেন্ড রিকোয়েস্ট পাঠানো হয়েছে! 📨');
-                searchResults.innerHTML = `<div style="color: #4caf50; padding: 8px; background: #e8f5e9; border-radius: 8px;">✅ রিকোয়েস্ট পাঠানো হয়েছে</div>`;
                 // Refresh search results
                 performSearch();
             } catch (error) {
@@ -1990,6 +1992,8 @@
         // ===== Perform Search (Email & Phone Only) =====
         function performSearch() {
             const query = searchUser.value.trim().toLowerCase();
+            
+            // Clear results if query is empty
             if (!query) {
                 searchResults.innerHTML = '';
                 return;
@@ -2000,81 +2004,93 @@
                 return;
             }
 
-            // Ensure we have users loaded
-            if (Object.keys(allUsersCache).length === 0) {
-                searchResults.innerHTML = `<div style="color: #ff9800; padding: 8px;">⏳ ইউজার লোড হচ্ছে...</div>`;
-                return;
-            }
+            // Show loading state
+            searchResults.innerHTML = `<div style="color: #1976D2; padding: 8px;">⏳ খুঁজছি...</div>`;
 
-            let foundUsers = [];
-            Object.keys(allUsersCache).forEach(uid => {
-                const user = allUsersCache[uid];
-                if (uid === currentUser.uid) return;
-                
-                const email = (user.email || '').toLowerCase();
-                const phone = (user.phone || '').toLowerCase();
-                
-                let match = false;
-                switch(searchType) {
-                    case 'email':
-                        match = email.includes(query);
-                        break;
-                    case 'phone':
-                        match = phone.includes(query);
-                        break;
-                    default:
-                        match = email.includes(query) || phone.includes(query);
-                }
-                
-                if (match) {
-                    foundUsers.push({ uid, ...user });
-                }
-            });
-
-            console.log('🔍 Search results:', foundUsers.length, 'Type:', searchType);
-
-            if (foundUsers.length === 0) {
-                searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ কোনো ইউজার পাওয়া যায়নি</div>`;
-                return;
-            }
-
-            let html = '';
-            foundUsers.forEach(user => {
-                const isFriend = friends[user.uid];
-                const isRequested = requests[user.uid] && requests[user.uid].status === 'pending';
-                const photo = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
-                    .displayName || 'U') + '&background=1976D2&color=fff';
-
-                let phoneStatus = '';
-                if (user.phone) {
-                    phoneStatus = user.phoneVerified ? 
-                        `✅ 📱${user.phone}` : 
-                        `⚠️ 📱${user.phone}`;
+            // Get users from database directly
+            const usersRef = ref(db, 'users');
+            get(usersRef).then((snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ কোনো ইউজার নেই</div>`;
+                    return;
                 }
 
-                html += `
-                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px 4px; border-bottom: 1px solid rgba(0,0,0,0.08);">
-                        <img src="${photo}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white;" />
-                        <div style="flex: 1; font-size: 0.85rem;">
-                            <strong style="color: #0b2b40;">${user.displayName || 'ইউজার'}</strong>
-                            ${phoneStatus ? `<span style="font-size:0.7rem;color:#53768b;display:block;">${phoneStatus}</span>` : ''}
-                            <span style="font-size:0.65rem;color:#53768b;display:block;">${user.email || ''}</span>
-                        </div>
-                        ${isFriend ? '<span style="color: #4caf50; font-size: 0.75rem; font-weight: 600;">✅ বন্ধু</span>' :
-                        isRequested ? '<span style="color: #ff9800; font-size: 0.75rem; font-weight: 600;">⏳ রিকোয়েস্ট পাঠানো</span>' :
-                        `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px; background: #1976D2; color: white; border: none; border-radius: 20px; cursor: pointer;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
-                        }
-                    </div>
-                `;
-            });
-
-            searchResults.innerHTML = html;
-
-            document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    sendFriendRequest(btn.dataset.uid);
+                allUsersCache = data;
+                
+                let foundUsers = [];
+                Object.keys(data).forEach(uid => {
+                    const user = data[uid];
+                    if (uid === currentUser.uid) return;
+                    
+                    const email = (user.email || '').toLowerCase();
+                    const phone = (user.phone || '').toLowerCase();
+                    
+                    let match = false;
+                    switch(searchType) {
+                        case 'email':
+                            match = email.includes(query);
+                            break;
+                        case 'phone':
+                            match = phone.includes(query);
+                            break;
+                        default:
+                            match = email.includes(query) || phone.includes(query);
+                    }
+                    
+                    if (match) {
+                        foundUsers.push({ uid, ...user });
+                    }
                 });
+
+                console.log('🔍 Search results:', foundUsers.length, 'Type:', searchType);
+
+                if (foundUsers.length === 0) {
+                    searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ "${query}" দিয়ে কোনো ইউজার পাওয়া যায়নি</div>`;
+                    return;
+                }
+
+                let html = '';
+                foundUsers.forEach(user => {
+                    const isFriend = friends[user.uid];
+                    const isRequested = requests[user.uid] && requests[user.uid].status === 'pending';
+                    const photo = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
+                        .displayName || 'U') + '&background=1976D2&color=fff';
+
+                    let phoneStatus = '';
+                    if (user.phone) {
+                        phoneStatus = user.phoneVerified ? 
+                            `✅ 📱${user.phone}` : 
+                            `⚠️ 📱${user.phone}`;
+                    }
+
+                    html += `
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 4px; border-bottom: 1px solid rgba(0,0,0,0.08);">
+                            <img src="${photo}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white;" />
+                            <div style="flex: 1; font-size: 0.85rem;">
+                                <strong style="color: #0b2b40;">${user.displayName || 'ইউজার'}</strong>
+                                ${phoneStatus ? `<span style="font-size:0.7rem;color:#53768b;display:block;">${phoneStatus}</span>` : ''}
+                                <span style="font-size:0.65rem;color:#53768b;display:block;">${user.email || ''}</span>
+                            </div>
+                            ${isFriend ? '<span style="color: #4caf50; font-size: 0.75rem; font-weight: 600;">✅ বন্ধু</span>' :
+                            isRequested ? '<span style="color: #ff9800; font-size: 0.75rem; font-weight: 600;">⏳ রিকোয়েস্ট পাঠানো</span>' :
+                            `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px; background: #1976D2; color: white; border: none; border-radius: 20px; cursor: pointer;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
+                            }
+                        </div>
+                    `;
+                });
+
+                searchResults.innerHTML = html;
+
+                document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        sendFriendRequest(btn.dataset.uid);
+                    });
+                });
+            }).catch((error) => {
+                console.error('Search error:', error);
+                searchResults.innerHTML = `<div style="color: #d32f2f; padding: 8px;">❌ সার্চ করতে ব্যর্থ: ${error.message}</div>`;
             });
         }
 
