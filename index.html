@@ -1209,10 +1209,59 @@
             }, 3500);
         }
 
-        // ===== Download Image Function =====
+        // ===== Compress Image =====
+        function compressImage(file, maxWidth, maxHeight) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height = Math.round(height * maxWidth / width);
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width = Math.round(width * maxHeight / height);
+                                height = maxHeight;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        canvas.toBlob((blob) => {
+                            resolve(blob);
+                        }, 'image/jpeg', 0.7);
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        // ===== Image to Base64 =====
+        function imageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // ===== Download Image =====
         function downloadImage(imageSrc, filename = 'image.jpg') {
             try {
-                // Create a temporary link
                 const link = document.createElement('a');
                 link.href = imageSrc;
                 link.download = filename;
@@ -1226,16 +1275,6 @@
             }
         }
 
-        // ===== Convert Image to Base64 =====
-        function imageToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
-        }
-
         // ===== Send Image as Base64 =====
         async function sendImageMessageBase64(file) {
             if (!file || !currentUser || !currentChatFriend) {
@@ -1246,13 +1285,14 @@
             try {
                 showToast('📤 ছবি প্রস্তুত হচ্ছে...', 'success');
                 
-                const base64Image = await imageToBase64(file);
+                // Compress image before sending
+                const compressed = await compressImage(file, 800, 800);
+                const base64Image = await imageToBase64(compressed);
                 
                 const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
                 const messagesRef = ref(db, `privateChats/${chatId}/messages`);
                 const newMsgRef = push(messagesRef);
 
-                // Get file extension for download
                 const fileExt = file.name.split('.').pop() || 'jpg';
                 const fileName = `image_${Date.now()}.${fileExt}`;
 
@@ -1267,13 +1307,14 @@
                     fileName: fileName
                 });
 
+                // Try unread count (silent fail)
                 try {
                     const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
                     const snapshot = await get(unreadRef);
                     const count = (snapshot.val() || 0) + 1;
                     await set(unreadRef, count);
-                } catch (unreadError) {
-                    console.warn('Unread count update failed:', unreadError);
+                } catch (_) {
+                    // Ignore unread errors
                 }
 
                 showToast('✅ ছবি পাঠানো হয়েছে!');
@@ -1355,21 +1396,47 @@
             }
         }
 
-        // ===== Update profile =====
+        // ===== Update profile with compression =====
         async function updateUserProfile(displayName, photoURL) {
             if (!currentUser) return;
             try {
+                let finalPhotoURL = photoURL;
+                
+                // If photo is base64 and too large, compress it
+                if (photoURL && photoURL.startsWith('data:image')) {
+                    const sizeInBytes = (photoURL.length * 3) / 4;
+                    if (sizeInBytes > 150 * 1024) { // 150KB limit
+                        showToast('ছবি কম্প্রেস করা হচ্ছে...', 'success');
+                        try {
+                            const response = await fetch(photoURL);
+                            const blob = await response.blob();
+                            const compressed = await compressImage(blob, 150, 150);
+                            finalPhotoURL = await imageToBase64(compressed);
+                        } catch (e) {
+                            console.warn('Compression failed, using original:', e);
+                            finalPhotoURL = photoURL;
+                        }
+                    }
+                }
+                
                 await update(ref(db, `users/${currentUser.uid}`), {
                     displayName: displayName,
-                    photoURL: photoURL
+                    photoURL: finalPhotoURL
                 });
-                await firebaseUpdateProfile(auth.currentUser, {
-                    displayName: displayName,
-                    photoURL: photoURL
-                });
+                
+                try {
+                    await firebaseUpdateProfile(auth.currentUser, {
+                        displayName: displayName,
+                        photoURL: finalPhotoURL
+                    });
+                } catch (e) {
+                    console.warn('Auth profile update failed:', e);
+                }
+                
                 showToast('✅ প্রোফাইল আপডেট করা হয়েছে!');
                 updateUI(currentUser);
             } catch (error) {
+                console.error('Profile update error:', error);
                 showToast(`প্রোফাইল আপডেট করতে ব্যর্থ: ${error.message}`, 'error');
             }
         }
@@ -1757,7 +1824,7 @@
             });
         }
 
-        // ===== Create Image HTML with Download Button =====
+        // ===== Create Image HTML =====
         function createImageHTML(imageSrc, fileName = 'image.jpg') {
             return `
                 <div class="image-container">
@@ -1769,7 +1836,7 @@
             `;
         }
 
-        // ===== Append message with image download =====
+        // ===== Append message =====
         function appendMessage(msgKey, msg) {
             const isOwn = msg.uid === currentUser.uid;
             const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('bn-BD', { hour: '2-digit',
@@ -1819,27 +1886,25 @@
             }
         }
 
-        // ===== Global functions for inline onclick =====
+        // ===== Global functions =====
         window.openImagePreview = function(imageSrc, fileName) {
             previewImage.src = imageSrc;
-            imagePreview.classList.add('active');
-            // Store current image src for download
             previewImage.dataset.src = imageSrc;
             previewImage.dataset.filename = fileName || 'image.jpg';
+            imagePreview.classList.add('active');
         };
 
         window.downloadImageFromSrc = function(imageSrc, fileName) {
             downloadImage(imageSrc, fileName || 'image.jpg');
         };
 
-        // ===== Image Preview Download Button =====
+        // ===== Image Preview =====
         downloadPreviewBtn.addEventListener('click', () => {
             const src = previewImage.dataset.src || previewImage.src;
             const filename = previewImage.dataset.filename || 'image.jpg';
             downloadImage(src, filename);
         });
 
-        // ===== Close Preview =====
         closePreviewBtn.addEventListener('click', () => {
             imagePreview.classList.remove('active');
         });
@@ -1905,16 +1970,18 @@
                 timestamp: Date.now()
             });
 
-            const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
-            const snapshot = await get(unreadRef);
-            const count = (snapshot.val() || 0) + 1;
-            await set(unreadRef, count);
+            try {
+                const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
+                const snapshot = await get(unreadRef);
+                const count = (snapshot.val() || 0) + 1;
+                await set(unreadRef, count);
+            } catch (_) {}
 
             messageInput.value = '';
             messageInput.focus();
         }
 
-        // ===== File Upload Handler =====
+        // ===== File Upload =====
         fileUploadBtn.addEventListener('click', () => {
             if (!currentUser || !currentChatFriend) {
                 showToast('প্রথমে একটি চ্যাট নির্বাচন করুন!', 'error');
@@ -2088,6 +2155,7 @@
             profileModal.classList.add('active');
         });
 
+        // ===== Profile Upload Handler (with compression) =====
         modalUploadPic.addEventListener('click', () => {
             const input = document.createElement('input');
             input.type = 'file';
@@ -2096,16 +2164,33 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 
-                if (file.size > 2 * 1024 * 1024) {
-                    showToast('ছবি 2MB এর কম হতে হবে!', 'error');
+                // Max 500KB for profile picture
+                if (file.size > 500 * 1024) {
+                    showToast('প্রোফাইল ছবি 500KB এর কম হতে হবে!', 'error');
                     return;
                 }
                 
-                showToast('📤 আপলোড হচ্ছে...', 'success');
-                const base64 = await imageToBase64(file);
-                if (base64) {
-                    modalProfilePic.src = base64;
+                showToast('📤 কম্প্রেস করা হচ্ছে...', 'success');
+                
+                try {
+                    // Compress to 150x150
+                    const compressed = await compressImage(file, 150, 150);
+                    const base64 = await imageToBase64(compressed);
+                    
+                    // Check final size
+                    const sizeInBytes = (base64.length * 3) / 4;
+                    if (sizeInBytes > 150 * 1024) {
+                        // Compress more if still too large
+                        const smaller = await compressImage(compressed, 100, 100);
+                        const smallerBase64 = await imageToBase64(smaller);
+                        modalProfilePic.src = smallerBase64;
+                    } else {
+                        modalProfilePic.src = base64;
+                    }
                     showToast('✅ প্রোফাইল ছবি আপলোড হয়েছে!');
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    showToast('ছবি আপলোড করতে ব্যর্থ!', 'error');
                 }
             };
             input.click();
@@ -2147,17 +2232,17 @@
         window.db = db;
         window.auth = auth;
 
-        console.log('🔥 ConnectBD Private Chat ready with Image Download!');
+        console.log('🔥 ConnectBD Private Chat ready with Image Download & Profile Fix!');
         console.log('📌 Features:');
         console.log('  ✅ Image Upload (Base64 - No Storage needed)');
         console.log('  ✅ Image Download (⬇️ button on image)');
-        console.log('  ✅ Profile Picture Upload');
+        console.log('  ✅ Profile Picture Upload (Auto Compressed)');
         console.log('  ✅ Chat Message Delete/Edit');
         console.log('  ✅ Typing Indicator');
         console.log('  ✅ Online/Offline Status');
         console.log('  ✅ Unread Message Count');
         console.log('🔧 To fix all users, run: fixAllUsers()');
-        console.log('💡 Click image to preview, then download from preview modal');
+        console.log('💡 Profile image auto compressed to < 150KB');
     </script>
 </body>
 </html>
