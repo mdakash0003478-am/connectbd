@@ -61,6 +61,12 @@
             background: white;
             padding: 4px;
             border: 2px solid rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .app-logo:hover {
+            transform: scale(1.05);
         }
 
         .app-title {
@@ -95,6 +101,12 @@
             padding: 6px 16px 6px 10px;
             border-radius: 40px;
             border: 1px solid rgba(200, 215, 225, 0.5);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .user-profile-mini:hover {
+            background: rgba(255, 255, 255, 0.9);
         }
 
         .user-profile-mini img {
@@ -196,6 +208,17 @@
             border-radius: 20px;
         }
 
+        .badge-count.unread {
+            background: #ff4444;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
         .friend-item {
             display: flex;
             align-items: center;
@@ -205,6 +228,7 @@
             cursor: pointer;
             transition: 0.15s;
             margin-bottom: 4px;
+            position: relative;
         }
 
         .friend-item:hover {
@@ -240,6 +264,25 @@
 
         .friend-item .status-dot.offline {
             background: #bdbdbd;
+        }
+
+        .friend-item .unread-badge {
+            background: #ff4444;
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .friend-item .typing-indicator {
+            font-size: 0.6rem;
+            color: #1976D2;
+            font-style: italic;
+            position: absolute;
+            bottom: 2px;
+            right: 12px;
         }
 
         .request-item {
@@ -362,6 +405,15 @@
             color: #53768b;
         }
 
+        .chat-header .chat-status.online {
+            color: #4caf50;
+        }
+
+        .chat-header .chat-status.typing {
+            color: #1976D2;
+            animation: pulse 1s infinite;
+        }
+
         .messages-container {
             flex: 1;
             overflow-y: auto;
@@ -379,6 +431,11 @@
             gap: 10px;
             max-width: 85%;
             animation: fadeIn 0.2s ease;
+            position: relative;
+        }
+
+        .message:hover .message-actions {
+            display: flex;
         }
 
         @keyframes fadeIn {
@@ -414,6 +471,7 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
             word-wrap: break-word;
             flex: 1;
+            position: relative;
         }
 
         .message.own .msg-bubble {
@@ -448,6 +506,59 @@
 
         .message.own .msg-time {
             color: #bbdefb;
+        }
+
+        .message .message-actions {
+            display: none;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            gap: 4px;
+            background: white;
+            border-radius: 12px;
+            padding: 2px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .message.own .message-actions {
+            right: auto;
+            left: -10px;
+        }
+
+        .message .message-actions button {
+            background: none;
+            border: none;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        .message .message-actions button:hover {
+            background: #e0e0e0;
+        }
+
+        .message .message-actions .delete-btn:hover {
+            color: #d32f2f;
+        }
+
+        .message .message-actions .edit-btn:hover {
+            color: #1976D2;
+        }
+
+        .message .msg-text.editing {
+            background: rgba(255, 255, 0, 0.1);
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        .typing-indicator-global {
+            font-size: 0.7rem;
+            color: #1976D2;
+            font-style: italic;
+            padding: 4px 8px;
+            min-height: 20px;
         }
 
         .input-area {
@@ -542,6 +653,108 @@
             background: #d32f2f;
         }
 
+        /* Profile Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal h2 {
+            color: #0b2b40;
+            margin-bottom: 1rem;
+        }
+
+        .modal .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            display: block;
+            border: 3px solid #1976D2;
+        }
+
+        .modal .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .modal .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #53768b;
+            margin-bottom: 4px;
+        }
+
+        .modal .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #dce3e9;
+            border-radius: 12px;
+            font-size: 0.95rem;
+        }
+
+        .modal .form-group input:focus {
+            border-color: #1976D2;
+            outline: none;
+        }
+
+        .modal .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .modal .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .modal .modal-actions .save-btn {
+            background: #1976D2;
+            color: white;
+        }
+
+        .modal .modal-actions .save-btn:hover {
+            background: #1565C0;
+        }
+
+        .modal .modal-actions .cancel-btn {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .modal .modal-actions .cancel-btn:hover {
+            background: #d0d0d0;
+        }
+
         @media (max-width: 768px) {
             .app-container {
                 padding: 1.2rem;
@@ -590,7 +803,7 @@
     <div class="app-container">
         <div class="header">
             <div class="header-left">
-                <img src="https://raw.githubusercontent.com/mdakash0003478-am/connectbd/main/logo.png.jpeg" alt="ConnectBD" class="app-logo" onerror="this.style.display='none'" />
+                <img src="https://raw.githubusercontent.com/mdakash0003478-am/connectbd/main/logo.png.jpeg" alt="ConnectBD" class="app-logo" id="logoClick" />
                 <div class="app-title">
                     Connect<span>BD</span>
                     <small>প্রাইভেট চ্যাট</small>
@@ -650,6 +863,8 @@
                     <span class="chat-status" id="chatStatus">অনলাইন</span>
                 </div>
 
+                <div class="typing-indicator-global" id="typingIndicator"></div>
+
                 <div class="messages-container" id="messagesContainer">
                     <div class="empty-state">
                         <div class="icon">💬</div>
@@ -661,6 +876,30 @@
                     <input type="text" id="messageInput" placeholder="মেসেজ লিখুন..." disabled />
                     <button id="sendBtn" disabled>পাঠান</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal">
+            <h2>👤 প্রোফাইল</h2>
+            <img id="modalProfilePic" class="profile-pic" src="" alt="Profile" />
+            <div class="form-group">
+                <label>ডিসপ্লে নাম</label>
+                <input type="text" id="modalDisplayName" />
+            </div>
+            <div class="form-group">
+                <label>ইমেইল</label>
+                <input type="email" id="modalEmail" disabled />
+            </div>
+            <div class="form-group">
+                <label>প্রোফাইল ছবি (URL)</label>
+                <input type="text" id="modalPhotoURL" placeholder="https://example.com/photo.jpg" />
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" id="modalCancel">বাতিল</button>
+                <button class="save-btn" id="modalSave">সেভ করুন</button>
             </div>
         </div>
     </div>
@@ -690,7 +929,8 @@
             limitToLast,
             orderByChild,
             remove,
-            onChildRemoved
+            onChildRemoved,
+            onChildChanged
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
         const firebaseConfig = {
@@ -728,6 +968,17 @@
         const searchResults = document.getElementById('searchResults');
         const searchFriend = document.getElementById('searchFriend');
         const toastEl = document.getElementById('toast');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const logoClick = document.getElementById('logoClick');
+
+        // Modal Elements
+        const profileModal = document.getElementById('profileModal');
+        const modalProfilePic = document.getElementById('modalProfilePic');
+        const modalDisplayName = document.getElementById('modalDisplayName');
+        const modalEmail = document.getElementById('modalEmail');
+        const modalPhotoURL = document.getElementById('modalPhotoURL');
+        const modalSave = document.getElementById('modalSave');
+        const modalCancel = document.getElementById('modalCancel');
 
         let currentUser = null;
         let currentChatFriend = null;
@@ -735,6 +986,9 @@
         let friends = {};
         let requests = {};
         let allUsersCache = {};
+        let unreadCounts = {};
+        let typingTimeout = null;
+        let isTyping = false;
 
         // Toast
         let toastTimeout = null;
@@ -755,14 +1009,13 @@
             }, 3500);
         }
 
-        // ===== FIX: Save user data with complete info =====
+        // ===== Save user data =====
         async function saveUserData(user) {
             try {
                 const userRef = ref(db, `users/${user.uid}`);
                 const snapshot = await get(userRef);
                 const existingData = snapshot.val();
                 
-                // Complete user data object
                 const completeUserData = {
                     displayName: user.displayName || 'ইউজার',
                     email: user.email || '',
@@ -771,14 +1024,12 @@
                     lastSeen: Date.now()
                 };
                 
-                // If user doesn't exist or missing displayName/email
                 if (!existingData || !existingData.displayName || !existingData.email) {
                     console.log('📝 Creating/Updating user with complete data...');
                     await set(userRef, completeUserData);
                     showToast('✅ ইউজার ডেটা সেভ করা হয়েছে!', 'success');
                     return true;
                 } else {
-                    // Just update online status
                     await update(userRef, {
                         online: true,
                         lastSeen: Date.now()
@@ -793,7 +1044,7 @@
             }
         }
 
-        // ===== FIX: Force fix all users =====
+        // ===== Fix all users =====
         async function fixAllUsers() {
             if (!currentUser) {
                 showToast('প্রথমে লগইন করুন!', 'error');
@@ -825,11 +1076,31 @@
                 }
                 
                 showToast(`✅ ${fixed} জন ইউজার ফিক্স করা হয়েছে!`);
-                loadAllUsers(); // Reload cache
+                loadAllUsers();
                 return fixed;
             } catch (error) {
                 showToast(`ফিক্স করতে ব্যর্থ: ${error.message}`, 'error');
                 return 0;
+            }
+        }
+
+        // ===== Update profile =====
+        async function updateProfile(displayName, photoURL) {
+            if (!currentUser) return;
+            try {
+                await update(ref(db, `users/${currentUser.uid}`), {
+                    displayName: displayName,
+                    photoURL: photoURL
+                });
+                // Update auth profile
+                await updateProfile(auth.currentUser, {
+                    displayName: displayName,
+                    photoURL: photoURL
+                });
+                showToast('✅ প্রোফাইল আপডেট করা হয়েছে!');
+                updateUI(currentUser);
+            } catch (error) {
+                showToast(`প্রোফাইল আপডেট করতে ব্যর্থ: ${error.message}`, 'error');
             }
         }
 
@@ -845,12 +1116,9 @@
                 messageInput.disabled = false;
                 sendBtn.disabled = false;
 
-                // Load friends and requests
                 loadFriendsAndRequests();
-                // Load user for search
                 loadAllUsers();
                 
-                // Show fix button in console
                 console.log('🔧 To fix all users, run: fixAllUsers()');
                 console.log('📝 Current user:', user.displayName, user.email);
             } else {
@@ -886,11 +1154,6 @@
                 if (data) {
                     allUsersCache = data;
                     console.log('📊 Users loaded:', Object.keys(data).length);
-                    // Log first user for debugging
-                    const firstUid = Object.keys(data)[0];
-                    if (firstUid) {
-                        console.log('📝 Sample user:', data[firstUid]);
-                    }
                 }
             });
         }
@@ -906,6 +1169,7 @@
                 const count = Object.keys(friends).length;
                 friendCount.textContent = count;
                 renderFriends();
+                loadUnreadCounts();
             });
 
             const requestsRef = ref(db, `friendRequests/${currentUser.uid}`);
@@ -916,6 +1180,25 @@
                 requestCount.textContent = count;
                 renderRequests();
             });
+        }
+
+        // Load unread counts
+        function loadUnreadCounts() {
+            if (!currentUser) return;
+            const unreadRef = ref(db, `unread/${currentUser.uid}`);
+            onValue(unreadRef, (snapshot) => {
+                unreadCounts = snapshot.val() || {};
+                renderFriends();
+            });
+        }
+
+        // Mark messages as read
+        async function markAsRead(friendUid) {
+            if (!currentUser || !friendUid) return;
+            const unreadRef = ref(db, `unread/${currentUser.uid}/${friendUid}`);
+            await remove(unreadRef);
+            unreadCounts[friendUid] = 0;
+            renderFriends();
         }
 
         // Render friends list
@@ -932,6 +1215,7 @@
                     const name = friend.displayName || 'ইউজার';
                     const photo = friend.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) +
                         '&background=1976D2&color=fff';
+                    const unread = unreadCounts[uid] || 0;
 
                     if (searchTerm && !name.toLowerCase().includes(searchTerm)) return;
 
@@ -940,7 +1224,9 @@
                         <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
                             <img src="${photo}" alt="${name}" />
                             <span class="friend-name">${name}</span>
+                            ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
                             <span class="status-dot ${friend.online ? '' : 'offline'}"></span>
+                            ${friend.isTyping ? '<span class="typing-indicator">🔵 টাইপ করছে...</span>' : ''}
                         </div>
                     `;
                 });
@@ -948,7 +1234,6 @@
 
             friendList.innerHTML = html;
 
-            // Add click listeners
             document.querySelectorAll('.friend-item').forEach(el => {
                 el.addEventListener('click', () => {
                     const uid = el.dataset.uid;
@@ -987,7 +1272,6 @@
 
             requestList.innerHTML = html;
 
-            // Add accept/reject listeners
             document.querySelectorAll('.btn-accept').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1010,7 +1294,6 @@
             if (!currentUser) return;
 
             try {
-                // Get sender info
                 const senderRef = ref(db, `users/${fromUid}`);
                 const snapshot = await get(senderRef);
                 const senderData = snapshot.val();
@@ -1020,7 +1303,6 @@
                     return;
                 }
 
-                // Add to current user's friends
                 await set(ref(db, `friends/${currentUser.uid}/${fromUid}`), {
                     displayName: senderData.displayName || 'ইউজার',
                     photoURL: senderData.photoURL || '',
@@ -1028,7 +1310,6 @@
                     addedAt: Date.now()
                 });
 
-                // Add to sender's friends
                 await set(ref(db, `friends/${fromUid}/${currentUser.uid}`), {
                     displayName: currentUser.displayName || 'ইউজার',
                     photoURL: currentUser.photoURL || '',
@@ -1036,9 +1317,7 @@
                     addedAt: Date.now()
                 });
 
-                // Remove request
                 await remove(ref(db, `friendRequests/${currentUser.uid}/${fromUid}`));
-
                 showToast('বন্ধু রিকোয়েস্ট গ্রহণ করা হয়েছে! 🎉');
             } catch (error) {
                 showToast(`এক্সেপ্ট করতে ব্যর্থ: ${error.message}`, 'error');
@@ -1064,20 +1343,17 @@
                 return;
             }
 
-            // Check if already friends
             if (friends[toUid]) {
                 showToast('ইতিমধ্যে বন্ধু!', 'error');
                 return;
             }
 
-            // Check if request already sent
             if (requests[toUid] && requests[toUid].status === 'pending') {
                 showToast('ইতিমধ্যে রিকোয়েস্ট পাঠানো হয়েছে!', 'error');
                 return;
             }
 
             try {
-                // Get target user info
                 const userRef = ref(db, `users/${toUid}`);
                 const snapshot = await get(userRef);
                 const userData = snapshot.val();
@@ -1087,7 +1363,6 @@
                     return;
                 }
 
-                // Send request to target user
                 await set(ref(db, `friendRequests/${toUid}/${currentUser.uid}`), {
                     displayName: currentUser.displayName || 'ইউজার',
                     photoURL: currentUser.photoURL || '',
@@ -1100,6 +1375,19 @@
             } catch (error) {
                 showToast(`রিকোয়েস্ট পাঠাতে ব্যর্থ: ${error.message}`, 'error');
             }
+        }
+
+        // ===== Typing indicator =====
+        function handleTyping() {
+            if (!currentUser || !currentChatFriend) return;
+            
+            const typingRef = ref(db, `typing/${currentChatFriend}/${currentUser.uid}`);
+            set(typingRef, true);
+            
+            if (typingTimeout) clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                remove(typingRef);
+            }, 2000);
         }
 
         // Start chat with a friend
@@ -1120,8 +1408,12 @@
                 <span>${name}</span>
             `;
             chatStatus.textContent = friend.online ? '🟢 অনলাইন' : '⚪ অফলাইন';
+            chatStatus.className = `chat-status ${friend.online ? 'online' : ''}`;
 
-            // Update active state in friend list
+            // Mark messages as read
+            markAsRead(friendUid);
+
+            // Update active state
             document.querySelectorAll('.friend-item').forEach(el => {
                 el.classList.toggle('active', el.dataset.uid === friendUid);
             });
@@ -1131,6 +1423,25 @@
             messageInput.disabled = false;
             sendBtn.disabled = false;
             messageInput.focus();
+            
+            // Listen for typing
+            listenForTyping(friendUid);
+        }
+
+        // Listen for typing
+        function listenForTyping(friendUid) {
+            const typingRef = ref(db, `typing/${currentUser.uid}/${friendUid}`);
+            onValue(typingRef, (snapshot) => {
+                const isTyping = snapshot.val();
+                if (isTyping) {
+                    chatStatus.textContent = '✍️ টাইপ করছে...';
+                    chatStatus.className = 'chat-status typing';
+                } else {
+                    const friend = friends[friendUid];
+                    chatStatus.textContent = friend?.online ? '🟢 অনলাইন' : '⚪ অফলাইন';
+                    chatStatus.className = `chat-status ${friend?.online ? 'online' : ''}`;
+                }
+            });
         }
 
         // Load private messages
@@ -1140,7 +1451,6 @@
                 messageListener = null;
             }
 
-            // Create chat room ID (sorted UIDs for consistency)
             const chatId = [currentUser.uid, friendUid].sort().join('_');
             const messagesRef = query(
                 ref(db, `privateChats/${chatId}/messages`),
@@ -1150,6 +1460,7 @@
 
             messagesContainer.innerHTML = '';
 
+            // Add listener for new messages
             messageListener = onChildAdded(messagesRef, (snapshot) => {
                 const msg = snapshot.val();
                 const msgKey = snapshot.key;
@@ -1158,32 +1469,120 @@
                 const existing = messagesContainer.querySelector(`[data-key="${msgKey}"]`);
                 if (existing) return;
 
-                const isOwn = msg.uid === currentUser.uid;
-                const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('bn-BD', { hour: '2-digit',
-                        minute: '2-digit' }) : '';
+                appendMessage(msgKey, msg);
+            });
 
-                const div = document.createElement('div');
-                div.className = `message ${isOwn ? 'own' : ''}`;
-                div.dataset.key = msgKey;
+            // Listen for message edits
+            onChildChanged(messagesRef, (snapshot) => {
+                const msg = snapshot.val();
+                const msgKey = snapshot.key;
+                if (!msg) return;
+                
+                const msgElement = messagesContainer.querySelector(`[data-key="${msgKey}"]`);
+                if (msgElement) {
+                    const textElement = msgElement.querySelector('.msg-text');
+                    if (textElement) {
+                        textElement.textContent = msg.text;
+                        if (msg.edited) {
+                            textElement.textContent += ' (edited)';
+                        }
+                    }
+                }
+            });
 
-                const avatar = msg.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(msg
-                    .displayName || 'U') + '&background=1976D2&color=fff';
-
-                div.innerHTML = `
-                    <img src="${avatar}" alt="avatar" class="msg-avatar" />
-                    <div class="msg-bubble">
-                        <div class="msg-sender">${isOwn ? 'আপনি' : (msg.displayName || 'ইউজার')}</div>
-                        <div class="msg-text">${msg.text}</div>
-                        <div class="msg-time">${time}</div>
-                    </div>
-                `;
-
-                messagesContainer.appendChild(div);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // Listen for message deletions
+            onChildRemoved(messagesRef, (snapshot) => {
+                const msgKey = snapshot.key;
+                const msgElement = messagesContainer.querySelector(`[data-key="${msgKey}"]`);
+                if (msgElement) {
+                    msgElement.style.opacity = '0.3';
+                    msgElement.querySelector('.msg-text').textContent = '🔴 This message was deleted';
+                }
             });
         }
 
-        // Send private message
+        // Append message to container
+        function appendMessage(msgKey, msg) {
+            const isOwn = msg.uid === currentUser.uid;
+            const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('bn-BD', { hour: '2-digit',
+                    minute: '2-digit' }) : '';
+
+            const div = document.createElement('div');
+            div.className = `message ${isOwn ? 'own' : ''}`;
+            div.dataset.key = msgKey;
+            div.dataset.uid = msg.uid;
+
+            const avatar = msg.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(msg
+                .displayName || 'U') + '&background=1976D2&color=fff';
+
+            div.innerHTML = `
+                <img src="${avatar}" alt="avatar" class="msg-avatar" />
+                <div class="msg-bubble">
+                    <div class="msg-sender">${isOwn ? 'আপনি' : (msg.displayName || 'ইউজার')}</div>
+                    <div class="msg-text">${msg.text}${msg.edited ? ' <span style="font-size:0.6rem;">(edited)</span>' : ''}</div>
+                    <div class="msg-time">${time}</div>
+                    <div class="message-actions">
+                        ${isOwn ? `
+                            <button class="edit-btn" data-key="${msgKey}" title="Edit">✏️</button>
+                            <button class="delete-btn" data-key="${msgKey}" title="Delete">🗑️</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            messagesContainer.appendChild(div);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Add event listeners for actions
+            if (isOwn) {
+                div.querySelector('.edit-btn')?.addEventListener('click', () => {
+                    editMessage(msgKey, msg.text);
+                });
+                div.querySelector('.delete-btn')?.addEventListener('click', () => {
+                    deleteMessage(msgKey);
+                });
+            }
+        }
+
+        // ===== Delete message =====
+        async function deleteMessage(msgKey) {
+            if (!currentUser || !currentChatFriend) return;
+            if (!confirm('এই মেসেজ ডিলিট করতে চান?')) return;
+
+            const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
+            const msgRef = ref(db, `privateChats/${chatId}/messages/${msgKey}`);
+            try {
+                await update(msgRef, {
+                    text: '🔴 This message was deleted',
+                    deleted: true
+                });
+                showToast('✅ মেসেজ ডিলিট করা হয়েছে');
+            } catch (error) {
+                showToast(`ডিলিট করতে ব্যর্থ: ${error.message}`, 'error');
+            }
+        }
+
+        // ===== Edit message =====
+        async function editMessage(msgKey, oldText) {
+            if (!currentUser || !currentChatFriend) return;
+            const newText = prompt('মেসেজ এডিট করুন:', oldText);
+            if (!newText || newText === oldText) return;
+
+            const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
+            const msgRef = ref(db, `privateChats/${chatId}/messages/${msgKey}`);
+            try {
+                await update(msgRef, {
+                    text: newText,
+                    edited: true,
+                    editedAt: Date.now()
+                });
+                showToast('✅ মেসেজ এডিট করা হয়েছে');
+            } catch (error) {
+                showToast(`এডিট করতে ব্যর্থ: ${error.message}`, 'error');
+            }
+        }
+
+        // ===== Send private message =====
         async function sendPrivateMessage() {
             const text = messageInput.value.trim();
             if (!text || !currentUser || !currentChatFriend) return;
@@ -1199,6 +1598,12 @@
                 photoURL: currentUser.photoURL || '',
                 timestamp: Date.now()
             });
+
+            // Update unread count for friend
+            const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
+            const snapshot = await get(unreadRef);
+            const count = (snapshot.val() || 0) + 1;
+            await set(unreadRef, count);
 
             messageInput.value = '';
             messageInput.focus();
@@ -1217,7 +1622,6 @@
                 return;
             }
 
-            // Search in all users cache
             let foundUsers = [];
             Object.keys(allUsersCache).forEach(uid => {
                 const user = allUsersCache[uid];
@@ -1257,7 +1661,6 @@
 
             searchResults.innerHTML = html;
 
-            // Add click listeners for add friend buttons
             document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     sendFriendRequest(btn.dataset.uid);
@@ -1274,7 +1677,10 @@
             if (e.key === 'Enter') sendPrivateMessage();
         });
 
-        // ===== FIXED: Login with complete data save =====
+        // Typing indicator
+        messageInput.addEventListener('input', handleTyping);
+
+        // ===== Login =====
         loginBtn.onclick = async () => {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
@@ -1286,12 +1692,9 @@
                 console.log('📧 Email:', user.email);
                 console.log('🆔 UID:', user.uid);
                 
-                // ===== IMPORTANT: Save complete user data =====
                 await saveUserData(user);
-                
                 showToast(`স্বাগতম ${user.displayName || 'ইউজার'}! 🎉`);
                 
-                // Auto-fix all users after login (optional)
                 setTimeout(async () => {
                     console.log('🔍 Checking if fix needed...');
                     const usersRef = ref(db, 'users');
@@ -1341,11 +1744,50 @@
         onAuthStateChanged(auth, async (user) => {
             updateUI(user);
             if (user) {
-                // Make sure user data is complete
                 await saveUserData(user);
-                // Set online status
                 await set(ref(db, `users/${user.uid}/online`), true);
                 await set(ref(db, `users/${user.uid}/lastSeen`), Date.now());
+            }
+        });
+
+        // ===== Profile Modal =====
+        userProfileMini.addEventListener('click', () => {
+            if (!currentUser) return;
+            modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
+            modalDisplayName.value = currentUser.displayName || '';
+            modalEmail.value = currentUser.email || '';
+            modalPhotoURL.value = currentUser.photoURL || '';
+            profileModal.classList.add('active');
+        });
+
+        logoClick.addEventListener('click', () => {
+            if (!currentUser) return;
+            modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
+            modalDisplayName.value = currentUser.displayName || '';
+            modalEmail.value = currentUser.email || '';
+            modalPhotoURL.value = currentUser.photoURL || '';
+            profileModal.classList.add('active');
+        });
+
+        modalCancel.addEventListener('click', () => {
+            profileModal.classList.remove('active');
+        });
+
+        modalSave.addEventListener('click', async () => {
+            const displayName = modalDisplayName.value.trim();
+            const photoURL = modalPhotoURL.value.trim();
+            if (!displayName) {
+                showToast('নাম দেওয়া আবশ্যক!', 'error');
+                return;
+            }
+            await updateProfile(displayName, photoURL);
+            profileModal.classList.remove('active');
+        });
+
+        // Close modal on outside click
+        profileModal.addEventListener('click', (e) => {
+            if (e.target === profileModal) {
+                profileModal.classList.remove('active');
             }
         });
 
@@ -1363,10 +1805,15 @@
         window.db = db;
         window.auth = auth;
 
-        console.log('🔥 ConnectBD Private Chat ready');
+        console.log('🔥 ConnectBD Private Chat ready with all features!');
+        console.log('📌 Features added:');
+        console.log('  ✅ Friend Request block');
+        console.log('  ✅ Chat message delete/edit');
+        console.log('  ✅ Typing indicator');
+        console.log('  ✅ Online/Offline status');
+        console.log('  ✅ Unread message count');
+        console.log('  ✅ Profile picture update');
         console.log('🔧 To fix all users, run: fixAllUsers()');
-        console.log('📝 To fix current user, run: saveUserData(auth.currentUser)');
-        console.log('🔍 To check all users, run: get(ref(db, "users")).then(s => console.log(s.val()))');
     </script>
 </body>
 </html>
