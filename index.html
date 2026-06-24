@@ -160,7 +160,6 @@
             padding-top: 1.2rem;
         }
 
-        /* Sidebar - Friends & Requests */
         .sidebar {
             width: 260px;
             flex-shrink: 0;
@@ -327,7 +326,6 @@
             border-radius: 10px;
         }
 
-        /* Chat area */
         .chat-area {
             flex: 1;
             display: flex;
@@ -590,7 +588,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Header -->
         <div class="header">
             <div class="header-left">
                 <img src="https://raw.githubusercontent.com/mdakash0003478-am/connectbd/main/logo.png.jpeg" alt="ConnectBD" class="app-logo" onerror="this.style.display='none'" />
@@ -609,9 +606,7 @@
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content">
-            <!-- Sidebar -->
             <div class="sidebar">
                 <div class="sidebar-section">
                     <div class="sidebar-title">
@@ -647,7 +642,6 @@
                 </div>
             </div>
 
-            <!-- Chat Area -->
             <div class="chat-area">
                 <div class="chat-header">
                     <div class="chat-friend-name" id="chatFriendInfo">
@@ -698,16 +692,17 @@
             remove,
             onChildRemoved
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-const firebaseConfig = {
-  apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
-  authDomain: "connectbd-4a8f2.firebaseapp.com",
-  databaseURL: "https://connectbd-4a8f2-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "connectbd-4a8f2",
-  storageBucket: "connectbd-4a8f2.firebasestorage.app",
-  messagingSenderId: "38217840543",
-  appId: "1:38217840543:web:aeedd8517f697b16c12faa",
-  measurementId: "G-RPBSS1M9LD"
-};
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
+            authDomain: "connectbd-4a8f2.firebaseapp.com",
+            databaseURL: "https://connectbd-4a8f2-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "connectbd-4a8f2",
+            storageBucket: "connectbd-4a8f2.firebasestorage.app",
+            messagingSenderId: "38217840543",
+            appId: "1:38217840543:web:aeedd8517f697b16c12faa",
+            measurementId: "G-RPBSS1M9LD"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -760,6 +755,84 @@ const firebaseConfig = {
             }, 3500);
         }
 
+        // ===== FIX: Save user data with complete info =====
+        async function saveUserData(user) {
+            try {
+                const userRef = ref(db, `users/${user.uid}`);
+                const snapshot = await get(userRef);
+                const existingData = snapshot.val();
+                
+                // Complete user data object
+                const completeUserData = {
+                    displayName: user.displayName || 'ইউজার',
+                    email: user.email || '',
+                    photoURL: user.photoURL || '',
+                    online: true,
+                    lastSeen: Date.now()
+                };
+                
+                // If user doesn't exist or missing displayName/email
+                if (!existingData || !existingData.displayName || !existingData.email) {
+                    console.log('📝 Creating/Updating user with complete data...');
+                    await set(userRef, completeUserData);
+                    showToast('✅ ইউজার ডেটা সেভ করা হয়েছে!', 'success');
+                    return true;
+                } else {
+                    // Just update online status
+                    await update(userRef, {
+                        online: true,
+                        lastSeen: Date.now()
+                    });
+                    console.log('🔄 Updated online status for existing user');
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Error saving user data:', error);
+                showToast('ডেটা সেভ করতে ব্যর্থ!', 'error');
+                return false;
+            }
+        }
+
+        // ===== FIX: Force fix all users =====
+        async function fixAllUsers() {
+            if (!currentUser) {
+                showToast('প্রথমে লগইন করুন!', 'error');
+                return;
+            }
+            
+            try {
+                const usersRef = ref(db, 'users');
+                const snapshot = await get(usersRef);
+                const users = snapshot.val();
+                
+                if (!users) {
+                    showToast('কোনো ইউজার নেই!', 'error');
+                    return;
+                }
+                
+                let fixed = 0;
+                for (const uid in users) {
+                    const user = users[uid];
+                    if (!user.displayName || !user.email) {
+                        await update(ref(db, `users/${uid}`), {
+                            displayName: user.displayName || 'ইউজার',
+                            email: user.email || 'user@email.com',
+                            photoURL: user.photoURL || ''
+                        });
+                        fixed++;
+                        console.log(`✅ Fixed user: ${uid}`);
+                    }
+                }
+                
+                showToast(`✅ ${fixed} জন ইউজার ফিক্স করা হয়েছে!`);
+                loadAllUsers(); // Reload cache
+                return fixed;
+            } catch (error) {
+                showToast(`ফিক্স করতে ব্যর্থ: ${error.message}`, 'error');
+                return 0;
+            }
+        }
+
         // Update UI based on auth state
         function updateUI(user) {
             currentUser = user;
@@ -776,6 +849,10 @@ const firebaseConfig = {
                 loadFriendsAndRequests();
                 // Load user for search
                 loadAllUsers();
+                
+                // Show fix button in console
+                console.log('🔧 To fix all users, run: fixAllUsers()');
+                console.log('📝 Current user:', user.displayName, user.email);
             } else {
                 userProfileMini.style.display = 'none';
                 loginBtn.style.display = 'inline-block';
@@ -808,6 +885,12 @@ const firebaseConfig = {
                 const data = snapshot.val();
                 if (data) {
                     allUsersCache = data;
+                    console.log('📊 Users loaded:', Object.keys(data).length);
+                    // Log first user for debugging
+                    const firstUid = Object.keys(data)[0];
+                    if (firstUid) {
+                        console.log('📝 Sample user:', data[firstUid]);
+                    }
                 }
             });
         }
@@ -1146,6 +1229,8 @@ const firebaseConfig = {
                 }
             });
 
+            console.log('🔍 Search results:', foundUsers.length);
+
             if (foundUsers.length === 0) {
                 searchResults.innerHTML = `<div style="color: #53768b; font-size: 0.8rem;">কোনো ইউজার পাওয়া যায়নি</div>`;
                 return;
@@ -1189,24 +1274,51 @@ const firebaseConfig = {
             if (e.key === 'Enter') sendPrivateMessage();
         });
 
-        // Login
+        // ===== FIXED: Login with complete data save =====
         loginBtn.onclick = async () => {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
             try {
                 const result = await signInWithPopup(auth, provider);
-                // Save user to database
-                await set(ref(db, `users/${result.user.uid}`), {
-                    displayName: result.user.displayName || 'ইউজার',
-                    email: result.user.email || '',
-                    photoURL: result.user.photoURL || '',
-                    online: true,
-                    lastSeen: Date.now()
-                });
-                showToast(`স্বাগতম ${result.user.displayName || 'ইউজার'}! 🎉`);
+                const user = result.user;
+                
+                console.log('👤 User logged in:', user.displayName);
+                console.log('📧 Email:', user.email);
+                console.log('🆔 UID:', user.uid);
+                
+                // ===== IMPORTANT: Save complete user data =====
+                await saveUserData(user);
+                
+                showToast(`স্বাগতম ${user.displayName || 'ইউজার'}! 🎉`);
+                
+                // Auto-fix all users after login (optional)
+                setTimeout(async () => {
+                    console.log('🔍 Checking if fix needed...');
+                    const usersRef = ref(db, 'users');
+                    const snapshot = await get(usersRef);
+                    const users = snapshot.val();
+                    let needsFix = false;
+                    if (users) {
+                        for (const uid in users) {
+                            if (!users[uid].displayName || !users[uid].email) {
+                                needsFix = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (needsFix) {
+                        if (confirm('🔧 কিছু ইউজারের ডেটা ঠিক করতে হবে। এখনই ঠিক করবেন?')) {
+                            await fixAllUsers();
+                        }
+                    } else {
+                        console.log('✅ All users have complete data!');
+                    }
+                }, 2000);
+                
             } catch (error) {
                 if (error.code !== 'auth/popup-closed-by-user') {
                     showToast(`লগইন ব্যর্থ: ${error.message}`, 'error');
+                    console.error('Login error:', error);
                 }
             }
         };
@@ -1226,12 +1338,14 @@ const firebaseConfig = {
         };
 
         // Auth state
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             updateUI(user);
             if (user) {
+                // Make sure user data is complete
+                await saveUserData(user);
                 // Set online status
-                set(ref(db, `users/${user.uid}/online`), true);
-                set(ref(db, `users/${user.uid}/lastSeen`), Date.now());
+                await set(ref(db, `users/${user.uid}/online`), true);
+                await set(ref(db, `users/${user.uid}/lastSeen`), Date.now());
             }
         });
 
@@ -1243,7 +1357,16 @@ const firebaseConfig = {
             }
         });
 
+        // ===== EXPOSE functions to console =====
+        window.fixAllUsers = fixAllUsers;
+        window.saveUserData = saveUserData;
+        window.db = db;
+        window.auth = auth;
+
         console.log('🔥 ConnectBD Private Chat ready');
+        console.log('🔧 To fix all users, run: fixAllUsers()');
+        console.log('📝 To fix current user, run: saveUserData(auth.currentUser)');
+        console.log('🔍 To check all users, run: get(ref(db, "users")).then(s => console.log(s.val()))');
     </script>
 </body>
 </html>
