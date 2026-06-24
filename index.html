@@ -10,7 +10,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
             background: linear-gradient(145deg, #f6f9fc 0%, #eaf3f9 100%);
@@ -21,7 +20,6 @@
             margin: 0;
             padding: 20px;
         }
-
         .app-container {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
@@ -36,7 +34,6 @@
             display: flex;
             flex-direction: column;
         }
-
         .header {
             display: flex;
             align-items: center;
@@ -46,13 +43,11 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-
         .header-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-
         .app-logo {
             width: 48px;
             height: 48px;
@@ -64,21 +59,17 @@
             cursor: pointer;
             transition: 0.3s;
         }
-
         .app-logo:hover {
             transform: scale(1.05);
         }
-
         .app-title {
             font-size: 1.6rem;
             font-weight: 700;
             color: #0b2b40;
         }
-
         .app-title span {
             color: #1976D2;
         }
-
         .app-title small {
             font-size: 0.8rem;
             font-weight: 400;
@@ -86,13 +77,11 @@
             display: block;
             margin-top: -4px;
         }
-
         .header-right {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-
         .user-profile-mini {
             display: flex;
             align-items: center;
@@ -104,11 +93,9 @@
             cursor: pointer;
             transition: 0.3s;
         }
-
         .user-profile-mini:hover {
             background: rgba(255, 255, 255, 0.9);
         }
-
         .user-profile-mini img {
             width: 32px;
             height: 32px;
@@ -116,7 +103,6 @@
             object-fit: cover;
             border: 2px solid white;
         }
-
         .user-profile-mini .user-name {
             font-size: 0.85rem;
             font-weight: 500;
@@ -126,7 +112,6 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-
         .header-btn {
             background: transparent;
             border: 1px solid #b6ccdd;
@@ -138,32 +123,26 @@
             cursor: pointer;
             transition: 0.15s;
         }
-
         .header-btn:hover {
             background: #e6eef5;
             border-color: #7f9bb3;
         }
-
         .header-btn.primary {
             background: #1976D2;
             border-color: #1976D2;
             color: white;
         }
-
         .header-btn.primary:hover {
             background: #1565C0;
         }
-
         .header-btn.danger {
             background: #d32f2f;
             border-color: #d32f2f;
             color: white;
         }
-
         .header-btn.danger:hover {
             background: #b71c1c;
         }
-
         .main-content {
             display: flex;
             gap: 1.5rem;
@@ -171,7 +150,6 @@
             min-height: 0;
             padding-top: 1.2rem;
         }
-
         .sidebar {
             width: 260px;
             flex-shrink: 0;
@@ -183,11 +161,9 @@
             display: flex;
             flex-direction: column;
         }
-
         .sidebar-section {
             margin-bottom: 1rem;
         }
-
         .sidebar-title {
             font-size: 0.75rem;
             text-transform: uppercase;
@@ -199,7 +175,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .badge-count {
             background: #1976D2;
             color: white;
@@ -207,18 +182,15 @@
             padding: 2px 8px;
             border-radius: 20px;
         }
-
         .badge-count.unread {
             background: #ff4444;
             animation: pulse 1s infinite;
         }
-
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
-
         .friend-item {
             display: flex;
             align-items: center;
@@ -230,16 +202,13 @@
             margin-bottom: 4px;
             position: relative;
         }
-
         .friend-item:hover {
             background: rgba(25, 118, 210, 0.08);
         }
-
         .friend-item.active {
             background: rgba(25, 118, 210, 0.15);
             font-weight: 600;
         }
-
         .friend-item img {
             width: 32px;
             height: 32px;
@@ -247,27 +216,22 @@
             object-fit: cover;
             border: 2px solid white;
         }
-
         .friend-item .friend-name {
             flex: 1;
             font-size: 0.9rem;
             color: #1f4c66;
         }
-
         .friend-item .friend-phone {
             font-size: 0.7rem;
             color: #4caf50;
             margin-left: 4px;
         }
-
         .friend-item .friend-phone.verified {
             color: #4caf50;
         }
-
         .friend-item .friend-phone.unverified {
             color: #ff9800;
         }
-
         .friend-item .status-dot {
             width: 8px;
             height: 8px;
@@ -275,11 +239,9 @@
             background: #4caf50;
             display: inline-block;
         }
-
         .friend-item .status-dot.offline {
             background: #bdbdbd;
         }
-
         .friend-item .unread-badge {
             background: #ff4444;
             color: white;
@@ -289,7 +251,6 @@
             min-width: 18px;
             text-align: center;
         }
-
         .request-item {
             display: flex;
             align-items: center;
@@ -300,24 +261,20 @@
             margin-bottom: 6px;
             font-size: 0.85rem;
         }
-
         .request-item img {
             width: 28px;
             height: 28px;
             border-radius: 50%;
             object-fit: cover;
         }
-
         .request-item .req-name {
             flex: 1;
             color: #1f4c66;
         }
-
         .request-item .req-actions {
             display: flex;
             gap: 6px;
         }
-
         .request-item .req-actions button {
             padding: 2px 10px;
             border: none;
@@ -326,25 +283,20 @@
             cursor: pointer;
             font-weight: 600;
         }
-
         .btn-accept {
             background: #4caf50;
             color: white;
         }
-
         .btn-accept:hover {
             background: #388e3c;
         }
-
         .btn-reject {
             background: #ef5350;
             color: white;
         }
-
         .btn-reject:hover {
             background: #c62828;
         }
-
         .search-box {
             width: 100%;
             padding: 6px 12px;
@@ -355,20 +307,17 @@
             background: rgba(255, 255, 255, 0.6);
             margin-bottom: 8px;
         }
-
         .search-box:focus {
             border-color: #1976D2;
         }
-
         .search-type-selector {
             display: flex;
             gap: 4px;
             margin-bottom: 8px;
-            background: rgba(255,255,255,0.5);
+            background: rgba(255, 255, 255, 0.5);
             border-radius: 12px;
             padding: 4px;
         }
-
         .search-type-selector button {
             flex: 1;
             padding: 4px 8px;
@@ -380,37 +329,30 @@
             background: transparent;
             color: #53768b;
         }
-
         .search-type-selector button.active {
             background: #1976D2;
             color: white;
         }
-
         .search-type-selector button:hover:not(.active) {
             background: rgba(25, 118, 210, 0.1);
         }
-
         .friend-list-scroll {
             flex: 1;
             overflow-y: auto;
         }
-
         .friend-list-scroll::-webkit-scrollbar {
             width: 4px;
         }
-
         .friend-list-scroll::-webkit-scrollbar-thumb {
             background: #b6ccdd;
             border-radius: 10px;
         }
-
         .chat-area {
             flex: 1;
             display: flex;
             flex-direction: column;
             min-width: 0;
         }
-
         .chat-header {
             display: flex;
             justify-content: space-between;
@@ -418,7 +360,6 @@
             padding-bottom: 8px;
             border-bottom: 1px solid rgba(60, 130, 180, 0.1);
         }
-
         .chat-header .chat-friend-name {
             font-weight: 600;
             color: #0b2b40;
@@ -427,28 +368,23 @@
             align-items: center;
             gap: 10px;
         }
-
         .chat-header .chat-friend-name img {
             width: 28px;
             height: 28px;
             border-radius: 50%;
             object-fit: cover;
         }
-
         .chat-header .chat-status {
             font-size: 0.75rem;
             color: #53768b;
         }
-
         .chat-header .chat-status.online {
             color: #4caf50;
         }
-
         .chat-header .chat-status.typing {
             color: #1976D2;
             animation: pulse 1s infinite;
         }
-
         .chat-header .call-btn {
             padding: 6px 14px;
             background: #4caf50;
@@ -462,30 +398,24 @@
             align-items: center;
             gap: 4px;
         }
-
         .chat-header .call-btn:hover:not(:disabled) {
             background: #388e3c;
             transform: scale(1.02);
         }
-
         .chat-header .call-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-
         .chat-header .call-btn.ringing {
             background: #ff9800;
             animation: pulse 1s infinite;
         }
-
         .chat-header .call-btn.in-call {
             background: #d32f2f;
         }
-
         .chat-header .call-btn.in-call:hover:not(:disabled) {
             background: #b71c1c;
         }
-
         .messages-container {
             flex: 1;
             overflow-y: auto;
@@ -497,7 +427,6 @@
             flex-direction: column;
             gap: 8px;
         }
-
         .message {
             display: flex;
             gap: 10px;
@@ -505,11 +434,9 @@
             animation: fadeIn 0.2s ease;
             position: relative;
         }
-
         .message:hover .message-actions {
             display: flex;
         }
-
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -520,12 +447,10 @@
                 transform: translateY(0);
             }
         }
-
         .message.own {
             align-self: flex-end;
             flex-direction: row-reverse;
         }
-
         .message .msg-avatar {
             width: 32px;
             height: 32px;
@@ -534,7 +459,6 @@
             flex-shrink: 0;
             border: 2px solid white;
         }
-
         .message .msg-bubble {
             background: white;
             padding: 10px 14px;
@@ -546,37 +470,31 @@
             position: relative;
             max-width: 100%;
         }
-
         .message.own .msg-bubble {
             background: #1976D2;
             color: white;
             border-top-left-radius: 18px;
             border-top-right-radius: 4px;
         }
-
         .message .msg-sender {
             font-size: 0.7rem;
             font-weight: 600;
             color: #1976D2;
             margin-bottom: 2px;
         }
-
         .message.own .msg-sender {
             color: #bbdefb;
         }
-
         .message .msg-text {
             font-size: 0.92rem;
             line-height: 1.4;
             word-break: break-word;
         }
-
         .message .msg-text .image-container {
             position: relative;
             display: inline-block;
             max-width: 100%;
         }
-
         .message .msg-text .image-container img {
             max-width: 100%;
             max-height: 300px;
@@ -586,11 +504,9 @@
             transition: 0.3s;
             display: block;
         }
-
         .message .msg-text .image-container img:hover {
             transform: scale(1.02);
         }
-
         .message .msg-text .image-container .image-actions {
             position: absolute;
             bottom: 10px;
@@ -600,13 +516,11 @@
             opacity: 0;
             transition: 0.3s;
         }
-
         .message .msg-text .image-container:hover .image-actions {
             opacity: 1;
         }
-
         .message .msg-text .image-container .image-actions button {
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             color: white;
             border: none;
             border-radius: 50%;
@@ -619,27 +533,22 @@
             align-items: center;
             justify-content: center;
         }
-
         .message .msg-text .image-container .image-actions button:hover {
-            background: rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.9);
             transform: scale(1.1);
         }
-
         .message .msg-text .image-container .image-actions .download-btn:hover {
             background: #1976D2;
         }
-
         .message .msg-time {
             font-size: 0.6rem;
             opacity: 0.6;
             margin-top: 4px;
             text-align: right;
         }
-
         .message.own .msg-time {
             color: #bbdefb;
         }
-
         .message .message-actions {
             display: none;
             position: absolute;
@@ -649,14 +558,12 @@
             background: white;
             border-radius: 12px;
             padding: 2px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-
         .message.own .message-actions {
             right: auto;
             left: -10px;
         }
-
         .message .message-actions button {
             background: none;
             border: none;
@@ -666,19 +573,15 @@
             border-radius: 4px;
             transition: 0.2s;
         }
-
         .message .message-actions button:hover {
             background: #e0e0e0;
         }
-
         .message .message-actions .delete-btn:hover {
             color: #d32f2f;
         }
-
         .message .message-actions .edit-btn:hover {
             color: #1976D2;
         }
-
         .typing-indicator-global {
             font-size: 0.7rem;
             color: #1976D2;
@@ -686,7 +589,6 @@
             padding: 4px 8px;
             min-height: 20px;
         }
-
         .input-area {
             display: flex;
             gap: 10px;
@@ -695,14 +597,12 @@
             border-top: 1px solid rgba(60, 130, 180, 0.1);
             flex-wrap: wrap;
         }
-
         .input-area .input-wrapper {
             flex: 1;
             display: flex;
             gap: 8px;
             min-width: 0;
         }
-
         .input-area input[type="text"] {
             flex: 1;
             padding: 10px 16px;
@@ -714,18 +614,15 @@
             transition: 0.15s;
             min-width: 0;
         }
-
         .input-area input[type="text"]:focus {
             border-color: #1976D2;
             background: white;
             box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.08);
         }
-
         .input-area input[type="text"]:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-
         .input-area .file-upload-btn {
             padding: 10px 16px;
             background: #4caf50;
@@ -739,17 +636,14 @@
             align-items: center;
             gap: 4px;
         }
-
         .input-area .file-upload-btn:hover:not(:disabled) {
             background: #388e3c;
             transform: scale(1.02);
         }
-
         .input-area .file-upload-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-
         .input-area .send-btn {
             padding: 10px 24px;
             border: none;
@@ -762,29 +656,24 @@
             transition: 0.15s;
             white-space: nowrap;
         }
-
         .input-area .send-btn:hover:not(:disabled) {
             background: #1565C0;
             transform: scale(1.02);
         }
-
         .input-area .send-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-
         .empty-state {
             text-align: center;
             color: #53768b;
             padding: 40px 0;
             font-size: 0.9rem;
         }
-
         .empty-state .icon {
             font-size: 3rem;
             margin-bottom: 10px;
         }
-
         .toast {
             position: fixed;
             bottom: 24px;
@@ -802,16 +691,13 @@
             max-width: 90%;
             text-align: center;
         }
-
         .toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
-
         .toast.error {
             background: #d32f2f;
         }
-
         .modal-overlay {
             display: none;
             position: fixed;
@@ -819,32 +705,28 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
         }
-
         .modal-overlay.active {
             display: flex;
         }
-
         .modal {
             background: white;
             border-radius: 24px;
             padding: 2rem;
             max-width: 420px;
             width: 90%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: fadeIn 0.3s ease;
         }
-
         .modal h2 {
             color: #0b2b40;
             margin-bottom: 1rem;
         }
-
         .modal .profile-pic {
             width: 100px;
             height: 100px;
@@ -854,37 +736,32 @@
             display: block;
             border: 3px solid #1976D2;
         }
-
         .modal .profile-pic-wrapper {
             position: relative;
             width: 100px;
             margin: 0 auto 1rem;
         }
-
         .modal .profile-pic-wrapper .upload-overlay {
             position: absolute;
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             color: white;
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 0.6rem;
             cursor: pointer;
         }
-
         .modal .form-group {
             margin-bottom: 1rem;
         }
-
         .modal .form-group label {
             display: block;
             font-size: 0.8rem;
             color: #53768b;
             margin-bottom: 4px;
         }
-
         .modal .form-group input {
             width: 100%;
             padding: 8px 12px;
@@ -892,21 +769,17 @@
             border-radius: 12px;
             font-size: 0.95rem;
         }
-
         .modal .form-group input:focus {
             border-color: #1976D2;
             outline: none;
         }
-
         .modal .form-group .input-with-btn {
             display: flex;
             gap: 8px;
         }
-
         .modal .form-group .input-with-btn input {
             flex: 1;
         }
-
         .modal .form-group .input-with-btn button {
             padding: 8px 16px;
             border: none;
@@ -918,44 +791,36 @@
             white-space: nowrap;
             transition: 0.2s;
         }
-
         .modal .form-group .input-with-btn button:hover:not(:disabled) {
             background: #1565C0;
         }
-
         .modal .form-group .input-with-btn button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-
         .modal .form-group .otp-status {
             font-size: 0.75rem;
             margin-top: 4px;
             padding: 4px 8px;
             border-radius: 8px;
         }
-
         .modal .form-group .otp-status.verified {
             color: #4caf50;
             background: #e8f5e9;
         }
-
         .modal .form-group .otp-status.pending {
             color: #ff9800;
             background: #fff3e0;
         }
-
         .modal .form-group .otp-status.error {
             color: #d32f2f;
             background: #ffebee;
         }
-
         .modal .modal-actions {
             display: flex;
             gap: 10px;
             margin-top: 1rem;
         }
-
         .modal .modal-actions button {
             flex: 1;
             padding: 10px;
@@ -965,30 +830,24 @@
             cursor: pointer;
             transition: 0.2s;
         }
-
         .modal .modal-actions .save-btn {
             background: #1976D2;
             color: white;
         }
-
         .modal .modal-actions .save-btn:hover {
             background: #1565C0;
         }
-
         .modal .modal-actions .save-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-
         .modal .modal-actions .cancel-btn {
             background: #e0e0e0;
             color: #333;
         }
-
         .modal .modal-actions .cancel-btn:hover {
             background: #d0d0d0;
         }
-
         .image-preview-overlay {
             display: none;
             position: fixed;
@@ -996,30 +855,26 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.9);
             z-index: 2000;
             justify-content: center;
             align-items: center;
             cursor: pointer;
         }
-
         .image-preview-overlay.active {
             display: flex;
         }
-
         .image-preview-overlay .preview-content {
             position: relative;
             max-width: 90%;
             max-height: 90%;
         }
-
         .image-preview-overlay img {
             max-width: 100%;
             max-height: 90vh;
             object-fit: contain;
             border-radius: 8px;
         }
-
         .image-preview-overlay .preview-actions {
             position: absolute;
             bottom: 20px;
@@ -1027,12 +882,11 @@
             display: flex;
             gap: 10px;
         }
-
         .image-preview-overlay .preview-actions button {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             color: white;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             width: 44px;
             height: 44px;
@@ -1043,22 +897,17 @@
             align-items: center;
             justify-content: center;
         }
-
         .image-preview-overlay .preview-actions button:hover {
-            background: rgba(255,255,255,0.4);
+            background: rgba(255, 255, 255, 0.4);
             transform: scale(1.1);
         }
-
         .image-preview-overlay .preview-actions .download-btn-preview {
             background: #1976D2;
             border-color: #1976D2;
         }
-
         .image-preview-overlay .preview-actions .download-btn-preview:hover {
             background: #1565C0;
         }
-
-        /* Call Modal Styles */
         .call-modal-overlay {
             display: none;
             position: fixed;
@@ -1066,17 +915,15 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(8px);
             z-index: 3000;
             justify-content: center;
             align-items: center;
         }
-
         .call-modal-overlay.active {
             display: flex;
         }
-
         .call-modal {
             background: linear-gradient(145deg, #1a1a2e, #16213e);
             border-radius: 30px;
@@ -1085,9 +932,8 @@
             width: 90%;
             text-align: center;
             color: white;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
         }
-
         .call-modal .caller-avatar {
             width: 100px;
             height: 100px;
@@ -1097,28 +943,23 @@
             border: 4px solid #4caf50;
             display: block;
         }
-
         .call-modal .caller-name {
             font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
-
         .call-modal .call-status {
             font-size: 1rem;
             color: #aaa;
             margin-bottom: 2rem;
         }
-
         .call-modal .call-status.ringing {
             color: #ff9800;
             animation: pulse 1s infinite;
         }
-
         .call-modal .call-status.connected {
             color: #4caf50;
         }
-
         .call-modal .call-timer {
             font-size: 2rem;
             font-weight: 300;
@@ -1127,14 +968,12 @@
             font-variant-numeric: tabular-nums;
             display: none;
         }
-
         .call-modal .call-actions {
             display: flex;
             gap: 20px;
             justify-content: center;
             flex-wrap: wrap;
         }
-
         .call-modal .call-actions button {
             width: 65px;
             height: 65px;
@@ -1147,38 +986,30 @@
             align-items: center;
             justify-content: center;
         }
-
         .call-modal .call-actions button:hover {
             transform: scale(1.1);
         }
-
         .call-modal .call-actions .accept-btn {
             background: #4caf50;
             color: white;
         }
-
         .call-modal .call-actions .accept-btn:hover {
             background: #388e3c;
         }
-
         .call-modal .call-actions .reject-btn {
             background: #d32f2f;
             color: white;
         }
-
         .call-modal .call-actions .reject-btn:hover {
             background: #b71c1c;
         }
-
         .call-modal .call-actions .end-btn {
             background: #d32f2f;
             color: white;
         }
-
         .call-modal .call-actions .end-btn:hover {
             background: #b71c1c;
         }
-
         .call-modal .call-actions .mute-btn {
             background: #333;
             color: white;
@@ -1186,15 +1017,12 @@
             height: 55px;
             font-size: 1.2rem;
         }
-
         .call-modal .call-actions .mute-btn:hover {
             background: #444;
         }
-
         .call-modal .call-actions .mute-btn.muted {
             background: #ff9800;
         }
-
         .call-modal .call-actions .speaker-btn {
             background: #333;
             color: white;
@@ -1202,24 +1030,20 @@
             height: 55px;
             font-size: 1.2rem;
         }
-
         .call-modal .call-actions .speaker-btn:hover {
             background: #444;
         }
-
         .call-modal .call-actions .speaker-btn.active {
             background: #1976D2;
         }
-
         .call-modal .volume-indicator {
             width: 100%;
             height: 4px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 2px;
             margin-top: 1.5rem;
             overflow: hidden;
         }
-
         .call-modal .volume-indicator .volume-bar {
             height: 100%;
             background: #4caf50;
@@ -1227,13 +1051,11 @@
             transition: width 0.1s;
             border-radius: 2px;
         }
-
-        /* Call Notification */
         .call-notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.9);
             color: white;
             padding: 16px 20px;
             border-radius: 16px;
@@ -1241,41 +1063,34 @@
             display: none;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             max-width: 350px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
         .call-notification.show {
             display: flex;
         }
-
         .call-notification .notif-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
         }
-
         .call-notification .notif-text {
             flex: 1;
         }
-
         .call-notification .notif-text .notif-name {
             font-weight: 600;
             font-size: 0.95rem;
         }
-
         .call-notification .notif-text .notif-status {
             font-size: 0.8rem;
             color: #aaa;
         }
-
         .call-notification .notif-actions {
             display: flex;
             gap: 8px;
         }
-
         .call-notification .notif-actions button {
             padding: 6px 12px;
             border: none;
@@ -1284,25 +1099,20 @@
             font-weight: 500;
             font-size: 0.8rem;
         }
-
         .call-notification .notif-actions .accept-call {
             background: #4caf50;
             color: white;
         }
-
         .call-notification .notif-actions .reject-call {
             background: #d32f2f;
             color: white;
         }
-
-        /* reCAPTCHA */
         #recaptcha-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 9999;
         }
-
         @media (max-width: 768px) {
             .app-container {
                 padding: 1.2rem;
@@ -1349,7 +1159,6 @@
                 max-width: none;
             }
         }
-
         @media (max-width: 480px) {
             .app-container {
                 padding: 1rem;
@@ -1389,7 +1198,6 @@
                 <button id="logoutBtn" class="header-btn danger" style="display: none;">সাইন আউট</button>
             </div>
         </div>
-
         <div class="main-content">
             <div class="sidebar">
                 <div class="sidebar-section">
@@ -1405,7 +1213,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="sidebar-section">
                     <div class="sidebar-title">
                         📨 রিকোয়েস্ট
@@ -1415,7 +1222,6 @@
                         <div style="color: #53768b; font-size: 0.8rem; padding: 4px 0;">কোনো রিকোয়েস্ট নেই</div>
                     </div>
                 </div>
-
                 <div class="sidebar-section">
                     <div class="sidebar-title">🔍 ইউজার খুঁজুন</div>
                     <div class="search-type-selector">
@@ -1429,7 +1235,6 @@
                     <div id="searchResults" style="margin-top: 6px; font-size: 0.8rem; max-height: 150px; overflow-y: auto;"></div>
                 </div>
             </div>
-
             <div class="chat-area">
                 <div class="chat-header">
                     <div class="chat-friend-name" id="chatFriendInfo">
@@ -1440,16 +1245,13 @@
                         <span class="chat-status" id="chatStatus">অনলাইন</span>
                     </div>
                 </div>
-
                 <div class="typing-indicator-global" id="typingIndicator"></div>
-
                 <div class="messages-container" id="messagesContainer">
                     <div class="empty-state">
                         <div class="icon">💬</div>
                         চ্যাট শুরু করতে বাম দিক থেকে একজন বন্ধু নির্বাচন করুন
                     </div>
                 </div>
-
                 <div class="input-area">
                     <div class="input-wrapper">
                         <input type="text" id="messageInput" placeholder="মেসেজ লিখুন..." disabled />
@@ -1460,7 +1262,6 @@
             </div>
         </div>
     </div>
-
     <!-- Profile Modal -->
     <div class="modal-overlay" id="profileModal">
         <div class="modal">
@@ -1498,7 +1299,6 @@
             </div>
         </div>
     </div>
-
     <!-- Image Preview Modal -->
     <div class="image-preview-overlay" id="imagePreview">
         <div class="preview-content">
@@ -1509,7 +1309,6 @@
             </div>
         </div>
     </div>
-
     <!-- Call Notification -->
     <div class="call-notification" id="callNotification">
         <img id="notifAvatar" class="notif-avatar" src="" alt="Caller" />
@@ -1522,7 +1321,6 @@
             <button class="reject-call" id="notifReject">❌</button>
         </div>
     </div>
-
     <!-- Call Modal -->
     <div class="call-modal-overlay" id="callModal">
         <div class="call-modal">
@@ -1530,7 +1328,6 @@
             <div class="caller-name" id="callerName">Caller</div>
             <div class="call-status" id="callStatus">📞 কলিং...</div>
             <div class="call-timer" id="callTimer">00:00</div>
-            
             <div class="call-actions" id="callActions">
                 <div id="incomingActions" style="display: none;">
                     <button class="accept-btn" id="acceptCallBtn">📞</button>
@@ -1545,22 +1342,51 @@
                     <button class="reject-btn" id="cancelCallBtn">📵</button>
                 </div>
             </div>
-            
             <div class="volume-indicator">
                 <div class="volume-bar" id="volumeBar"></div>
             </div>
         </div>
     </div>
-
-    <!-- reCAPTCHA Container -->
     <div id="recaptcha-container"></div>
-
     <div id="toast" class="toast"></div>
-
-    <!-- Hidden file input -->
     <input type="file" id="fileInput" accept="image/*" style="display: none;" />
 
     <script type="module">
+        // ===== Console Warning Filter =====
+        (function() {
+            const originalWarn = console.warn;
+            const originalError = console.error;
+            console.warn = function(...args) {
+                const msg = args[0] || '';
+                if (typeof msg === 'string') {
+                    if (msg.includes('MaxListenersExceededWarning') ||
+                        msg.includes('ObjectMultiplex') ||
+                        msg.includes('orphaned data') ||
+                        msg.includes('malformed chunk') ||
+                        msg.includes('inpage.js') ||
+                        msg.includes('favicon.ico') ||
+                        msg.includes('registerSolanaInjectedWallet') ||
+                        msg.includes('solana')) {
+                        return;
+                    }
+                }
+                originalWarn.apply(console, args);
+            };
+            console.error = function(...args) {
+                const msg = args[0] || '';
+                if (typeof msg === 'string') {
+                    if (msg.includes('inpage.js') ||
+                        msg.includes('is not a function') ||
+                        msg.includes('registerSolanaInjectedWallet') ||
+                        msg.includes('solana')) {
+                        return;
+                    }
+                }
+                originalError.apply(console, args);
+            };
+            console.log('✅ Console warnings filtered!');
+        })();
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import {
             getAuth,
@@ -1624,7 +1450,6 @@
         const searchResults = document.getElementById('searchResults');
         const searchFriend = document.getElementById('searchFriend');
         const toastEl = document.getElementById('toast');
-        const typingIndicator = document.getElementById('typingIndicator');
         const logoClick = document.getElementById('logoClick');
         const fileUploadBtn = document.getElementById('fileUploadBtn');
         const fileInput = document.getElementById('fileInput');
@@ -1699,6 +1524,7 @@
         let audioContext = null;
         let analyser = null;
         let dataArray = null;
+        let signalListener = null;
 
         // Toast
         let toastTimeout = null;
@@ -1888,16 +1714,6 @@
         }
 
         // ===== Audio Call Functions =====
-        async function getAudioDevices() {
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                return devices.filter(d => d.kind === 'audioinput');
-            } catch (error) {
-                console.error('Error getting audio devices:', error);
-                return [];
-            }
-        }
-
         async function getUserMedia() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
@@ -1910,14 +1726,14 @@
                 return stream;
             } catch (error) {
                 console.error('Error getting user media:', error);
-                showToast('মাইক্রোফোন অ্যাক্সেস করতে ব্যর্থ!', 'error');
+                showToast('মাইক্রোফোন অ্যাক্সেস দিন! ব্রাউজার সেটিংস চেক করুন।', 'error');
                 throw error;
             }
         }
 
         function setupVolumeMeter(stream) {
             try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioContext = new(window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
                 analyser.fftSize = 256;
                 const source = audioContext.createMediaStreamSource(stream);
@@ -1949,6 +1765,7 @@
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
                     { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' },
                     {
                         urls: 'turn:numb.viagenie.ca',
                         username: 'webrtc@live.com',
@@ -1957,21 +1774,28 @@
                 ]
             };
             peerConnection = new RTCPeerConnection(configuration);
+
             if (localStream) {
                 localStream.getTracks().forEach(track => {
                     peerConnection.addTrack(track, localStream);
+                    console.log('🎤 Added track:', track.kind);
                 });
             }
+
             peerConnection.ontrack = (event) => {
+                console.log('📞 Remote stream received!');
                 remoteStream = event.streams[0];
                 const audio = new Audio();
                 audio.srcObject = remoteStream;
                 audio.autoplay = true;
                 audio.volume = isSpeakerOn ? 1.0 : 0.5;
                 setupVolumeMeter(remoteStream);
+                showToast('🔊 কল সংযুক্ত!');
             };
+
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
+                    console.log('📞 Sending ICE candidate');
                     sendSignal(currentCallId, {
                         type: 'candidate',
                         data: JSON.stringify(event.candidate),
@@ -1979,39 +1803,70 @@
                     });
                 }
             };
+
             peerConnection.onconnectionstatechange = () => {
-                console.log('Connection state:', peerConnection.connectionState);
+                console.log('📞 Connection state:', peerConnection.connectionState);
                 if (peerConnection.connectionState === 'connected') {
                     updateCallStatus('connected');
-                } else if (peerConnection.connectionState === 'disconnected' ||
-                    peerConnection.connectionState === 'failed' ||
-                    peerConnection.connectionState === 'closed') {
+                } else if (peerConnection.connectionState === 'disconnected') {
+                    console.log('⚠️ Call disconnected');
+                    showToast('⚠️ কল ডিসকানেক্ট!', 'error');
+                } else if (peerConnection.connectionState === 'failed') {
+                    console.log('❌ Call failed');
+                    showToast('❌ কল ব্যর্থ!', 'error');
+                    endCall();
+                } else if (peerConnection.connectionState === 'closed') {
+                    console.log('📞 Call closed');
                     endCall();
                 }
             };
+
             return peerConnection;
         }
 
         async function sendSignal(callId, signal) {
-            if (!callId) return;
+            if (!callId) {
+                console.error('❌ No callId provided!');
+                return false;
+            }
             try {
+                console.log(`📡 Sending ${signal.type} signal for call:`, callId);
                 const signalRef = ref(db, `callSignals/${callId}`);
                 const newSignalRef = push(signalRef);
                 await set(newSignalRef, {
-                    ...signal,
+                    type: signal.type,
+                    data: signal.data || '',
+                    from: signal.from || currentUser?.uid || 'unknown',
                     timestamp: Date.now()
                 });
+                console.log(`✅ ${signal.type} signal sent successfully`);
+                return true;
             } catch (error) {
-                console.error('Error sending signal:', error);
+                console.error(`❌ Error sending ${signal.type} signal:`, error);
+                return false;
             }
         }
 
         function listenForSignals(callId) {
-            if (!callId) return;
+            if (!callId) {
+                console.error('❌ No callId provided for listening!');
+                return;
+            }
+            console.log(`📡 Listening for signals on call: ${callId}`);
+
             const signalsRef = ref(db, `callSignals/${callId}`);
-            onChildAdded(signalsRef, async (snapshot) => {
+
+            if (signalListener) {
+                signalListener();
+                signalListener = null;
+            }
+
+            signalListener = onChildAdded(signalsRef, async(snapshot) => {
                 const signal = snapshot.val();
-                if (!signal || signal.from === currentUser.uid) return;
+                if (!signal || signal.from === currentUser?.uid) {
+                    return;
+                }
+                console.log(`📡 Received ${signal.type} signal`);
                 try {
                     switch (signal.type) {
                         case 'offer':
@@ -2025,46 +1880,58 @@
                             break;
                     }
                 } catch (error) {
-                    console.error('Error handling signal:', error);
+                    console.error(`❌ Error handling ${signal.type} signal:`, error);
                 }
             });
+            console.log('✅ Signal listener setup complete');
         }
 
         async function handleOffer(offerData) {
-            if (!peerConnection) {
-                await startLocalStream();
-                peerConnection = createPeerConnection();
-            }
+            console.log('📞 Processing offer');
             try {
+                if (!localStream) {
+                    await startLocalStream();
+                }
+                if (!peerConnection) {
+                    peerConnection = createPeerConnection();
+                }
                 const offer = JSON.parse(offerData);
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
-                sendSignal(currentCallId, {
+                await sendSignal(currentCallId, {
                     type: 'answer',
                     data: JSON.stringify(answer),
                     from: currentUser.uid
                 });
+                console.log('✅ Answer sent successfully');
             } catch (error) {
-                console.error('Error handling offer:', error);
+                console.error('❌ Error handling offer:', error);
             }
         }
 
         async function handleAnswer(answerData) {
+            console.log('📞 Processing answer');
             try {
+                if (!peerConnection) {
+                    console.error('❌ No peer connection found!');
+                    return;
+                }
                 const answer = JSON.parse(answerData);
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+                console.log('✅ Answer processed successfully');
             } catch (error) {
-                console.error('Error handling answer:', error);
+                console.error('❌ Error handling answer:', error);
             }
         }
 
         async function handleCandidate(candidateData) {
             try {
+                if (!peerConnection) return;
                 const candidate = JSON.parse(candidateData);
                 await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
             } catch (error) {
-                console.error('Error handling candidate:', error);
+                console.error('❌ Error handling candidate:', error);
             }
         }
 
@@ -2079,7 +1946,13 @@
         }
 
         async function startCall() {
-            if (!currentUser || !currentChatFriend || !friends[currentChatFriend]) {
+            console.log('📞 Call button clicked!');
+
+            if (!currentUser) {
+                showToast('প্রথমে লগইন করুন!', 'error');
+                return;
+            }
+            if (!currentChatFriend || !friends[currentChatFriend]) {
                 showToast('প্রথমে একটি বন্ধু নির্বাচন করুন!', 'error');
                 return;
             }
@@ -2087,12 +1960,31 @@
                 showToast('ইতিমধ্যে একটি কল চলছে!', 'error');
                 return;
             }
+            if (!friends[currentChatFriend].online) {
+                showToast('বন্ধু অফলাইনে! কল করা যাচ্ছে না।', 'error');
+                return;
+            }
+
             try {
-                if (!friends[currentChatFriend].online) {
-                    showToast('বন্ধু অফলাইনে! কল করা যাচ্ছে না।', 'error');
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }
+                    });
+                    console.log('✅ Microphone access granted!');
+                } catch (micError) {
+                    console.error('❌ Microphone error:', micError);
+                    showToast('মাইক্রোফোন অ্যাক্সেস দিন! ব্রাউজার সেটিংস চেক করুন।', 'error');
                     return;
                 }
+
                 currentCallId = `${currentUser.uid}_${currentChatFriend}_${Date.now()}`;
+                console.log('📞 Call ID:', currentCallId);
+
                 const callRef = ref(db, `calls/${currentCallId}`);
                 await set(callRef, {
                     callerId: currentUser.uid,
@@ -2104,30 +1996,46 @@
                     receiverName: friends[currentChatFriend].displayName || 'ইউজার',
                     receiverPhoto: friends[currentChatFriend].photoURL || ''
                 });
-                await startLocalStream();
+                console.log('✅ Call created in database');
+
+                localStream = stream;
+                setupVolumeMeter(localStream);
+
                 peerConnection = createPeerConnection();
-                const offer = await peerConnection.createOffer();
+                console.log('✅ PeerConnection created');
+
+                const offer = await peerConnection.createOffer({
+                    offerToReceiveAudio: true
+                });
                 await peerConnection.setLocalDescription(offer);
-                sendSignal(currentCallId, {
+                console.log('✅ Offer created');
+
+                await sendSignal(currentCallId, {
                     type: 'offer',
                     data: JSON.stringify(offer),
                     from: currentUser.uid
                 });
+                console.log('✅ Offer sent');
+
                 listenForSignals(currentCallId);
+                listenForCallStatus(currentCallId);
+
                 showCallUI('outgoing');
                 callStatus.textContent = '📞 কলিং...';
                 callStatus.className = 'call-status ringing';
                 callerName.textContent = friends[currentChatFriend].displayName || 'ইউজার';
                 callAvatar.src = friends[currentChatFriend].photoURL || 'https://ui-avatars.com/api/?name=' +
                     encodeURIComponent(friends[currentChatFriend].displayName || 'U') + '&background=1976D2&color=fff';
-                listenForCallStatus(currentCallId);
+
                 isCallActive = true;
                 callBtn.disabled = true;
                 callBtn.textContent = '📞 কলিং...';
                 callBtn.className = 'call-btn ringing';
+
                 showToast('📞 কল শুরু হচ্ছে...', 'success');
+
             } catch (error) {
-                console.error('Start call error:', error);
+                console.error('❌ Start call error:', error);
                 showToast(`কল শুরু করতে ব্যর্থ: ${error.message}`, 'error');
                 endCall();
             }
@@ -2162,17 +2070,20 @@
         function showIncomingCall(data) {
             if (isCallActive) return;
             currentCallId = data.callerId + '_' + data.receiverId + '_' + data.timestamp;
+
             notifAvatar.src = data.callerPhoto || 'https://ui-avatars.com/api/?name=' +
                 encodeURIComponent(data.callerName || 'U') + '&background=1976D2&color=fff';
             notifName.textContent = data.callerName || 'ইউজার';
             notifStatus.textContent = '📞 ইনকামিং কল...';
             callNotification.classList.add('show');
+
             showCallUI('incoming');
             callerName.textContent = data.callerName || 'ইউজার';
             callAvatar.src = data.callerPhoto || 'https://ui-avatars.com/api/?name=' +
                 encodeURIComponent(data.callerName || 'U') + '&background=1976D2&color=fff';
             callStatus.textContent = '📞 ইনকামিং কল...';
             callStatus.className = 'call-status ringing';
+
             playRingtone();
             listenForSignals(currentCallId);
             listenForCallStatus(currentCallId);
@@ -2180,7 +2091,7 @@
 
         function playRingtone() {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = new(window.AudioContext || window.webkitAudioContext)();
                 const oscillator = ctx.createOscillator();
                 const gainNode = ctx.createGain();
                 oscillator.connect(gainNode);
@@ -2202,19 +2113,23 @@
             try {
                 const callRef = ref(db, `calls/${currentCallId}`);
                 await update(callRef, { status: 'connected', startTime: Date.now() });
+
                 await startLocalStream();
                 if (!peerConnection) {
                     peerConnection = createPeerConnection();
                 }
+
                 callNotification.classList.remove('show');
                 showCallUI('ongoing');
                 updateCallStatus('connected');
                 callBtn.textContent = '📞 কল চলছে';
                 callBtn.className = 'call-btn in-call';
+
                 isCallActive = true;
                 callStartTime = Date.now();
                 startCallTimer();
                 showToast('📞 কল সংযুক্ত!', 'success');
+
             } catch (error) {
                 console.error('Accept call error:', error);
                 showToast(`কল গ্রহণ করতে ব্যর্থ!`, 'error');
@@ -2246,6 +2161,7 @@
                         duration: callStartTime ? Math.floor((Date.now() - callStartTime) / 1000) : 0
                     });
                 }
+
                 if (peerConnection) {
                     peerConnection.close();
                     peerConnection = null;
@@ -2266,21 +2182,27 @@
                     clearInterval(callTimerInterval);
                     callTimerInterval = null;
                 }
+
                 isCallActive = false;
                 isMuted = false;
                 isSpeakerOn = false;
                 callStartTime = null;
+
                 callNotification.classList.remove('show');
                 hideCallUI();
+
                 callBtn.disabled = false;
                 callBtn.textContent = '📞 কল';
                 callBtn.className = 'call-btn';
+
                 if (currentChatFriend && friends[currentChatFriend]) {
                     const friend = friends[currentChatFriend];
                     chatStatus.textContent = friend.online ? '🟢 অনলাইন' : '⚪ অফলাইন';
                     chatStatus.className = `chat-status ${friend.online ? 'online' : ''}`;
                 }
+
                 showToast('📞 কল শেষ হয়েছে');
+
             } catch (error) {
                 console.error('End call error:', error);
             }
@@ -2291,6 +2213,7 @@
             incomingActions.style.display = 'none';
             outgoingActions.style.display = 'none';
             ongoingActions.style.display = 'none';
+
             if (type === 'incoming') {
                 incomingActions.style.display = 'flex';
                 callTimer.style.display = 'none';
@@ -2624,14 +2547,14 @@
                             `<span class="friend-phone unverified">⚠️ 📱${friend.phone}</span>`;
                     }
                     html += `
-                        <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
-                            <img src="${photo}" alt="${name}" />
-                            <span class="friend-name">${name}</span>
-                            ${phoneStatus}
-                            ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
-                            <span class="status-dot ${friend.online ? '' : 'offline'}"></span>
-                        </div>
-                    `;
+                            <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
+                                <img src="${photo}" alt="${name}" />
+                                <span class="friend-name">${name}</span>
+                                ${phoneStatus}
+                                ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
+                                <span class="status-dot ${friend.online ? '' : 'offline'}"></span>
+                            </div>
+                        `;
                 });
             }
             friendList.innerHTML = html;
@@ -2658,15 +2581,15 @@
                     const photo = req.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) +
                         '&background=1976D2&color=fff';
                     html += `
-                        <div class="request-item" data-uid="${uid}">
-                            <img src="${photo}" alt="${name}" />
-                            <span class="req-name">${name}</span>
-                            <div class="req-actions">
-                                <button class="btn-accept" data-uid="${uid}">✅</button>
-                                <button class="btn-reject" data-uid="${uid}">❌</button>
+                            <div class="request-item" data-uid="${uid}">
+                                <img src="${photo}" alt="${name}" />
+                                <span class="req-name">${name}</span>
+                                <div class="req-actions">
+                                    <button class="btn-accept" data-uid="${uid}">✅</button>
+                                    <button class="btn-reject" data-uid="${uid}">❌</button>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
                 });
             }
             requestList.innerHTML = html;
@@ -2801,7 +2724,6 @@
                     foundUsers.push({ uid, ...user });
                 }
             });
-            console.log('🔍 Search results:', foundUsers.length, 'Type:', searchType);
             if (foundUsers.length === 0) {
                 searchResults.innerHTML = `<div style="color: #53768b; font-size: 0.8rem;">কোনো ইউজার পাওয়া যায়নি</div>`;
                 return;
@@ -2819,19 +2741,19 @@
                         `⚠️ 📱${user.phone}`;
                 }
                 html += `
-                    <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
-                        <img src="${photo}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;" />
-                        <span style="flex: 1; font-size: 0.85rem;">
-                            ${user.displayName || 'ইউজার'}
-                            ${phoneStatus ? `<span style="font-size:0.7rem;color:#53768b;"> ${phoneStatus}</span>` : ''}
-                            <span style="font-size:0.65rem;color:#53768b;display:block;">${user.email || ''}</span>
-                        </span>
-                        ${isFriend ? '<span style="color: #4caf50; font-size: 0.7rem;">✅ বন্ধু</span>' :
-                        isRequested ? '<span style="color: #ff9800; font-size: 0.7rem;">⏳ রিকোয়েস্ট পাঠানো</span>' :
-                        `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
-                        }
-                    </div>
-                `;
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <img src="${photo}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;" />
+                            <span style="flex: 1; font-size: 0.85rem;">
+                                ${user.displayName || 'ইউজার'}
+                                ${phoneStatus ? `<span style="font-size:0.7rem;color:#53768b;"> ${phoneStatus}</span>` : ''}
+                                <span style="font-size:0.65rem;color:#53768b;display:block;">${user.email || ''}</span>
+                            </span>
+                            ${isFriend ? '<span style="color: #4caf50; font-size: 0.7rem;">✅ বন্ধু</span>' :
+                            isRequested ? '<span style="color: #ff9800; font-size: 0.7rem;">⏳ রিকোয়েস্ট পাঠানো</span>' :
+                            `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
+                            }
+                        </div>
+                    `;
             });
             searchResults.innerHTML = html;
             document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
@@ -2864,9 +2786,9 @@
             const photo = friend.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) +
                 '&background=1976D2&color=fff';
             chatFriendInfo.innerHTML = `
-                <img src="${photo}" alt="${name}" />
-                <span>${name}</span>
-            `;
+                    <img src="${photo}" alt="${name}" />
+                    <span>${name}</span>
+                `;
             chatStatus.textContent = friend.online ? '🟢 অনলাইন' : '⚪ অফলাইন';
             chatStatus.className = `chat-status ${friend.online ? 'online' : ''}`;
             callBtn.disabled = false;
@@ -2948,13 +2870,13 @@
         // ===== Create Image HTML =====
         function createImageHTML(imageSrc, fileName = 'image.jpg') {
             return `
-                <div class="image-container">
-                    <img src="${imageSrc}" alt="Image" onclick="openImagePreview('${imageSrc}', '${fileName}')" />
-                    <div class="image-actions">
-                        <button class="download-btn" onclick="event.stopPropagation(); downloadImageFromSrc('${imageSrc}', '${fileName}')" title="ডাউনলোড করুন">⬇️</button>
+                    <div class="image-container">
+                        <img src="${imageSrc}" alt="Image" onclick="openImagePreview('${imageSrc}', '${fileName}')" />
+                        <div class="image-actions">
+                            <button class="download-btn" onclick="event.stopPropagation(); downloadImageFromSrc('${imageSrc}', '${fileName}')" title="ডাউনলোড করুন">⬇️</button>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
         }
 
         // ===== Append message =====
@@ -2976,19 +2898,19 @@
                 content = msg.text + (msg.edited ? ' <span style="font-size:0.6rem;">(edited)</span>' : '');
             }
             div.innerHTML = `
-                <img src="${avatar}" alt="avatar" class="msg-avatar" />
-                <div class="msg-bubble">
-                    <div class="msg-sender">${isOwn ? 'আপনি' : (msg.displayName || 'ইউজার')}</div>
-                    <div class="msg-text">${content}</div>
-                    <div class="msg-time">${time}</div>
-                    <div class="message-actions">
-                        ${isOwn ? `
-                            <button class="edit-btn" data-key="${msgKey}" title="Edit">✏️</button>
-                            <button class="delete-btn" data-key="${msgKey}" title="Delete">🗑️</button>
-                        ` : ''}
+                    <img src="${avatar}" alt="avatar" class="msg-avatar" />
+                    <div class="msg-bubble">
+                        <div class="msg-sender">${isOwn ? 'আপনি' : (msg.displayName || 'ইউজার')}</div>
+                        <div class="msg-text">${content}</div>
+                        <div class="msg-time">${time}</div>
+                        <div class="message-actions">
+                            ${isOwn ? `
+                                <button class="edit-btn" data-key="${msgKey}" title="Edit">✏️</button>
+                                <button class="delete-btn" data-key="${msgKey}" title="Delete">🗑️</button>
+                            ` : ''}
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
             messagesContainer.appendChild(div);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             if (isOwn) {
