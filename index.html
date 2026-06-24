@@ -463,6 +463,7 @@
             word-wrap: break-word;
             flex: 1;
             position: relative;
+            max-width: 100%;
         }
 
         .message.own .msg-bubble {
@@ -486,15 +487,17 @@
         .message .msg-text {
             font-size: 0.92rem;
             line-height: 1.4;
+            word-break: break-word;
         }
 
         .message .msg-text img {
-            max-width: 200px;
-            max-height: 200px;
+            max-width: 100%;
+            max-height: 300px;
             border-radius: 8px;
             margin: 4px 0;
             cursor: pointer;
             transition: 0.3s;
+            display: block;
         }
 
         .message .msg-text img:hover {
@@ -860,7 +863,7 @@
                 flex-wrap: wrap;
             }
             .message .msg-text img {
-                max-width: 150px;
+                max-width: 100%;
                 max-height: 150px;
             }
         }
@@ -880,7 +883,7 @@
                 max-height: 180px;
             }
             .message .msg-text img {
-                max-width: 120px;
+                max-width: 100%;
                 max-height: 120px;
             }
         }
@@ -1030,12 +1033,6 @@
             onChildRemoved,
             onChildChanged
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-        import {
-            getStorage,
-            ref as storageRef,
-            uploadBytes,
-            getDownloadURL
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
@@ -1051,7 +1048,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        const storage = getStorage(app);
 
         // DOM Elements
         const messagesContainer = document.getElementById('messagesContainer');
@@ -1119,41 +1115,59 @@
             }, 3500);
         }
 
-        // ===== Upload Image to Firebase Storage =====
-        async function uploadImage(file, path) {
-            try {
-                const imageRef = storageRef(storage, path);
-                const snapshot = await uploadBytes(imageRef, file);
-                const downloadURL = await getDownloadURL(snapshot.ref);
-                return downloadURL;
-            } catch (error) {
-                console.error('Image upload error:', error);
-                showToast('ছবি আপলোড করতে ব্যর্থ!', 'error');
-                return null;
-            }
+        // ===== Convert Image to Base64 =====
+        function imageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
         }
 
-        // ===== Send Image Message =====
-        async function sendImageMessage(imageURL) {
-            if (!imageURL || !currentUser || !currentChatFriend) return;
+        // ===== Send Image as Base64 =====
+        async function sendImageMessageBase64(file) {
+            if (!file || !currentUser || !currentChatFriend) {
+                showToast('ছবি পাঠাতে ব্যর্থ!', 'error');
+                return;
+            }
 
-            const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
-            const messagesRef = ref(db, `privateChats/${chatId}/messages`);
-            const newMsgRef = push(messagesRef);
+            try {
+                showToast('📤 ছবি প্রস্তুত হচ্ছে...', 'success');
+                
+                // Convert to base64
+                const base64Image = await imageToBase64(file);
+                
+                // Send as message
+                const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
+                const messagesRef = ref(db, `privateChats/${chatId}/messages`);
+                const newMsgRef = push(messagesRef);
 
-            await set(newMsgRef, {
-                text: '📷',
-                image: imageURL,
-                uid: currentUser.uid,
-                displayName: currentUser.displayName || 'ইউজার',
-                photoURL: currentUser.photoURL || '',
-                timestamp: Date.now()
-            });
+                await set(newMsgRef, {
+                    text: '📷',
+                    image: base64Image,
+                    uid: currentUser.uid,
+                    displayName: currentUser.displayName || 'ইউজার',
+                    photoURL: currentUser.photoURL || '',
+                    timestamp: Date.now(),
+                    isBase64: true
+                });
 
-            const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
-            const snapshot = await get(unreadRef);
-            const count = (snapshot.val() || 0) + 1;
-            await set(unreadRef, count);
+                // Update unread count
+                try {
+                    const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
+                    const snapshot = await get(unreadRef);
+                    const count = (snapshot.val() || 0) + 1;
+                    await set(unreadRef, count);
+                } catch (unreadError) {
+                    console.warn('Unread count update failed:', unreadError);
+                }
+
+                showToast('✅ ছবি পাঠানো হয়েছে!');
+            } catch (error) {
+                console.error('Send image error:', error);
+                showToast(`ছবি পাঠাতে ব্যর্থ: ${error.message}`, 'error');
+            }
         }
 
         // ===== Save user data =====
@@ -1228,7 +1242,7 @@
             }
         }
 
-        // ===== Update profile (FIXED: renamed to updateUserProfile) =====
+        // ===== Update profile =====
         async function updateUserProfile(displayName, photoURL) {
             if (!currentUser) return;
             try {
@@ -1646,6 +1660,7 @@
 
             let content = '';
             if (msg.image) {
+                // For base64 images, show directly
                 content = `<img src="${msg.image}" alt="Image" onclick="document.getElementById('previewImage').src='${msg.image}';document.getElementById('imagePreview').classList.add('active')" />`;
             } else {
                 content = msg.text + (msg.edited ? ' <span style="font-size:0.6rem;">(edited)</span>' : '');
@@ -1743,7 +1758,7 @@
             messageInput.focus();
         }
 
-        // ===== File Upload Handler =====
+        // ===== File Upload Handler (Base64) =====
         fileUploadBtn.addEventListener('click', () => {
             if (!currentUser || !currentChatFriend) {
                 showToast('প্রথমে একটি চ্যাট নির্বাচন করুন!', 'error');
@@ -1756,26 +1771,22 @@
             const file = e.target.files[0];
             if (!file) return;
 
+            // Check if it's an image
             if (!file.type.startsWith('image/')) {
                 showToast('শুধু ছবি আপলোড করতে পারবেন!', 'error');
+                fileInput.value = '';
                 return;
             }
 
-            if (file.size > 5 * 1024 * 1024) {
-                showToast('ছবি 5MB এর কম হতে হবে!', 'error');
+            // Max 2MB for Base64 (to avoid database size issues)
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('ছবি 2MB এর কম হতে হবে!', 'error');
+                fileInput.value = '';
                 return;
             }
 
-            showToast('📤 ছবি আপলোড হচ্ছে...', 'success');
-            
-            const path = `chat_images/${currentUser.uid}/${Date.now()}_${file.name}`;
-            const imageURL = await uploadImage(file, path);
-            
-            if (imageURL) {
-                await sendImageMessage(imageURL);
-                showToast('✅ ছবি পাঠানো হয়েছে!');
-            }
-            
+            // Send image using Base64
+            await sendImageMessageBase64(file);
             fileInput.value = '';
         });
 
@@ -1937,16 +1948,15 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 
-                if (file.size > 5 * 1024 * 1024) {
-                    showToast('ছবি 5MB এর কম হতে হবে!', 'error');
+                if (file.size > 2 * 1024 * 1024) {
+                    showToast('ছবি 2MB এর কম হতে হবে!', 'error');
                     return;
                 }
                 
                 showToast('📤 আপলোড হচ্ছে...', 'success');
-                const path = `profile_pics/${currentUser.uid}/${Date.now()}_${file.name}`;
-                const url = await uploadImage(file, path);
-                if (url) {
-                    modalProfilePic.src = url;
+                const base64 = await imageToBase64(file);
+                if (base64) {
+                    modalProfilePic.src = base64;
                     showToast('✅ প্রোফাইল ছবি আপলোড হয়েছে!');
                 }
             };
@@ -1988,9 +1998,9 @@
         window.db = db;
         window.auth = auth;
 
-        console.log('🔥 ConnectBD Private Chat ready with Image Upload!');
+        console.log('🔥 ConnectBD Private Chat ready with Base64 Image Upload!');
         console.log('📌 Features:');
-        console.log('  ✅ Image Upload (Click 📎 button)');
+        console.log('  ✅ Image Upload (Base64 - No Storage needed)');
         console.log('  ✅ Profile Picture Upload');
         console.log('  ✅ Chat Message Delete/Edit');
         console.log('  ✅ Typing Indicator');
