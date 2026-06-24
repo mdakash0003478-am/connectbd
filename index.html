@@ -254,6 +254,12 @@
             color: #1f4c66;
         }
 
+        .friend-item .friend-phone {
+            font-size: 0.7rem;
+            color: #53768b;
+            margin-left: 4px;
+        }
+
         .friend-item .status-dot {
             width: 8px;
             height: 8px;
@@ -344,6 +350,36 @@
 
         .search-box:focus {
             border-color: #1976D2;
+        }
+
+        .search-type-selector {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .search-type-selector button {
+            flex: 1;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+            background: transparent;
+            color: #53768b;
+        }
+
+        .search-type-selector button.active {
+            background: #1976D2;
+            color: white;
+        }
+
+        .search-type-selector button:hover:not(.active) {
+            background: rgba(25, 118, 210, 0.1);
         }
 
         .friend-list-scroll {
@@ -731,7 +767,6 @@
             background: #d32f2f;
         }
 
-        /* Profile Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -852,7 +887,6 @@
             background: #d0d0d0;
         }
 
-        /* Image Preview Modal */
         .image-preview-overlay {
             display: none;
             position: fixed;
@@ -1023,11 +1057,15 @@
 
                 <div class="sidebar-section">
                     <div class="sidebar-title">🔍 ইউজার খুঁজুন</div>
+                    <div class="search-type-selector">
+                        <button class="active" data-type="email">📧 ইমেইল</button>
+                        <button data-type="phone">📱 ফোন</button>
+                    </div>
                     <div style="display: flex; gap: 6px;">
-                        <input type="text" id="searchUser" class="search-box" placeholder="ইমেইল বা নাম..." style="margin-bottom: 0;" />
+                        <input type="text" id="searchUser" class="search-box" placeholder="ইমেইল বা ফোন নম্বর..." style="margin-bottom: 0;" />
                         <button id="searchUserBtn" class="header-btn" style="font-size: 0.7rem; padding: 6px 12px;">খুঁজুন</button>
                     </div>
-                    <div id="searchResults" style="margin-top: 6px; font-size: 0.8rem;"></div>
+                    <div id="searchResults" style="margin-top: 6px; font-size: 0.8rem; max-height: 150px; overflow-y: auto;"></div>
                 </div>
             </div>
 
@@ -1074,6 +1112,10 @@
             <div class="form-group">
                 <label>ইমেইল</label>
                 <input type="email" id="modalEmail" disabled />
+            </div>
+            <div class="form-group">
+                <label>ফোন নম্বর</label>
+                <input type="text" id="modalPhone" placeholder="01XXXXXXXXX" />
             </div>
             <div class="modal-actions">
                 <button class="cancel-btn" id="modalCancel">বাতিল</button>
@@ -1171,9 +1213,30 @@
         const modalProfilePic = document.getElementById('modalProfilePic');
         const modalDisplayName = document.getElementById('modalDisplayName');
         const modalEmail = document.getElementById('modalEmail');
+        const modalPhone = document.getElementById('modalPhone');
         const modalSave = document.getElementById('modalSave');
         const modalCancel = document.getElementById('modalCancel');
         const modalUploadPic = document.getElementById('modalUploadPic');
+
+        // Search type selector
+        const searchTypeButtons = document.querySelectorAll('.search-type-selector button');
+        let searchType = 'email';
+
+        searchTypeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                searchTypeButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                searchType = btn.dataset.type;
+                const placeholders = {
+                    'email': 'ইমেইল দিয়ে খুঁজুন...',
+                    'phone': '📱 ফোন নম্বর দিয়ে খুঁজুন...'
+                };
+                searchUser.placeholder = placeholders[searchType] || 'খুঁজুন...';
+                if (searchUser.value.trim()) {
+                    performSearch();
+                }
+            });
+        });
 
         // Image Preview
         const imagePreview = document.getElementById('imagePreview');
@@ -1285,7 +1348,6 @@
             try {
                 showToast('📤 ছবি প্রস্তুত হচ্ছে...', 'success');
                 
-                // Compress image before sending
                 const compressed = await compressImage(file, 800, 800);
                 const base64Image = await imageToBase64(compressed);
                 
@@ -1307,15 +1369,12 @@
                     fileName: fileName
                 });
 
-                // Try unread count (silent fail)
                 try {
                     const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
                     const snapshot = await get(unreadRef);
                     const count = (snapshot.val() || 0) + 1;
                     await set(unreadRef, count);
-                } catch (_) {
-                    // Ignore unread errors
-                }
+                } catch (_) {}
 
                 showToast('✅ ছবি পাঠানো হয়েছে!');
             } catch (error) {
@@ -1324,8 +1383,8 @@
             }
         }
 
-        // ===== Save user data =====
-        async function saveUserData(user) {
+        // ===== Save user data with phone =====
+        async function saveUserData(user, phone = '') {
             try {
                 const userRef = ref(db, `users/${user.uid}`);
                 const snapshot = await get(userRef);
@@ -1335,6 +1394,7 @@
                     displayName: user.displayName || 'ইউজার',
                     email: user.email || '',
                     photoURL: user.photoURL || '',
+                    phone: phone || existingData?.phone || '',
                     online: true,
                     lastSeen: Date.now()
                 };
@@ -1380,7 +1440,8 @@
                         await update(ref(db, `users/${uid}`), {
                             displayName: user.displayName || 'ইউজার',
                             email: user.email || 'user@email.com',
-                            photoURL: user.photoURL || ''
+                            photoURL: user.photoURL || '',
+                            phone: user.phone || ''
                         });
                         fixed++;
                         console.log(`✅ Fixed user: ${uid}`);
@@ -1396,16 +1457,15 @@
             }
         }
 
-        // ===== Update profile with compression =====
-        async function updateUserProfile(displayName, photoURL) {
+        // ===== Update profile with phone =====
+        async function updateUserProfile(displayName, photoURL, phone) {
             if (!currentUser) return;
             try {
                 let finalPhotoURL = photoURL;
                 
-                // If photo is base64 and too large, compress it
                 if (photoURL && photoURL.startsWith('data:image')) {
                     const sizeInBytes = (photoURL.length * 3) / 4;
-                    if (sizeInBytes > 150 * 1024) { // 150KB limit
+                    if (sizeInBytes > 150 * 1024) {
                         showToast('ছবি কম্প্রেস করা হচ্ছে...', 'success');
                         try {
                             const response = await fetch(photoURL);
@@ -1421,7 +1481,8 @@
                 
                 await update(ref(db, `users/${currentUser.uid}`), {
                     displayName: displayName,
-                    photoURL: finalPhotoURL
+                    photoURL: finalPhotoURL,
+                    phone: phone || ''
                 });
                 
                 try {
@@ -1491,6 +1552,7 @@
                 const data = snapshot.val();
                 if (data) {
                     allUsersCache = data;
+                    console.log('📊 Users loaded:', Object.keys(data).length);
                 }
             });
         }
@@ -1560,6 +1622,7 @@
                         <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
                             <img src="${photo}" alt="${name}" />
                             <span class="friend-name">${name}</span>
+                            ${friend.phone ? `<span class="friend-phone">📱${friend.phone}</span>` : ''}
                             ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
                             <span class="status-dot ${friend.online ? '' : 'offline'}"></span>
                         </div>
@@ -1641,6 +1704,7 @@
                 await set(ref(db, `friends/${currentUser.uid}/${fromUid}`), {
                     displayName: senderData.displayName || 'ইউজার',
                     photoURL: senderData.photoURL || '',
+                    phone: senderData.phone || '',
                     online: false,
                     addedAt: Date.now()
                 });
@@ -1648,6 +1712,7 @@
                 await set(ref(db, `friends/${fromUid}/${currentUser.uid}`), {
                     displayName: currentUser.displayName || 'ইউজার',
                     photoURL: currentUser.photoURL || '',
+                    phone: currentUser.phone || '',
                     online: true,
                     addedAt: Date.now()
                 });
@@ -1701,6 +1766,7 @@
                 await set(ref(db, `friendRequests/${toUid}/${currentUser.uid}`), {
                     displayName: currentUser.displayName || 'ইউজার',
                     photoURL: currentUser.photoURL || '',
+                    phone: currentUser.phone || '',
                     status: 'pending',
                     timestamp: Date.now()
                 });
@@ -1710,6 +1776,83 @@
             } catch (error) {
                 showToast(`রিকোয়েস্ট পাঠাতে ব্যর্থ: ${error.message}`, 'error');
             }
+        }
+
+        // ===== Perform Search (Email & Phone Only) =====
+        function performSearch() {
+            const query = searchUser.value.trim().toLowerCase();
+            if (!query) {
+                searchResults.innerHTML = '';
+                return;
+            }
+
+            if (!currentUser) {
+                showToast('লগইন করুন প্রথমে!', 'error');
+                return;
+            }
+
+            let foundUsers = [];
+            Object.keys(allUsersCache).forEach(uid => {
+                const user = allUsersCache[uid];
+                if (uid === currentUser.uid) return;
+                
+                const email = (user.email || '').toLowerCase();
+                const phone = (user.phone || '').toLowerCase();
+                
+                let match = false;
+                switch(searchType) {
+                    case 'email':
+                        match = email.includes(query);
+                        break;
+                    case 'phone':
+                        match = phone.includes(query);
+                        break;
+                    default:
+                        match = email.includes(query) || phone.includes(query);
+                }
+                
+                if (match) {
+                    foundUsers.push({ uid, ...user });
+                }
+            });
+
+            console.log('🔍 Search results:', foundUsers.length, 'Type:', searchType);
+
+            if (foundUsers.length === 0) {
+                searchResults.innerHTML = `<div style="color: #53768b; font-size: 0.8rem;">কোনো ইউজার পাওয়া যায়নি</div>`;
+                return;
+            }
+
+            let html = '';
+            foundUsers.forEach(user => {
+                const isFriend = friends[user.uid];
+                const isRequested = requests[user.uid] && requests[user.uid].status === 'pending';
+                const photo = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
+                    .displayName || 'U') + '&background=1976D2&color=fff';
+
+                html += `
+                    <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <img src="${photo}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;" />
+                        <span style="flex: 1; font-size: 0.85rem;">
+                            ${user.displayName || 'ইউজার'}
+                            ${user.phone ? `<span style="font-size:0.7rem;color:#53768b;"> 📱${user.phone}</span>` : ''}
+                            <span style="font-size:0.65rem;color:#53768b;display:block;">${user.email || ''}</span>
+                        </span>
+                        ${isFriend ? '<span style="color: #4caf50; font-size: 0.7rem;">✅ বন্ধু</span>' :
+                        isRequested ? '<span style="color: #ff9800; font-size: 0.7rem;">⏳ রিকোয়েস্ট পাঠানো</span>' :
+                        `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
+                        }
+                    </div>
+                `;
+            });
+
+            searchResults.innerHTML = html;
+
+            document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    sendFriendRequest(btn.dataset.uid);
+                });
+            });
         }
 
         // Typing indicator
@@ -2011,60 +2154,9 @@
         });
 
         // ===== Search =====
-        searchUserBtn.addEventListener('click', async () => {
-            const query = searchUser.value.trim().toLowerCase();
-            if (!query) {
-                searchResults.innerHTML = '';
-                return;
-            }
-
-            if (!currentUser) {
-                showToast('লগইন করুন প্রথমে!', 'error');
-                return;
-            }
-
-            let foundUsers = [];
-            Object.keys(allUsersCache).forEach(uid => {
-                const user = allUsersCache[uid];
-                if (uid === currentUser.uid) return;
-                const name = (user.displayName || '').toLowerCase();
-                const email = (user.email || '').toLowerCase();
-                if (name.includes(query) || email.includes(query)) {
-                    foundUsers.push({ uid, ...user });
-                }
-            });
-
-            if (foundUsers.length === 0) {
-                searchResults.innerHTML = `<div style="color: #53768b; font-size: 0.8rem;">কোনো ইউজার পাওয়া যায়নি</div>`;
-                return;
-            }
-
-            let html = '';
-            foundUsers.forEach(user => {
-                const isFriend = friends[user.uid];
-                const isRequested = requests[user.uid] && requests[user.uid].status === 'pending';
-                const photo = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
-                    .displayName || 'U') + '&background=1976D2&color=fff';
-
-                html += `
-                    <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
-                        <img src="${photo}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;" />
-                        <span style="flex: 1; font-size: 0.85rem;">${user.displayName || 'ইউজার'}</span>
-                        ${isFriend ? '<span style="color: #4caf50; font-size: 0.7rem;">✅ বন্ধু</span>' :
-                        isRequested ? '<span style="color: #ff9800; font-size: 0.7rem;">⏳ রিকোয়েস্ট পাঠানো</span>' :
-                        `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
-                        }
-                    </div>
-                `;
-            });
-
-            searchResults.innerHTML = html;
-
-            document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    sendFriendRequest(btn.dataset.uid);
-                });
-            });
+        searchUserBtn.addEventListener('click', performSearch);
+        searchUser.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
         });
 
         searchFriend.addEventListener('input', renderFriends);
@@ -2144,6 +2236,7 @@
             modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
             modalDisplayName.value = currentUser.displayName || '';
             modalEmail.value = currentUser.email || '';
+            modalPhone.value = currentUser.phone || '';
             profileModal.classList.add('active');
         });
 
@@ -2152,10 +2245,11 @@
             modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
             modalDisplayName.value = currentUser.displayName || '';
             modalEmail.value = currentUser.email || '';
+            modalPhone.value = currentUser.phone || '';
             profileModal.classList.add('active');
         });
 
-        // ===== Profile Upload Handler (with compression) =====
+        // ===== Profile Upload Handler =====
         modalUploadPic.addEventListener('click', () => {
             const input = document.createElement('input');
             input.type = 'file';
@@ -2164,7 +2258,6 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 
-                // Max 500KB for profile picture
                 if (file.size > 500 * 1024) {
                     showToast('প্রোফাইল ছবি 500KB এর কম হতে হবে!', 'error');
                     return;
@@ -2173,14 +2266,11 @@
                 showToast('📤 কম্প্রেস করা হচ্ছে...', 'success');
                 
                 try {
-                    // Compress to 150x150
                     const compressed = await compressImage(file, 150, 150);
                     const base64 = await imageToBase64(compressed);
                     
-                    // Check final size
                     const sizeInBytes = (base64.length * 3) / 4;
                     if (sizeInBytes > 150 * 1024) {
-                        // Compress more if still too large
                         const smaller = await compressImage(compressed, 100, 100);
                         const smallerBase64 = await imageToBase64(smaller);
                         modalProfilePic.src = smallerBase64;
@@ -2203,11 +2293,12 @@
         modalSave.addEventListener('click', async () => {
             const displayName = modalDisplayName.value.trim();
             const photoURL = modalProfilePic.src;
+            const phone = modalPhone.value.trim();
             if (!displayName) {
                 showToast('নাম দেওয়া আবশ্যক!', 'error');
                 return;
             }
-            await updateUserProfile(displayName, photoURL);
+            await updateUserProfile(displayName, photoURL, phone);
             profileModal.classList.remove('active');
         });
 
@@ -2232,17 +2323,17 @@
         window.db = db;
         window.auth = auth;
 
-        console.log('🔥 ConnectBD Private Chat ready with Image Download & Profile Fix!');
+        console.log('🔥 ConnectBD Private Chat ready!');
         console.log('📌 Features:');
         console.log('  ✅ Image Upload (Base64 - No Storage needed)');
-        console.log('  ✅ Image Download (⬇️ button on image)');
+        console.log('  ✅ Image Download');
         console.log('  ✅ Profile Picture Upload (Auto Compressed)');
+        console.log('  ✅ Search by: Email & Phone Only');
         console.log('  ✅ Chat Message Delete/Edit');
         console.log('  ✅ Typing Indicator');
         console.log('  ✅ Online/Offline Status');
         console.log('  ✅ Unread Message Count');
         console.log('🔧 To fix all users, run: fixAllUsers()');
-        console.log('💡 Profile image auto compressed to < 150KB');
     </script>
 </body>
 </html>
