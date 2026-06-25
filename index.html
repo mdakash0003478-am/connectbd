@@ -290,7 +290,9 @@ import {
     query, limitToLast, orderByChild, remove, onChildRemoved, onChildChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ===== FIREBASE CONFIG =====
+// ============================================
+// FIREBASE CONFIG
+// ============================================
 const firebaseConfig = {
     apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
     authDomain: "connectbd-4a8f2.firebaseapp.com",
@@ -301,65 +303,65 @@ const firebaseConfig = {
     appId: "1:38217840543:web:aeedd8517f697b16c12faa"
 };
 
-// ===== INIT FIREBASE =====
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// ===== DOM REFS =====
+// ============================================
+// DOM REFS
+// ============================================
 const $ = id => document.getElementById(id);
-const messagesContainer = $('messagesContainer');
-const messageInput = $('messageInput');
-const sendBtn = $('sendBtn');
-const loginBtn = $('loginBtn');
-const logoutBtn = $('logoutBtn');
-const userProfileMini = $('userProfileMini');
-const miniAvatar = $('miniAvatar');
-const miniName = $('miniName');
-const friendList = $('friendList');
-const friendCount = $('friendCount');
-const requestCount = $('requestCount');
-const chatFriendInfo = $('chatFriendInfo');
-const searchFriend = $('searchFriend');
-const toastEl = $('toast');
-const fileUploadBtn = $('fileUploadBtn');
-const fileInput = $('fileInput');
-const logoClick = $('logoClick');
-const backBtn = $('backBtn');
-const chatList = $('chatList');
-const headerActions = $('headerActions');
-
-// Modal refs
-const profileModal = $('profileModal');
-const modalProfilePic = $('modalProfilePic');
-const modalDisplayName = $('modalDisplayName');
-const modalEmail = $('modalEmail');
-const modalSave = $('modalSave');
-const modalCancel = $('modalCancel');
-const modalUploadPic = $('modalUploadPic');
-
-// Image preview refs
-const imagePreview = $('imagePreview');
-const previewImage = $('previewImage');
-const downloadPreviewBtn = $('downloadPreviewBtn');
-const closePreviewBtn = $('closePreviewBtn');
-
-// Call refs
-const callOverlay = $('callOverlay');
-const callAvatar = $('callAvatar');
-const callName = $('callName');
-const callStatus = $('callStatus');
-const callTimer = $('callTimer');
-const callEndBtn = $('callEndBtn');
-const callAnswerBtn = $('callAnswerBtn');
-const callMuteBtn = $('callMuteBtn');
-const videoContainer = $('videoContainer');
-const remoteVideo = $('remoteVideo');
-const localVideo = $('localVideo');
+const DOM = {
+    messages: $('messagesContainer'),
+    messageInput: $('messageInput'),
+    sendBtn: $('sendBtn'),
+    loginBtn: $('loginBtn'),
+    logoutBtn: $('logoutBtn'),
+    userProfileMini: $('userProfileMini'),
+    miniAvatar: $('miniAvatar'),
+    miniName: $('miniName'),
+    friendList: $('friendList'),
+    friendCount: $('friendCount'),
+    requestCount: $('requestCount'),
+    chatFriendInfo: $('chatFriendInfo'),
+    searchFriend: $('searchFriend'),
+    toast: $('toast'),
+    fileUpload: $('fileUploadBtn'),
+    fileInput: $('fileInput'),
+    logo: $('logoClick'),
+    backBtn: $('backBtn'),
+    chatList: $('chatList'),
+    headerActions: $('headerActions'),
+    profileModal: $('profileModal'),
+    modalPic: $('modalProfilePic'),
+    modalName: $('modalDisplayName'),
+    modalEmail: $('modalEmail'),
+    modalSave: $('modalSave'),
+    modalCancel: $('modalCancel'),
+    modalUpload: $('modalUploadPic'),
+    imagePreview: $('imagePreview'),
+    previewImage: $('previewImage'),
+    downloadPreview: $('downloadPreviewBtn'),
+    closePreview: $('closePreviewBtn'),
+    callOverlay: $('callOverlay'),
+    callAvatar: $('callAvatar'),
+    callName: $('callName'),
+    callStatus: $('callStatus'),
+    callTimer: $('callTimer'),
+    callEnd: $('callEndBtn'),
+    callAnswer: $('callAnswerBtn'),
+    callMute: $('callMuteBtn'),
+    videoContainer: $('videoContainer'),
+    remoteVideo: $('remoteVideo'),
+    localVideo: $('localVideo'),
+    typingIndicator: $('typingIndicator')
+};
 
 const tabs = document.querySelectorAll('.tab');
 
-// ===== STATE =====
+// ============================================
+// STATE
+// ============================================
 let currentUser = null;
 let currentChatFriend = null;
 let messageListener = null;
@@ -374,7 +376,7 @@ let friendsListener = null;
 let requestsListener = null;
 let allUsersListener = null;
 
-// ===== CALL STATE =====
+// CALL STATE
 let peer = null;
 let currentCall = null;
 let callTimerInterval = null;
@@ -385,18 +387,22 @@ let incomingCallData = null;
 let peerInitialized = false;
 let peerId = null;
 
-// ===== TOAST =====
+// ============================================
+// TOAST
+// ============================================
 function showToast(msg, type = 'success') {
-    if (toastTimeout) { clearTimeout(toastTimeout); toastEl.classList.remove('show'); }
-    toastEl.textContent = msg;
-    toastEl.className = 'toast';
-    if (type === 'error') toastEl.classList.add('error');
-    void toastEl.offsetWidth;
-    toastEl.classList.add('show');
-    toastTimeout = setTimeout(() => { toastEl.classList.remove('show'); toastTimeout = null; }, 3000);
+    if (toastTimeout) { clearTimeout(toastTimeout); DOM.toast.classList.remove('show'); }
+    DOM.toast.textContent = msg;
+    DOM.toast.className = 'toast';
+    if (type === 'error') DOM.toast.classList.add('error');
+    void DOM.toast.offsetWidth;
+    DOM.toast.classList.add('show');
+    toastTimeout = setTimeout(() => { DOM.toast.classList.remove('show'); toastTimeout = null; }, 3000);
 }
 
-// ===== STATUS BAR TIME =====
+// ============================================
+// STATUS BAR TIME
+// ============================================
 function updateStatusTime() {
     const now = new Date();
     $('statusTime').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -404,7 +410,9 @@ function updateStatusTime() {
 updateStatusTime();
 setInterval(updateStatusTime, 30000);
 
-// ===== DOWNLOAD IMAGE =====
+// ============================================
+// IMAGE FUNCTIONS
+// ============================================
 function downloadImage(src, filename = 'image.jpg') {
     try {
         const link = document.createElement('a');
@@ -417,7 +425,6 @@ function downloadImage(src, filename = 'image.jpg') {
     } catch (e) { showToast('ডাউনলোড ব্যর্থ!', 'error'); }
 }
 
-// ===== IMAGE TO BASE64 =====
 function imageToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -427,35 +434,9 @@ function imageToBase64(file) {
     });
 }
 
-// ===== SEND IMAGE =====
-async function sendImageMessageBase64(file) {
-    if (!file || !currentUser || !currentChatFriend) { showToast('ছবি পাঠাতে ব্যর্থ!', 'error'); return; }
-    try {
-        showToast('📤 ছবি প্রস্তুত হচ্ছে...', 'success');
-        const base64Image = await imageToBase64(file);
-        const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
-        const messagesRef = ref(db, `privateChats/${chatId}/messages`);
-        const newMsgRef = push(messagesRef);
-        const fileExt = file.name.split('.').pop() || 'jpg';
-        const fileName = `image_${Date.now()}.${fileExt}`;
-        await set(newMsgRef, {
-            text: '📷',
-            image: base64Image,
-            uid: currentUser.uid,
-            displayName: currentUser.displayName || 'ইউজার',
-            photoURL: currentUser.photoURL || '',
-            timestamp: Date.now(),
-            isBase64: true,
-            fileName: fileName
-        });
-        const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
-        const snapshot = await get(unreadRef);
-        await set(unreadRef, (snapshot.val() || 0) + 1);
-        showToast('✅ ছবি পাঠানো হয়েছে!');
-    } catch (e) { showToast(`ছবি পাঠাতে ব্যর্থ: ${e.message}`, 'error'); }
-}
-
-// ===== UPDATE ONLINE STATUS =====
+// ============================================
+// UPDATE ONLINE STATUS - CRITICAL FIX
+// ============================================
 async function updateOnlineStatus(uid, isOnline) {
     try {
         const updates = { 
@@ -466,15 +447,17 @@ async function updateOnlineStatus(uid, isOnline) {
             updates.peerId = peerId;
         }
         await update(ref(db, `users/${uid}`), updates);
-        console.log(`✅ Online status updated: ${uid} -> ${isOnline}, peerId: ${peerId}`);
+        console.log(`✅ Online status: ${uid} -> ${isOnline}, peerId: ${peerId}`);
         return true;
     } catch (e) {
-        console.error('Error updating online status:', e);
+        console.error('❌ Update online status error:', e);
         return false;
     }
 }
 
-// ===== SAVE USER =====
+// ============================================
+// SAVE USER
+// ============================================
 async function saveUserData(user) {
     try {
         const userRef = ref(db, `users/${user.uid}`);
@@ -495,7 +478,9 @@ async function saveUserData(user) {
     } catch (e) { console.error('Save user error:', e); return false; }
 }
 
-// ===== UPDATE PROFILE =====
+// ============================================
+// UPDATE PROFILE
+// ============================================
 async function updateUserProfile(displayName, photoURL) {
     if (!currentUser) return;
     try {
@@ -506,43 +491,45 @@ async function updateUserProfile(displayName, photoURL) {
     } catch (e) { showToast(`প্রোফাইল আপডেট ব্যর্থ: ${e.message}`, 'error'); }
 }
 
-// ===== UPDATE UI =====
+// ============================================
+// UPDATE UI
+// ============================================
 function updateUI(user) {
     currentUser = user;
     if (user) {
-        userProfileMini.style.display = 'flex';
-        miniAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=User&background=00A884&color=fff';
-        miniName.textContent = user.displayName || 'User';
-        loginBtn.style.display = 'none';
-        logoutBtn.style.display = 'block';
-        messageInput.disabled = false;
-        sendBtn.disabled = false;
-        fileUploadBtn.disabled = false;
+        DOM.userProfileMini.style.display = 'flex';
+        DOM.miniAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=User&background=00A884&color=fff';
+        DOM.miniName.textContent = user.displayName || 'User';
+        DOM.loginBtn.style.display = 'none';
+        DOM.logoutBtn.style.display = 'block';
+        DOM.messageInput.disabled = false;
+        DOM.sendBtn.disabled = false;
+        DOM.fileUpload.disabled = false;
         loadFriendsAndRequests();
         loadAllUsers();
         switchTab('chats');
         // Initialize Peer
         setTimeout(() => initPeer(user.uid), 1000);
-        // Update online status every 5 seconds
+        // Update online status every 3 seconds
         if (window._onlineInterval) clearInterval(window._onlineInterval);
         window._onlineInterval = setInterval(() => {
             if (currentUser && peerId) {
                 updateOnlineStatus(currentUser.uid, true);
             }
-        }, 5000);
+        }, 3000);
     } else {
         if (window._onlineInterval) clearInterval(window._onlineInterval);
-        userProfileMini.style.display = 'none';
-        loginBtn.style.display = 'block';
-        logoutBtn.style.display = 'none';
-        messageInput.disabled = true;
-        sendBtn.disabled = true;
-        fileUploadBtn.disabled = true;
-        messagesContainer.innerHTML = `<div class="empty-state"><div class="icon">🔑</div><span>চ্যাট শুরু করতে লগইন করুন</span></div>`;
-        chatFriendInfo.innerHTML = `<span style="color:var(--whatsapp-text-secondary);font-weight:500;">💬 বন্ধু নির্বাচন করুন</span>`;
-        friendList.innerHTML = `<div class="empty-state"><div class="icon">💬</div><span>কোনো বন্ধু নেই</span></div>`;
-        friendCount.textContent = '0';
-        requestCount.textContent = '0';
+        DOM.userProfileMini.style.display = 'none';
+        DOM.loginBtn.style.display = 'block';
+        DOM.logoutBtn.style.display = 'none';
+        DOM.messageInput.disabled = true;
+        DOM.sendBtn.disabled = true;
+        DOM.fileUpload.disabled = true;
+        DOM.messages.innerHTML = `<div class="empty-state"><div class="icon">🔑</div><span>চ্যাট শুরু করতে লগইন করুন</span></div>`;
+        DOM.chatFriendInfo.innerHTML = `<span style="color:var(--whatsapp-text-secondary);font-weight:500;">💬 বন্ধু নির্বাচন করুন</span>`;
+        DOM.friendList.innerHTML = `<div class="empty-state"><div class="icon">💬</div><span>কোনো বন্ধু নেই</span></div>`;
+        DOM.friendCount.textContent = '0';
+        DOM.requestCount.textContent = '0';
         currentChatFriend = null;
         if (messageListener) { messageListener(); messageListener = null; }
         if (friendsListener) { friendsListener(); friendsListener = null; }
@@ -552,7 +539,9 @@ function updateUI(user) {
     }
 }
 
-// ===== LOAD ALL USERS =====
+// ============================================
+// LOAD ALL USERS
+// ============================================
 function loadAllUsers() {
     if (allUsersListener) { allUsersListener(); allUsersListener = null; }
     const usersRef = ref(db, 'users');
@@ -560,25 +549,30 @@ function loadAllUsers() {
         const data = snapshot.val();
         if (data) {
             allUsersCache = data;
-            console.log('📊 All users loaded:', Object.keys(data).length);
-            // Update friends list with fresh online status
+            console.log('📊 Users loaded:', Object.keys(data).length);
             renderFriends();
-            // Update chat header status if chat is open
-            if (currentChatFriend && allUsersCache[currentChatFriend]) {
-                const isOnline = allUsersCache[currentChatFriend]?.online || false;
-                const statusEl = document.getElementById('chatStatus');
-                if (statusEl) {
-                    statusEl.textContent = isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন';
-                    statusEl.className = `status ${isOnline ? 'online' : ''}`;
-                }
-                // Show/hide call buttons based on online status
-                updateCallButtons();
-            }
+            updateChatHeaderStatus();
+            updateCallButtons();
         }
     });
 }
 
-// ===== UPDATE CALL BUTTONS =====
+// ============================================
+// UPDATE CHAT HEADER STATUS
+// ============================================
+function updateChatHeaderStatus() {
+    if (!currentChatFriend || !allUsersCache[currentChatFriend]) return;
+    const isOnline = allUsersCache[currentChatFriend]?.online || false;
+    const statusEl = document.getElementById('chatStatus');
+    if (statusEl) {
+        statusEl.textContent = isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন';
+        statusEl.className = `status ${isOnline ? 'online' : ''}`;
+    }
+}
+
+// ============================================
+// UPDATE CALL BUTTONS
+// ============================================
 function updateCallButtons() {
     const voiceBtn = document.getElementById('voiceCallBtn');
     const videoBtn = document.getElementById('videoCallBtn');
@@ -596,10 +590,12 @@ function updateCallButtons() {
     if (voiceBtn) voiceBtn.style.display = show ? 'flex' : 'none';
     if (videoBtn) videoBtn.style.display = show ? 'flex' : 'none';
     
-    console.log(`Call buttons ${show ? 'shown' : 'hidden'} for ${currentChatFriend} - Online: ${isOnline}, PeerId: ${hasPeerId}`);
+    console.log(`Call buttons ${show ? '✅ shown' : '❌ hidden'} for ${currentChatFriend} - Online: ${isOnline}, PeerId: ${hasPeerId}`);
 }
 
-// ===== LOAD FRIENDS & REQUESTS =====
+// ============================================
+// LOAD FRIENDS & REQUESTS
+// ============================================
 function loadFriendsAndRequests() {
     if (!currentUser) return;
     if (friendsListener) { friendsListener(); friendsListener = null; }
@@ -608,7 +604,6 @@ function loadFriendsAndRequests() {
     const friendsRef = ref(db, `friends/${currentUser.uid}`);
     friendsListener = onValue(friendsRef, (snapshot) => {
         const data = snapshot.val() || {};
-        // Merge with online status from allUsersCache
         friends = {};
         Object.keys(data).forEach(uid => {
             friends[uid] = {
@@ -617,7 +612,7 @@ function loadFriendsAndRequests() {
                 peerId: allUsersCache[uid]?.peerId || null
             };
         });
-        friendCount.textContent = Object.keys(friends).length;
+        DOM.friendCount.textContent = Object.keys(friends).length;
         const activeTab = document.querySelector('.tab.active');
         if (activeTab && activeTab.dataset.tab === 'chats') renderFriends();
         loadUnreadCounts();
@@ -627,13 +622,15 @@ function loadFriendsAndRequests() {
     requestsListener = onValue(requestsRef, (snapshot) => {
         requests = snapshot.val() || {};
         const count = Object.keys(requests).filter(k => requests[k].status === 'pending').length;
-        requestCount.textContent = count;
+        DOM.requestCount.textContent = count;
         const activeTab = document.querySelector('.tab.active');
         if (activeTab && activeTab.dataset.tab === 'requests') renderRequestsTab();
     });
 }
 
-// ===== LOAD UNREAD =====
+// ============================================
+// LOAD UNREAD
+// ============================================
 function loadUnreadCounts() {
     if (!currentUser) return;
     const unreadRef = ref(db, `unread/${currentUser.uid}`);
@@ -644,7 +641,9 @@ function loadUnreadCounts() {
     });
 }
 
-// ===== MARK AS READ =====
+// ============================================
+// MARK AS READ
+// ============================================
 async function markAsRead(friendUid) {
     if (!currentUser || !friendUid) return;
     await remove(ref(db, `unread/${currentUser.uid}/${friendUid}`));
@@ -652,9 +651,11 @@ async function markAsRead(friendUid) {
     renderFriends();
 }
 
-// ===== RENDER FRIENDS =====
+// ============================================
+// RENDER FRIENDS
+// ============================================
 function renderFriends() {
-    const searchTerm = searchFriend.value.toLowerCase();
+    const searchTerm = DOM.searchFriend.value.toLowerCase();
     let html = '';
     const keys = Object.keys(friends);
     if (keys.length === 0) {
@@ -667,7 +668,6 @@ function renderFriends() {
             const unread = unreadCounts[uid] || 0;
             if (searchTerm && !name.toLowerCase().includes(searchTerm)) return;
             const isActive = currentChatFriend === uid;
-            // Get fresh online status from cache
             const isOnline = allUsersCache[uid]?.online || false;
             html += `
                 <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
@@ -684,7 +684,7 @@ function renderFriends() {
             `;
         });
     }
-    friendList.innerHTML = html;
+    DOM.friendList.innerHTML = html;
     document.querySelectorAll('.friend-item').forEach(el => {
         el.addEventListener('click', () => {
             const uid = el.dataset.uid;
@@ -693,7 +693,9 @@ function renderFriends() {
     });
 }
 
-// ===== TYPING =====
+// ============================================
+// TYPING
+// ============================================
 function handleTyping() {
     if (!currentUser || !currentChatFriend) return;
     const typingRef = ref(db, `typing/${currentChatFriend}/${currentUser.uid}`);
@@ -702,10 +704,9 @@ function handleTyping() {
     typingTimeout = setTimeout(() => remove(typingRef), 2000);
 }
 
-// =============================================
-// ===== PEER / CALL SYSTEM =====
-// =============================================
-
+// ============================================
+// PEER / CALL SYSTEM
+// ============================================
 function initPeer(userId) {
     if (peer) { 
         peer.destroy(); 
@@ -730,7 +731,7 @@ function initPeer(userId) {
         });
         
         peer.on('open', (id) => {
-            console.log('📞 Peer connected with ID:', id);
+            console.log('📞 Peer connected:', id);
             peerInitialized = true;
             peerId = id;
             if (currentUser) {
@@ -745,7 +746,6 @@ function initPeer(userId) {
             const meta = incomingCall.metadata || {};
             let callerName = meta.callerName || 'ইউজার';
             let callerPhoto = meta.callerPhoto || '';
-            // Try to find in cache
             for (const uid in allUsersCache) {
                 if (allUsersCache[uid]?.peerId === incomingCall.peer) {
                     callerName = allUsersCache[uid].displayName || callerName;
@@ -799,7 +799,9 @@ function initPeer(userId) {
     }
 }
 
-// ===== START CALL =====
+// ============================================
+// START CALL
+// ============================================
 async function startCall(receiverId, callType = 'voice') {
     if (!currentUser) {
         showToast('প্রথমে লগইন করুন!', 'error');
@@ -851,8 +853,8 @@ async function startCall(receiverId, callType = 'voice') {
         localStream = stream;
         
         if (callType === 'video') {
-            videoContainer.style.display = 'block';
-            localVideo.srcObject = stream;
+            DOM.videoContainer.style.display = 'block';
+            DOM.localVideo.srcObject = stream;
         }
 
         const call = peer.call(receiverPeerId, stream, {
@@ -869,15 +871,15 @@ async function startCall(receiverId, callType = 'voice') {
 
         call.on('stream', (remoteStream) => {
             if (callType === 'video') {
-                videoContainer.style.display = 'block';
-                remoteVideo.srcObject = remoteStream;
+                DOM.videoContainer.style.display = 'block';
+                DOM.remoteVideo.srcObject = remoteStream;
             } else {
                 const audio = new Audio();
                 audio.srcObject = remoteStream;
                 audio.play();
             }
             updateCallStatus('answered');
-            callAnswerBtn.style.display = 'none';
+            DOM.callAnswer.style.display = 'none';
             startCallTimer();
         });
         
@@ -892,36 +894,40 @@ async function startCall(receiverId, callType = 'voice') {
     }
 }
 
-// ===== SHOW INCOMING CALL =====
+// ============================================
+// SHOW INCOMING CALL
+// ============================================
 function showIncomingCall(name, photo, incomingCall) {
-    if (callOverlay.classList.contains('active')) {
+    if (DOM.callOverlay.classList.contains('active')) {
         incomingCall.close();
         return;
     }
     
     currentCall = incomingCall;
-    callAvatar.src = photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
-    callName.textContent = name;
-    callStatus.textContent = '📞 ইনকামিং কল...';
-    callStatus.className = 'call-status ringing';
-    callTimer.textContent = '00:00';
-    videoContainer.style.display = 'none';
-    callAnswerBtn.style.display = 'flex';
-    callMuteBtn.style.display = 'none';
-    callOverlay.classList.add('active');
+    DOM.callAvatar.src = photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
+    DOM.callName.textContent = name;
+    DOM.callStatus.textContent = '📞 ইনকামিং কল...';
+    DOM.callStatus.className = 'call-status ringing';
+    DOM.callTimer.textContent = '00:00';
+    DOM.videoContainer.style.display = 'none';
+    DOM.callAnswer.style.display = 'flex';
+    DOM.callMute.style.display = 'none';
+    DOM.callOverlay.classList.add('active');
     
     if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
     playRingtone();
     
     setTimeout(() => {
-        if (callOverlay.classList.contains('active') && currentCall) {
+        if (DOM.callOverlay.classList.contains('active') && currentCall) {
             endCall();
             showToast('কল রিজেক্ট (টাইমআউট)', 'error');
         }
     }, 30000);
 }
 
-// ===== ANSWER CALL =====
+// ============================================
+// ANSWER CALL
+// ============================================
 async function answerCall() {
     if (!currentCall || !incomingCallData) return;
     
@@ -935,20 +941,20 @@ async function answerCall() {
         localStream = stream;
         
         if (callType === 'video') {
-            videoContainer.style.display = 'block';
-            localVideo.srcObject = stream;
+            DOM.videoContainer.style.display = 'block';
+            DOM.localVideo.srcObject = stream;
         }
         
         currentCall.answer(stream);
-        callAnswerBtn.style.display = 'none';
-        callMuteBtn.style.display = 'flex';
-        callMuteBtn.textContent = '🔊';
-        callMuteBtn.classList.remove('active');
+        DOM.callAnswer.style.display = 'none';
+        DOM.callMute.style.display = 'flex';
+        DOM.callMute.textContent = '🔊';
+        DOM.callMute.classList.remove('active');
         isMuted = false;
         
         currentCall.on('stream', (remoteStream) => {
             if (callType === 'video') {
-                remoteVideo.srcObject = remoteStream;
+                DOM.remoteVideo.srcObject = remoteStream;
             } else {
                 const audio = new Audio();
                 audio.srcObject = remoteStream;
@@ -971,19 +977,22 @@ async function answerCall() {
     }
 }
 
+// ============================================
+// CALL UI FUNCTIONS
+// ============================================
 function showCallUI(userData, status, callType = 'voice') {
-    callAvatar.src = userData.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.displayName || 'User') + '&background=00A884&color=fff';
-    callName.textContent = userData.displayName || 'ইউজার';
-    callTimer.textContent = '00:00';
-    callStatus.textContent = status === 'calling' ? '🔔 কল হচ্ছে...' : '📞 ইনকামিং কল...';
-    callStatus.className = 'call-status ringing';
-    callAnswerBtn.style.display = 'none';
-    callMuteBtn.style.display = 'flex';
-    callMuteBtn.textContent = '🔊';
-    callMuteBtn.classList.remove('active');
+    DOM.callAvatar.src = userData.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.displayName || 'User') + '&background=00A884&color=fff';
+    DOM.callName.textContent = userData.displayName || 'ইউজার';
+    DOM.callTimer.textContent = '00:00';
+    DOM.callStatus.textContent = status === 'calling' ? '🔔 কল হচ্ছে...' : '📞 ইনকামিং কল...';
+    DOM.callStatus.className = 'call-status ringing';
+    DOM.callAnswer.style.display = 'none';
+    DOM.callMute.style.display = 'flex';
+    DOM.callMute.textContent = '🔊';
+    DOM.callMute.classList.remove('active');
     isMuted = false;
-    videoContainer.style.display = callType === 'video' ? 'block' : 'none';
-    callOverlay.classList.add('active');
+    DOM.videoContainer.style.display = callType === 'video' ? 'block' : 'none';
+    DOM.callOverlay.classList.add('active');
 }
 
 function updateCallStatus(status) {
@@ -993,9 +1002,9 @@ function updateCallStatus(status) {
         'rejected': '❌ রিজেক্ট', 
         'ended': '📞 শেষ' 
     };
-    callStatus.textContent = map[status] || status;
-    callStatus.className = 'call-status';
-    if (status === 'ringing') callStatus.classList.add('ringing');
+    DOM.callStatus.textContent = map[status] || status;
+    DOM.callStatus.className = 'call-status';
+    if (status === 'ringing') DOM.callStatus.classList.add('ringing');
 }
 
 function startCallTimer() {
@@ -1003,7 +1012,7 @@ function startCallTimer() {
     if (callTimerInterval) clearInterval(callTimerInterval);
     callTimerInterval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
-        callTimer.textContent = `${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;
+        DOM.callTimer.textContent = `${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;
     }, 1000);
 }
 
@@ -1017,14 +1026,14 @@ function endCall() {
         currentCall = null; 
     }
     incomingCallData = null;
-    callOverlay.classList.remove('active');
-    videoContainer.style.display = 'none';
-    callAnswerBtn.style.display = 'none';
-    callMuteBtn.style.display = 'flex';
+    DOM.callOverlay.classList.remove('active');
+    DOM.videoContainer.style.display = 'none';
+    DOM.callAnswer.style.display = 'none';
+    DOM.callMute.style.display = 'flex';
     if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
     stopRingtone();
-    remoteVideo.srcObject = null;
-    localVideo.srcObject = null;
+    DOM.remoteVideo.srcObject = null;
+    DOM.localVideo.srcObject = null;
     if (navigator.vibrate) navigator.vibrate(0);
 }
 
@@ -1032,10 +1041,13 @@ function toggleMute() {
     if (!localStream) return;
     isMuted = !isMuted;
     localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
-    callMuteBtn.textContent = isMuted ? '🔇' : '🔊';
-    callMuteBtn.classList.toggle('active', isMuted);
+    DOM.callMute.textContent = isMuted ? '🔇' : '🔊';
+    DOM.callMute.classList.toggle('active', isMuted);
 }
 
+// ============================================
+// RINGTONE
+// ============================================
 let ringtoneCtx = null;
 let ringtoneInterval = null;
 
@@ -1087,10 +1099,9 @@ function stopRingtone() {
     }
 }
 
-// =============================================
-// ===== START CHAT =====
-// =============================================
-
+// ============================================
+// START CHAT
+// ============================================
 function startChat(friendUid) {
     if (!friends[friendUid]) { 
         showToast('এই ইউজার আপনার বন্ধু নয়!', 'error'); 
@@ -1104,7 +1115,7 @@ function startChat(friendUid) {
     
     const isOnline = allUsersCache[friendUid]?.online || false;
     
-    chatFriendInfo.innerHTML = `
+    DOM.chatFriendInfo.innerHTML = `
         <img src="${photo}" alt="${name}" />
         <div class="details">
             <div class="name">${name}</div>
@@ -1117,18 +1128,16 @@ function startChat(friendUid) {
         el.classList.toggle('active', el.dataset.uid === friendUid);
     });
     
-    if (isMobile) chatList.classList.add('hidden');
+    if (isMobile) DOM.chatList.classList.add('hidden');
     
     loadPrivateMessages(friendUid);
-    messageInput.disabled = false;
-    sendBtn.disabled = false;
-    fileUploadBtn.disabled = false;
-    messageInput.focus();
+    DOM.messageInput.disabled = false;
+    DOM.sendBtn.disabled = false;
+    DOM.fileUpload.disabled = false;
+    DOM.messageInput.focus();
     
-    // Add call buttons after a delay
     setTimeout(addCallButtons, 500);
     
-    // Listen for typing
     const typingRef = ref(db, `typing/${currentUser.uid}/${friendUid}`);
     onValue(typingRef, (snapshot) => {
         const isTyping = snapshot.val();
@@ -1144,6 +1153,9 @@ function startChat(friendUid) {
     });
 }
 
+// ============================================
+// ADD CALL BUTTONS
+// ============================================
 function addCallButtons() {
     // Remove old buttons
     const oldVoice = document.getElementById('voiceCallBtn');
@@ -1159,7 +1171,7 @@ function addCallButtons() {
     console.log(`Friend ${currentChatFriend} - Online: ${isOnline}, PeerId: ${hasPeerId}`);
     
     if (!isOnline || !hasPeerId) {
-        console.log('Call buttons hidden - friend not available');
+        console.log('❌ Call buttons hidden - friend not available');
         return;
     }
     
@@ -1183,26 +1195,28 @@ function addCallButtons() {
         if (currentChatFriend) startCall(currentChatFriend, 'video'); 
     };
     
-    headerActions.appendChild(voiceBtn);
-    headerActions.appendChild(videoBtn);
+    DOM.headerActions.appendChild(voiceBtn);
+    DOM.headerActions.appendChild(videoBtn);
     console.log('✅ Call buttons added');
 }
 
-// ===== LOAD MESSAGES =====
+// ============================================
+// LOAD MESSAGES
+// ============================================
 function loadPrivateMessages(friendUid) {
     if (messageListener) { messageListener(); messageListener = null; }
     const chatId = [currentUser.uid, friendUid].sort().join('_');
     const messagesRef = query(ref(db, `privateChats/${chatId}/messages`), orderByChild('timestamp'), limitToLast(50));
-    messagesContainer.innerHTML = '';
+    DOM.messages.innerHTML = '';
     messageListener = onChildAdded(messagesRef, (snapshot) => {
         const msg = snapshot.val();
         if (!msg) return;
-        if (messagesContainer.querySelector(`[data-key="${snapshot.key}"]`)) return;
+        if (DOM.messages.querySelector(`[data-key="${snapshot.key}"]`)) return;
         appendMessage(snapshot.key, msg);
     });
     onChildChanged(messagesRef, (snapshot) => {
         const msg = snapshot.val();
-        const el = messagesContainer.querySelector(`[data-key="${snapshot.key}"]`);
+        const el = DOM.messages.querySelector(`[data-key="${snapshot.key}"]`);
         if (el) {
             const textEl = el.querySelector('.msg-text');
             if (textEl) {
@@ -1212,7 +1226,7 @@ function loadPrivateMessages(friendUid) {
         }
     });
     onChildRemoved(messagesRef, (snapshot) => {
-        const el = messagesContainer.querySelector(`[data-key="${snapshot.key}"]`);
+        const el = DOM.messages.querySelector(`[data-key="${snapshot.key}"]`);
         if (el) { el.style.opacity = '0.3'; el.querySelector('.msg-text').innerHTML = '🔴 ডিলিট করা হয়েছে'; }
     });
 }
@@ -1239,21 +1253,25 @@ function appendMessage(key, msg) {
             ${isOwn ? `<div class="msg-actions"><button class="edit-btn" data-key="${key}">✏️</button><button class="delete-btn" data-key="${key}">🗑️</button></div>` : ''}
         </div>
     `;
-    messagesContainer.appendChild(div);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    DOM.messages.appendChild(div);
+    DOM.messages.scrollTop = DOM.messages.scrollHeight;
     if (isOwn) {
         div.querySelector('.edit-btn')?.addEventListener('click', () => editMessage(key, msg.text));
         div.querySelector('.delete-btn')?.addEventListener('click', () => deleteMessage(key));
     }
 }
 
-// ===== GLOBAL IMAGE PREVIEW =====
+// ============================================
+// GLOBAL IMAGE PREVIEW
+// ============================================
 window.openImagePreview = function(src) {
-    previewImage.src = src;
-    imagePreview.classList.add('active');
+    DOM.previewImage.src = src;
+    DOM.imagePreview.classList.add('active');
 };
 
-// ===== DELETE / EDIT MESSAGE =====
+// ============================================
+// DELETE / EDIT MESSAGE
+// ============================================
 async function deleteMessage(key) {
     if (!currentUser || !currentChatFriend || !confirm('মেসেজ ডিলিট করতে চান?')) return;
     const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
@@ -1273,9 +1291,11 @@ async function editMessage(key, oldText) {
     } catch(e) { showToast('এডিট ব্যর্থ!', 'error'); }
 }
 
-// ===== SEND MESSAGE =====
+// ============================================
+// SEND MESSAGE
+// ============================================
 async function sendPrivateMessage() {
-    const text = messageInput.value.trim();
+    const text = DOM.messageInput.value.trim();
     if (!text || !currentUser || !currentChatFriend) return;
     const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
     const newMsgRef = push(ref(db, `privateChats/${chatId}/messages`));
@@ -1286,31 +1306,65 @@ async function sendPrivateMessage() {
     const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
     const snap = await get(unreadRef);
     await set(unreadRef, (snap.val() || 0) + 1);
-    messageInput.value = '';
-    messageInput.focus();
+    DOM.messageInput.value = '';
+    DOM.messageInput.focus();
 }
 
-// ===== FILE UPLOAD =====
-fileUploadBtn.addEventListener('click', () => {
+// ============================================
+// FILE UPLOAD
+// ============================================
+DOM.fileUpload.addEventListener('click', () => {
     if (!currentUser || !currentChatFriend) { showToast('প্রথমে চ্যাট নির্বাচন করুন!', 'error'); return; }
-    fileInput.click();
+    DOM.fileInput.click();
 });
-fileInput.addEventListener('change', async (e) => {
+DOM.fileInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) { showToast('শুধু ছবি আপলোড করতে পারবেন!', 'error'); fileInput.value = ''; return; }
-    if (file.size > 2 * 1024 * 1024) { showToast('ছবি 2MB এর কম হতে হবে!', 'error'); fileInput.value = ''; return; }
+    if (!file.type.startsWith('image/')) { showToast('শুধু ছবি আপলোড করতে পারবেন!', 'error'); DOM.fileInput.value = ''; return; }
+    if (file.size > 2 * 1024 * 1024) { showToast('ছবি 2MB এর কম হতে হবে!', 'error'); DOM.fileInput.value = ''; return; }
     await sendImageMessageBase64(file);
-    fileInput.value = '';
+    DOM.fileInput.value = '';
 });
 
-// ===== SWITCH TAB =====
+// ============================================
+// SEND IMAGE
+// ============================================
+async function sendImageMessageBase64(file) {
+    if (!file || !currentUser || !currentChatFriend) { showToast('ছবি পাঠাতে ব্যর্থ!', 'error'); return; }
+    try {
+        showToast('📤 ছবি প্রস্তুত হচ্ছে...', 'success');
+        const base64Image = await imageToBase64(file);
+        const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
+        const messagesRef = ref(db, `privateChats/${chatId}/messages`);
+        const newMsgRef = push(messagesRef);
+        const fileExt = file.name.split('.').pop() || 'jpg';
+        const fileName = `image_${Date.now()}.${fileExt}`;
+        await set(newMsgRef, {
+            text: '📷',
+            image: base64Image,
+            uid: currentUser.uid,
+            displayName: currentUser.displayName || 'ইউজার',
+            photoURL: currentUser.photoURL || '',
+            timestamp: Date.now(),
+            isBase64: true,
+            fileName: fileName
+        });
+        const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
+        const snapshot = await get(unreadRef);
+        await set(unreadRef, (snapshot.val() || 0) + 1);
+        showToast('✅ ছবি পাঠানো হয়েছে!');
+    } catch (e) { showToast(`ছবি পাঠাতে ব্যর্থ: ${e.message}`, 'error'); }
+}
+
+// ============================================
+// SWITCH TAB
+// ============================================
 function switchTab(tabName) {
     tabs.forEach(t => t.classList.remove('active'));
     const target = document.querySelector(`[data-tab="${tabName}"]`);
     if (target) target.classList.add('active');
-    if (isMobile) { chatList.classList.remove('hidden'); chatList.style.display = 'flex'; }
-    else { chatList.classList.remove('hidden'); chatList.style.display = 'flex'; }
+    if (isMobile) { DOM.chatList.classList.remove('hidden'); DOM.chatList.style.display = 'flex'; }
+    else { DOM.chatList.classList.remove('hidden'); DOM.chatList.style.display = 'flex'; }
     if (tabName === 'chats') renderFriends();
     else if (tabName === 'requests') renderRequestsTab();
     else if (tabName === 'search') renderSearchTab();
@@ -1318,6 +1372,9 @@ function switchTab(tabName) {
 
 tabs.forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
 
+// ============================================
+// RENDER REQUESTS TAB
+// ============================================
 function renderRequestsTab() {
     let html = '';
     const pending = Object.keys(requests).filter(k => requests[k].status === 'pending');
@@ -1340,11 +1397,14 @@ function renderRequestsTab() {
             `;
         });
     }
-    friendList.innerHTML = html;
+    DOM.friendList.innerHTML = html;
     document.querySelectorAll('.btn-accept').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); acceptFriendRequest(b.dataset.uid); }));
     document.querySelectorAll('.btn-reject').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); rejectFriendRequest(b.dataset.uid); }));
 }
 
+// ============================================
+// RENDER SEARCH TAB
+// ============================================
 function renderSearchTab() {
     let html = `
         <div style="padding:12px;">
@@ -1355,7 +1415,7 @@ function renderSearchTab() {
             <div id="searchResults"></div>
         </div>
     `;
-    friendList.innerHTML = html;
+    DOM.friendList.innerHTML = html;
     $('searchUserBtn')?.addEventListener('click', async () => {
         const query = $('searchUserInput').value.trim().toLowerCase();
         if (!query) { $('searchResults').innerHTML = ''; return; }
@@ -1391,7 +1451,9 @@ function renderSearchTab() {
     });
 }
 
-// ===== FRIEND REQUESTS =====
+// ============================================
+// FRIEND REQUESTS
+// ============================================
 async function acceptFriendRequest(fromUid) {
     if (!currentUser) return;
     try {
@@ -1413,9 +1475,9 @@ async function acceptFriendRequest(fromUid) {
         await remove(ref(db, `friendRequests/${currentUser.uid}/${fromUid}`));
         showToast('বন্ধু রিকোয়েস্ট গ্রহণ করা হয়েছে! 🎉');
         friends[fromUid] = senderData;
-        friendCount.textContent = Object.keys(friends).length;
+        DOM.friendCount.textContent = Object.keys(friends).length;
         switchTab('chats');
-        setTimeout(() => { renderFriends(); if (isMobile) { chatList.classList.remove('hidden'); chatList.style.display = 'flex'; } }, 200);
+        setTimeout(() => { renderFriends(); if (isMobile) { DOM.chatList.classList.remove('hidden'); DOM.chatList.style.display = 'flex'; } }, 200);
     } catch(e) { showToast(`এক্সেপ্ট ব্যর্থ: ${e.message}`, 'error'); }
 }
 async function rejectFriendRequest(fromUid) {
@@ -1442,17 +1504,21 @@ async function sendFriendRequest(toUid) {
     } catch(e) { showToast(`রিকোয়েস্ট ব্যর্থ: ${e.message}`, 'error'); }
 }
 
-// ===== EVENT LISTENERS =====
-sendBtn.onclick = sendPrivateMessage;
-messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendPrivateMessage(); });
-messageInput.addEventListener('input', handleTyping);
-backBtn.addEventListener('click', () => { chatList.classList.remove('hidden'); chatList.style.display = 'flex'; });
-callEndBtn.addEventListener('click', endCall);
-callAnswerBtn.addEventListener('click', answerCall);
-callMuteBtn.addEventListener('click', toggleMute);
+// ============================================
+// EVENT LISTENERS
+// ============================================
+DOM.sendBtn.onclick = sendPrivateMessage;
+DOM.messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendPrivateMessage(); });
+DOM.messageInput.addEventListener('input', handleTyping);
+DOM.backBtn.addEventListener('click', () => { DOM.chatList.classList.remove('hidden'); DOM.chatList.style.display = 'flex'; });
+DOM.callEnd.addEventListener('click', endCall);
+DOM.callAnswer.addEventListener('click', answerCall);
+DOM.callMute.addEventListener('click', toggleMute);
 
-// ===== LOGIN =====
-loginBtn.onclick = async () => {
+// ============================================
+// LOGIN
+// ============================================
+DOM.loginBtn.onclick = async () => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     try {
@@ -1468,8 +1534,10 @@ loginBtn.onclick = async () => {
     }
 };
 
-// ===== LOGOUT =====
-logoutBtn.onclick = async () => {
+// ============================================
+// LOGOUT
+// ============================================
+DOM.logoutBtn.onclick = async () => {
     try {
         if (currentUser) {
             await updateOnlineStatus(currentUser.uid, false);
@@ -1480,7 +1548,9 @@ logoutBtn.onclick = async () => {
     } catch(e) { showToast(`সাইন আউট ব্যর্থ: ${e.message}`, 'error'); }
 };
 
-// ===== AUTH STATE =====
+// ============================================
+// AUTH STATE
+// ============================================
 onAuthStateChanged(auth, async (user) => {
     updateUI(user);
     if (user) {
@@ -1490,22 +1560,24 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// ===== PROFILE MODAL =====
-userProfileMini.addEventListener('click', () => {
+// ============================================
+// PROFILE MODAL
+// ============================================
+DOM.userProfileMini.addEventListener('click', () => {
     if (!currentUser) return;
-    modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=00A884&color=fff';
-    modalDisplayName.value = currentUser.displayName || '';
-    modalEmail.value = currentUser.email || '';
-    profileModal.classList.add('active');
+    DOM.modalPic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=00A884&color=fff';
+    DOM.modalName.value = currentUser.displayName || '';
+    DOM.modalEmail.value = currentUser.email || '';
+    DOM.profileModal.classList.add('active');
 });
-logoClick.addEventListener('click', () => {
+DOM.logo.addEventListener('click', () => {
     if (!currentUser) return;
-    modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=00A884&color=fff';
-    modalDisplayName.value = currentUser.displayName || '';
-    modalEmail.value = currentUser.email || '';
-    profileModal.classList.add('active');
+    DOM.modalPic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=00A884&color=fff';
+    DOM.modalName.value = currentUser.displayName || '';
+    DOM.modalEmail.value = currentUser.email || '';
+    DOM.profileModal.classList.add('active');
 });
-modalUploadPic.addEventListener('click', () => {
+DOM.modalUpload.addEventListener('click', () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -1515,35 +1587,41 @@ modalUploadPic.addEventListener('click', () => {
         if (file.size > 2 * 1024 * 1024) { showToast('ছবি 2MB এর কম হতে হবে!', 'error'); return; }
         showToast('📤 আপলোড হচ্ছে...', 'success');
         const base64 = await imageToBase64(file);
-        if (base64) { modalProfilePic.src = base64; showToast('✅ প্রোফাইল ছবি আপলোড হয়েছে!'); }
+        if (base64) { DOM.modalPic.src = base64; showToast('✅ প্রোফাইল ছবি আপলোড হয়েছে!'); }
     };
     input.click();
 });
-modalCancel.addEventListener('click', () => profileModal.classList.remove('active'));
-modalSave.addEventListener('click', async () => {
-    const name = modalDisplayName.value.trim();
-    const photo = modalProfilePic.src;
+DOM.modalCancel.addEventListener('click', () => DOM.profileModal.classList.remove('active'));
+DOM.modalSave.addEventListener('click', async () => {
+    const name = DOM.modalName.value.trim();
+    const photo = DOM.modalPic.src;
     if (!name) { showToast('নাম দেওয়া আবশ্যক!', 'error'); return; }
     await updateUserProfile(name, photo);
-    profileModal.classList.remove('active');
+    DOM.profileModal.classList.remove('active');
 });
-profileModal.addEventListener('click', (e) => { if (e.target === profileModal) profileModal.classList.remove('active'); });
+DOM.profileModal.addEventListener('click', (e) => { if (e.target === DOM.profileModal) DOM.profileModal.classList.remove('active'); });
 
-// ===== IMAGE PREVIEW =====
-downloadPreviewBtn.addEventListener('click', () => {
-    const src = previewImage.src;
+// ============================================
+// IMAGE PREVIEW
+// ============================================
+DOM.downloadPreview.addEventListener('click', () => {
+    const src = DOM.previewImage.src;
     if (src) downloadImage(src);
 });
-closePreviewBtn.addEventListener('click', () => imagePreview.classList.remove('active'));
-imagePreview.addEventListener('click', (e) => { if (e.target === imagePreview) imagePreview.classList.remove('active'); });
+DOM.closePreview.addEventListener('click', () => DOM.imagePreview.classList.remove('active'));
+DOM.imagePreview.addEventListener('click', (e) => { if (e.target === DOM.imagePreview) DOM.imagePreview.classList.remove('active'); });
 
-// ===== WINDOW RESIZE =====
+// ============================================
+// WINDOW RESIZE
+// ============================================
 window.addEventListener('resize', () => {
     isMobile = window.innerWidth <= 768;
-    if (!isMobile) { chatList.classList.remove('hidden'); chatList.style.display = 'flex'; }
+    if (!isMobile) { DOM.chatList.classList.remove('hidden'); DOM.chatList.style.display = 'flex'; }
 });
 
-// ===== BEFORE UNLOAD =====
+// ============================================
+// BEFORE UNLOAD
+// ============================================
 window.addEventListener('beforeunload', () => {
     if (currentUser) updateOnlineStatus(currentUser.uid, false);
     if (localStream) localStream.getTracks().forEach(t => t.stop());
@@ -1551,8 +1629,9 @@ window.addEventListener('beforeunload', () => {
 });
 
 console.log('📱 ConnectBD WhatsApp Style Ready!');
-console.log('📞 Call System Fixed!');
+console.log('📞 Call System Fully Fixed!');
 console.log('🔍 Search works with email and name!');
+console.log('✅ Online status updates every 3 seconds!');
 </script>
 </body>
 </html>
