@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
+        /* Previous styles remain same - keeping it compact */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --whatsapp-green: #00A884;
@@ -403,6 +404,7 @@ let callStartTime = null;
 let localStream = null;
 let isMuted = false;
 let incomingCallData = null;
+let peerInitialized = false;
 
 // ===== TOAST =====
 function showToast(msg, type = 'success') {
@@ -520,7 +522,14 @@ function updateUI(user) {
         loadFriendsAndRequests();
         loadAllUsers();
         switchTab('chats');
-        setTimeout(() => initPeer(user.uid), 1000);
+        // Initialize Peer with better handling
+        setTimeout(() => initPeer(user.uid), 2000);
+        // Update online status periodically
+        setInterval(() => {
+            if (currentUser) {
+                update(ref(db, `users/${currentUser.uid}`), { online: true, lastSeen: Date.now() });
+            }
+        }, 30000);
     } else {
         userProfileMini.style.display = 'none';
         loginBtn.style.display = 'block';
@@ -537,14 +546,20 @@ function updateUI(user) {
         if (messageListener) { messageListener(); messageListener = null; }
         if (friendsListener) { friendsListener(); friendsListener = null; }
         if (requestsListener) { requestsListener(); requestsListener = null; }
+        if (peer) { peer.destroy(); peer = null; peerInitialized = false; }
     }
 }
 
 // ===== LOAD ALL USERS =====
 function loadAllUsers() {
-    onValue(ref(db, 'users'), (snapshot) => {
+    const usersRef = ref(db, 'users');
+    onValue(usersRef, (snapshot) => {
         const data = snapshot.val();
-        if (data) allUsersCache = data;
+        if (data) {
+            allUsersCache = data;
+            // Update friends online status
+            renderFriends();
+        }
     });
 }
 
@@ -554,15 +569,26 @@ function loadFriendsAndRequests() {
     if (friendsListener) { friendsListener(); friendsListener = null; }
     if (requestsListener) { requestsListener(); requestsListener = null; }
     
-    friendsListener = onValue(ref(db, `friends/${currentUser.uid}`), (snapshot) => {
-        friends = snapshot.val() || {};
+    const friendsRef = ref(db, `friends/${currentUser.uid}`);
+    friendsListener = onValue(friendsRef, (snapshot) => {
+        const data = snapshot.val() || {};
+        // Merge with online status from allUsersCache
+        friends = {};
+        Object.keys(data).forEach(uid => {
+            friends[uid] = {
+                ...data[uid],
+                online: allUsersCache[uid]?.online || false,
+                peerId: allUsersCache[uid]?.peerId || null
+            };
+        });
         friendCount.textContent = Object.keys(friends).length;
         const activeTab = document.querySelector('.tab.active');
         if (activeTab && activeTab.dataset.tab === 'chats') renderFriends();
         loadUnreadCounts();
     });
     
-    requestsListener = onValue(ref(db, `friendRequests/${currentUser.uid}`), (snapshot) => {
+    const requestsRef = ref(db, `friendRequests/${currentUser.uid}`);
+    requestsListener = onValue(requestsRef, (snapshot) => {
         requests = snapshot.val() || {};
         const count = Object.keys(requests).filter(k => requests[k].status === 'pending').length;
         requestCount.textContent = count;
@@ -574,7 +600,8 @@ function loadFriendsAndRequests() {
 // ===== LOAD UNREAD =====
 function loadUnreadCounts() {
     if (!currentUser) return;
-    onValue(ref(db, `unread/${currentUser.uid}`), (snapshot) => {
+    const unreadRef = ref(db, `unread/${currentUser.uid}`);
+    onValue(unreadRef, (snapshot) => {
         unreadCounts = snapshot.val() || {};
         const activeTab = document.querySelector('.tab.active');
         if (activeTab && activeTab.dataset.tab === 'chats') renderFriends();
@@ -604,15 +631,17 @@ function renderFriends() {
             const unread = unreadCounts[uid] || 0;
             if (searchTerm && !name.toLowerCase().includes(searchTerm)) return;
             const isActive = currentChatFriend === uid;
+            // Check if user is online from allUsersCache
+            const isOnline = allUsersCache[uid]?.online || false;
             html += `
                 <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
-                    <img src="${photo}" class="avatar ${f.online ? 'online' : ''}" loading="lazy" />
+                    <img src="${photo}" class="avatar ${isOnline ? 'online' : ''}" loading="lazy" />
                     <div class="info">
                         <div class="name">${name}</div>
-                        <div class="last-msg">${unread > 0 ? '🔴 নতুন মেসেজ' : 'ক্লিক করুন চ্যাট শুরু করতে'}</div>
+                        <div class="last-msg">${unread > 0 ? '🔴 নতুন মেসেজ' : isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন'}</div>
                     </div>
                     <div class="meta">
-                        <span class="time">${f.online ? 'অনলাইন' : 'অফলাইন'}</span>
+                        <span class="time">${isOnline ? 'অনলাইন' : 'অফলাইন'}</span>
                         ${unread > 0 ? `<span class="unread-badge danger">${unread}</span>` : ''}
                     </div>
                 </div>
@@ -638,26 +667,47 @@ function handleTyping() {
 }
 
 // =============================================
-// ===== PEER / CALL SYSTEM =====
+// ===== PEER / CALL SYSTEM FIXED =====
 // =============================================
 
 function initPeer(userId) {
-    if (peer) { peer.destroy(); peer = null; }
+    if (peer) { 
+        peer.destroy(); 
+        peer = null; 
+        peerInitialized = false;
+    }
+    
     try {
-        peer = new Peer(userId, {
+        // Generate a unique peer ID
+        const peerId = userId + '_' + Date.now();
+        
+        peer = new Peer(peerId, {
             debug: 0,
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' }
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' }
                 ]
             }
         });
+        
         peer.on('open', (id) => {
-            console.log('📞 Peer connected:', id);
-            if (currentUser) update(ref(db, `users/${currentUser.uid}/peerId`), id);
+            console.log('📞 Peer connected with ID:', id);
+            peerInitialized = true;
+            // Save peer ID to database
+            if (currentUser) {
+                update(ref(db, `users/${currentUser.uid}`), { 
+                    peerId: id,
+                    online: true,
+                    lastSeen: Date.now()
+                });
+            }
+            showToast('📞 কল সংযোগ প্রস্তুত!', 'success');
         });
+        
         peer.on('call', (incomingCall) => {
+            console.log('📞 Incoming call from:', incomingCall.peer);
             const meta = incomingCall.metadata || {};
             incomingCallData = {
                 call: incomingCall,
@@ -667,38 +717,138 @@ function initPeer(userId) {
             };
             showIncomingCall(incomingCallData.callerName, incomingCallData.callerPhoto, incomingCall);
         });
-        peer.on('error', (err) => console.error('Peer error:', err));
-        peer.on('disconnected', () => setTimeout(() => peer?.reconnect(), 3000));
-    } catch (e) { console.error('Peer init error:', e); }
+        
+        peer.on('error', (err) => {
+            console.error('Peer error:', err);
+            if (err.type === 'unavailable-id') {
+                // Retry with new ID
+                setTimeout(() => {
+                    if (currentUser) {
+                        const newId = currentUser.uid + '_' + Date.now();
+                        initPeer(newId);
+                    }
+                }, 2000);
+            }
+        });
+        
+        peer.on('disconnected', () => {
+            console.log('Peer disconnected, reconnecting...');
+            setTimeout(() => {
+                if (peer && currentUser) {
+                    peer.reconnect();
+                }
+            }, 3000);
+        });
+        
+        peer.on('close', () => {
+            console.log('Peer closed');
+            peerInitialized = false;
+        });
+        
+    } catch (e) { 
+        console.error('Peer init error:', e);
+        // Retry after 3 seconds
+        setTimeout(() => {
+            if (currentUser) {
+                initPeer(currentUser.uid);
+            }
+        }, 3000);
+    }
 }
 
+// ===== START CALL =====
 async function startCall(receiverId, callType = 'voice') {
-    if (!peer) { showToast('পিয়ার সংযোগ তৈরি হচ্ছে...', 'success'); await initPeer(currentUser.uid); setTimeout(() => startCall(receiverId, callType), 1000); return; }
+    if (!currentUser) {
+        showToast('প্রথমে লগইন করুন!', 'error');
+        return;
+    }
+    
+    // Check if peer is initialized
+    if (!peerInitialized || !peer) {
+        showToast('📞 কল সংযোগ তৈরি হচ্ছে...', 'success');
+        await initPeer(currentUser.uid);
+        // Wait for peer to connect
+        await new Promise(resolve => {
+            const checkPeer = () => {
+                if (peerInitialized) {
+                    resolve();
+                } else {
+                    setTimeout(checkPeer, 500);
+                }
+            };
+            checkPeer();
+        });
+        // Retry after peer is ready
+        setTimeout(() => startCall(receiverId, callType), 500);
+        return;
+    }
+    
     try {
+        // Get receiver's data
         const snap = await get(ref(db, `users/${receiverId}`));
         const receiverData = snap.val();
-        if (!receiverData || !receiverData.peerId) { showToast('ব্যবহারকারী অনলাইনে নেই!', 'error'); return; }
-        if (!receiverData.online) { showToast('ব্যবহারকারী অফলাইনে!', 'error'); return; }
+        
+        if (!receiverData) {
+            showToast('ব্যবহারকারী পাওয়া যায়নি!', 'error');
+            return;
+        }
+        
+        if (!receiverData.peerId) {
+            showToast('ব্যবহারকারী কলের জন্য উপলব্ধ নয়!', 'error');
+            return;
+        }
+        
+        if (!receiverData.online) {
+            showToast('ব্যবহারকারী অফলাইনে!', 'error');
+            return;
+        }
 
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: callType === 'video' });
-        localStream = stream;
-        if (callType === 'video') { videoContainer.style.display = 'block'; localVideo.srcObject = stream; }
-
-        const call = peer.call(receiverData.peerId, stream, {
-            metadata: { callerName: currentUser.displayName || 'ইউজার', callerPhoto: currentUser.photoURL || '', callType }
+        // Get media stream
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: true, 
+            video: callType === 'video' 
         });
+        
+        localStream = stream;
+        
+        if (callType === 'video') {
+            videoContainer.style.display = 'block';
+            localVideo.srcObject = stream;
+        }
+
+        // Make the call
+        const call = peer.call(receiverData.peerId, stream, {
+            metadata: { 
+                callerName: currentUser.displayName || 'ইউজার', 
+                callerPhoto: currentUser.photoURL || '', 
+                callType: callType 
+            }
+        });
+        
         currentCall = call;
         incomingCallData = null;
+        
+        // Show call UI
         showCallUI(receiverData, 'calling', callType);
 
         call.on('stream', (remoteStream) => {
-            if (callType === 'video') { videoContainer.style.display = 'block'; remoteVideo.srcObject = remoteStream; }
-            else { const audio = new Audio(); audio.srcObject = remoteStream; audio.play(); }
+            if (callType === 'video') {
+                videoContainer.style.display = 'block';
+                remoteVideo.srcObject = remoteStream;
+            } else {
+                const audio = new Audio();
+                audio.srcObject = remoteStream;
+                audio.play();
+            }
             updateCallStatus('answered');
             callAnswerBtn.style.display = 'none';
             startCallTimer();
         });
-        call.on('close', () => endCall());
+        
+        call.on('close', () => {
+            endCall();
+        });
+        
     } catch (e) {
         console.error('Call error:', e);
         showToast('কল শুরু করতে ব্যর্থ! মাইক্রোফোন/ক্যামেরা পারমিশন চেক করুন', 'error');
@@ -706,8 +856,14 @@ async function startCall(receiverId, callType = 'voice') {
     }
 }
 
+// ===== SHOW INCOMING CALL =====
 function showIncomingCall(name, photo, incomingCall) {
-    if (callOverlay.classList.contains('active')) { incomingCall.close(); return; }
+    // Check if already in a call
+    if (callOverlay.classList.contains('active')) {
+        incomingCall.close();
+        return;
+    }
+    
     currentCall = incomingCall;
     callAvatar.src = photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
     callName.textContent = name;
@@ -718,36 +874,73 @@ function showIncomingCall(name, photo, incomingCall) {
     callAnswerBtn.style.display = 'flex';
     callMuteBtn.style.display = 'none';
     callOverlay.classList.add('active');
+    
+    // Vibrate on mobile
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    
     playRingtone();
+    
+    // Auto reject after 30 seconds
     setTimeout(() => {
-        if (callOverlay.classList.contains('active') && currentCall) { endCall(); showToast('কল রিজেক্ট (টাইমআউট)', 'error'); }
+        if (callOverlay.classList.contains('active') && currentCall) {
+            endCall();
+            showToast('কল রিজেক্ট (টাইমআউট)', 'error');
+        }
     }, 30000);
 }
 
+// ===== ANSWER CALL =====
 async function answerCall() {
     if (!currentCall || !incomingCallData) return;
+    
     try {
         const callType = incomingCallData.callType || 'voice';
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: callType === 'video' });
+        
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: true, 
+            video: callType === 'video' 
+        });
+        
         localStream = stream;
-        if (callType === 'video') { videoContainer.style.display = 'block'; localVideo.srcObject = stream; }
+        
+        if (callType === 'video') {
+            videoContainer.style.display = 'block';
+            localVideo.srcObject = stream;
+        }
+        
         currentCall.answer(stream);
         callAnswerBtn.style.display = 'none';
         callMuteBtn.style.display = 'flex';
         callMuteBtn.textContent = '🔊';
         callMuteBtn.classList.remove('active');
         isMuted = false;
+        
         currentCall.on('stream', (remoteStream) => {
-            if (callType === 'video') remoteVideo.srcObject = remoteStream;
-            else { const audio = new Audio(); audio.srcObject = remoteStream; audio.play(); }
+            if (callType === 'video') {
+                remoteVideo.srcObject = remoteStream;
+            } else {
+                const audio = new Audio();
+                audio.srcObject = remoteStream;
+                audio.play();
+            }
             updateCallStatus('answered');
             startCallTimer();
         });
-        currentCall.on('close', () => endCall());
+        
+        currentCall.on('close', () => {
+            endCall();
+        });
+        
         stopRingtone();
-    } catch (e) { showToast('কল গ্রহণ ব্যর্থ!', 'error'); endCall(); }
+        
+    } catch (e) {
+        console.error('Answer call error:', e);
+        showToast('কল গ্রহণ ব্যর্থ!', 'error');
+        endCall();
+    }
 }
 
+// ===== SHOW CALL UI =====
 function showCallUI(userData, status, callType = 'voice') {
     callAvatar.src = userData.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.displayName || 'User') + '&background=00A884&color=fff';
     callName.textContent = userData.displayName || 'ইউজার';
@@ -763,13 +956,20 @@ function showCallUI(userData, status, callType = 'voice') {
     callOverlay.classList.add('active');
 }
 
+// ===== UPDATE CALL STATUS =====
 function updateCallStatus(status) {
-    const map = { 'ringing': '🔔 রিং হচ্ছে...', 'answered': '📞 সংযুক্ত', 'rejected': '❌ রিজেক্ট', 'ended': '📞 শেষ' };
+    const map = { 
+        'ringing': '🔔 রিং হচ্ছে...', 
+        'answered': '📞 সংযুক্ত', 
+        'rejected': '❌ রিজেক্ট', 
+        'ended': '📞 শেষ' 
+    };
     callStatus.textContent = map[status] || status;
     callStatus.className = 'call-status';
     if (status === 'ringing') callStatus.classList.add('ringing');
 }
 
+// ===== CALL TIMER =====
 function startCallTimer() {
     callStartTime = Date.now();
     if (callTimerInterval) clearInterval(callTimerInterval);
@@ -779,9 +979,16 @@ function startCallTimer() {
     }, 1000);
 }
 
+// ===== END CALL =====
 function endCall() {
-    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-    if (currentCall) { try { currentCall.close(); } catch(e) {} currentCall = null; }
+    if (localStream) { 
+        localStream.getTracks().forEach(t => t.stop()); 
+        localStream = null; 
+    }
+    if (currentCall) { 
+        try { currentCall.close(); } catch(e) {} 
+        currentCall = null; 
+    }
     incomingCallData = null;
     callOverlay.classList.remove('active');
     videoContainer.style.display = 'none';
@@ -791,8 +998,10 @@ function endCall() {
     stopRingtone();
     remoteVideo.srcObject = null;
     localVideo.srcObject = null;
+    if (navigator.vibrate) navigator.vibrate(0);
 }
 
+// ===== TOGGLE MUTE =====
 function toggleMute() {
     if (!localStream) return;
     isMuted = !isMuted;
@@ -801,38 +1010,56 @@ function toggleMute() {
     callMuteBtn.classList.toggle('active', isMuted);
 }
 
+// ===== RINGTONE =====
 let ringtoneCtx = null;
 let ringtoneInterval = null;
+
 function playRingtone() {
     try {
         ringtoneCtx = new (window.AudioContext || window.webkitAudioContext)();
         let count = 0;
         ringtoneInterval = setInterval(() => {
-            if (count >= 20 || !ringtoneCtx) { clearInterval(ringtoneInterval); return; }
+            if (count >= 20 || !ringtoneCtx) { 
+                clearInterval(ringtoneInterval); 
+                return; 
+            }
             try {
                 const osc = ringtoneCtx.createOscillator();
                 const gain = ringtoneCtx.createGain();
-                osc.connect(gain); gain.connect(ringtoneCtx.destination);
-                osc.frequency.value = 440; osc.type = 'sine';
+                osc.connect(gain); 
+                gain.connect(ringtoneCtx.destination);
+                osc.frequency.value = 440; 
+                osc.type = 'sine';
                 gain.gain.setValueAtTime(0.2, ringtoneCtx.currentTime);
-                osc.start(); osc.stop(ringtoneCtx.currentTime + 0.3);
+                osc.start(); 
+                osc.stop(ringtoneCtx.currentTime + 0.3);
                 setTimeout(() => {
                     if (!ringtoneCtx) return;
                     const osc2 = ringtoneCtx.createOscillator();
                     const gain2 = ringtoneCtx.createGain();
-                    osc2.connect(gain2); gain2.connect(ringtoneCtx.destination);
-                    osc2.frequency.value = 440; osc2.type = 'sine';
+                    osc2.connect(gain2); 
+                    gain2.connect(ringtoneCtx.destination);
+                    osc2.frequency.value = 440; 
+                    osc2.type = 'sine';
                     gain2.gain.setValueAtTime(0.2, ringtoneCtx.currentTime);
-                    osc2.start(); osc2.stop(ringtoneCtx.currentTime + 0.3);
+                    osc2.start(); 
+                    osc2.stop(ringtoneCtx.currentTime + 0.3);
                 }, 400);
             } catch(e) {}
             count += 2;
         }, 1000);
     } catch(e) { console.log('Ringtone error:', e); }
 }
+
 function stopRingtone() {
-    if (ringtoneInterval) { clearInterval(ringtoneInterval); ringtoneInterval = null; }
-    if (ringtoneCtx) { try { ringtoneCtx.close(); } catch(e) {} ringtoneCtx = null; }
+    if (ringtoneInterval) { 
+        clearInterval(ringtoneInterval); 
+        ringtoneInterval = null; 
+    }
+    if (ringtoneCtx) { 
+        try { ringtoneCtx.close(); } catch(e) {} 
+        ringtoneCtx = null; 
+    }
 }
 
 // =============================================
@@ -840,17 +1067,24 @@ function stopRingtone() {
 // =============================================
 
 function startChat(friendUid) {
-    if (!friends[friendUid]) { showToast('এই ইউজার আপনার বন্ধু নয়!', 'error'); return; }
+    if (!friends[friendUid]) { 
+        showToast('এই ইউজার আপনার বন্ধু নয়!', 'error'); 
+        return; 
+    }
+    
     currentChatFriend = friendUid;
     const friend = friends[friendUid];
     const name = friend.displayName || 'ইউজার';
     const photo = friend.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
     
+    // Get fresh online status from allUsersCache
+    const isOnline = allUsersCache[friendUid]?.online || false;
+    
     chatFriendInfo.innerHTML = `
         <img src="${photo}" alt="${name}" />
         <div class="details">
             <div class="name">${name}</div>
-            <div class="status ${friend.online ? 'online' : ''}" id="chatStatus">${friend.online ? '🟢 অনলাইন' : '⚪ অফলাইন'}</div>
+            <div class="status ${isOnline ? 'online' : ''}" id="chatStatus">${isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন'}</div>
         </div>
     `;
     
@@ -870,6 +1104,7 @@ function startChat(friendUid) {
     // Add call buttons
     setTimeout(addCallButtons, 200);
     
+    // Listen for typing
     onValue(ref(db, `typing/${currentUser.uid}/${friendUid}`), (snapshot) => {
         const isTyping = snapshot.val();
         const statusEl = document.getElementById('chatStatus');
@@ -877,28 +1112,47 @@ function startChat(friendUid) {
             statusEl.textContent = '✍️ টাইপ করছে...';
             statusEl.className = 'status typing';
         } else {
-            const f = friends[friendUid];
-            statusEl.textContent = f?.online ? '🟢 অনলাইন' : '⚪ অফলাইন';
-            statusEl.className = `status ${f?.online ? 'online' : ''}`;
+            const online = allUsersCache[friendUid]?.online || false;
+            statusEl.textContent = online ? '🟢 অনলাইন' : '⚪ অফলাইন';
+            statusEl.className = `status ${online ? 'online' : ''}`;
         }
     });
 }
 
 function addCallButtons() {
-    if (document.getElementById('voiceCallBtn') || !currentChatFriend || !friends[currentChatFriend]) return;
+    // Remove old buttons
+    const oldVoice = document.getElementById('voiceCallBtn');
+    const oldVideo = document.getElementById('videoCallBtn');
+    if (oldVoice) oldVoice.remove();
+    if (oldVideo) oldVideo.remove();
+    
+    if (!currentChatFriend || !friends[currentChatFriend]) return;
+    
+    const isOnline = allUsersCache[currentChatFriend]?.online || false;
+    const hasPeerId = allUsersCache[currentChatFriend]?.peerId || false;
+    
+    // Only show call buttons if friend is online and has peer ID
+    if (!isOnline || !hasPeerId) return;
+    
     const voiceBtn = document.createElement('button');
     voiceBtn.id = 'voiceCallBtn';
     voiceBtn.textContent = '📞';
     voiceBtn.title = 'ভয়েস কল';
     voiceBtn.style.cssText = 'background:none;border:none;color:var(--whatsapp-text-secondary);font-size:18px;padding:6px 10px;cursor:pointer;border-radius:50%;';
-    voiceBtn.onclick = (e) => { e.stopPropagation(); if (currentChatFriend) startCall(currentChatFriend, 'voice'); };
+    voiceBtn.onclick = (e) => { 
+        e.stopPropagation(); 
+        if (currentChatFriend) startCall(currentChatFriend, 'voice'); 
+    };
     
     const videoBtn = document.createElement('button');
     videoBtn.id = 'videoCallBtn';
     videoBtn.textContent = '📹';
     videoBtn.title = 'ভিডিও কল';
     videoBtn.style.cssText = 'background:none;border:none;color:var(--whatsapp-text-secondary);font-size:18px;padding:6px 10px;cursor:pointer;border-radius:50%;';
-    videoBtn.onclick = (e) => { e.stopPropagation(); if (currentChatFriend) startCall(currentChatFriend, 'video'); };
+    videoBtn.onclick = (e) => { 
+        e.stopPropagation(); 
+        if (currentChatFriend) startCall(currentChatFriend, 'video'); 
+    };
     
     headerActions.appendChild(voiceBtn);
     headerActions.appendChild(videoBtn);
@@ -1117,7 +1371,7 @@ async function acceptFriendRequest(fromUid) {
         await set(ref(db, `friends/${currentUser.uid}/${fromUid}`), {
             displayName: senderData.displayName || 'ইউজার',
             photoURL: senderData.photoURL || '',
-            online: false,
+            online: senderData.online || false,
             addedAt: Date.now()
         });
         await set(ref(db, `friends/${fromUid}/${currentUser.uid}`), {
@@ -1189,7 +1443,7 @@ logoutBtn.onclick = async () => {
     try {
         if (currentUser) {
             await update(ref(db, `users/${currentUser.uid}`), { online: false, lastSeen: Date.now() });
-            if (peer) { peer.destroy(); peer = null; }
+            if (peer) { peer.destroy(); peer = null; peerInitialized = false; }
         }
         await signOut(auth);
         showToast('সাইন আউট করা হয়েছে।');
@@ -1202,6 +1456,8 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         await saveUserData(user);
         await update(ref(db, `users/${user.uid}`), { online: true, lastSeen: Date.now() });
+        // Initialize peer after login
+        setTimeout(() => initPeer(user.uid), 1000);
     }
 });
 
@@ -1262,11 +1518,11 @@ window.addEventListener('resize', () => {
 window.addEventListener('beforeunload', () => {
     if (currentUser) update(ref(db, `users/${currentUser.uid}`), { online: false, lastSeen: Date.now() });
     if (localStream) localStream.getTracks().forEach(t => t.stop());
-    if (peer) peer.destroy();
+    if (peer) { peer.destroy(); peer = null; }
 });
 
 console.log('📱 ConnectBD WhatsApp Style Ready!');
-console.log('📞 Call System Included!');
+console.log('📞 Call System Fixed!');
 </script>
 </body>
 </html>
