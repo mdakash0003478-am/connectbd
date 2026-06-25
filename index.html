@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ConnectBD - WhatsApp Style</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
@@ -375,18 +374,6 @@ let isMobile = window.innerWidth <= 768;
 let friendsListener = null;
 let requestsListener = null;
 let allUsersListener = null;
-let onlineUpdateInterval = null;
-
-// CALL STATE
-let peer = null;
-let currentCall = null;
-let callTimerInterval = null;
-let callStartTime = null;
-let localStream = null;
-let isMuted = false;
-let incomingCallData = null;
-let peerInitialized = false;
-let peerId = null;
 
 // ============================================
 // TOAST
@@ -436,40 +423,6 @@ function imageToBase64(file) {
 }
 
 // ============================================
-// UPDATE ONLINE STATUS - FIXED
-// ============================================
-async function updateOnlineStatus(uid, isOnline) {
-    if (!uid) return;
-    try {
-        const updates = { 
-            online: isOnline, 
-            lastSeen: Date.now()
-        };
-        if (isOnline && peerId) {
-            updates.peerId = peerId;
-        }
-        await update(ref(db, `users/${uid}`), updates);
-        console.log(`✅ Online status: ${uid} -> ${isOnline}, peerId: ${peerId}`);
-        
-        // Update local cache
-        if (allUsersCache[uid]) {
-            allUsersCache[uid].online = isOnline;
-            if (isOnline && peerId) allUsersCache[uid].peerId = peerId;
-        }
-        
-        // Re-render friends
-        renderFriends();
-        updateChatHeaderStatus();
-        updateCallButtons();
-        
-        return true;
-    } catch (e) {
-        console.error('❌ Update online status error:', e);
-        return false;
-    }
-}
-
-// ============================================
 // SAVE USER
 // ============================================
 async function saveUserData(user) {
@@ -490,6 +443,30 @@ async function saveUserData(user) {
         console.log('✅ User data saved');
         return true;
     } catch (e) { console.error('Save user error:', e); return false; }
+}
+
+// ============================================
+// UPDATE ONLINE STATUS
+// ============================================
+async function updateOnlineStatus(uid, isOnline) {
+    if (!uid) return;
+    try {
+        await update(ref(db, `users/${uid}`), { 
+            online: isOnline, 
+            lastSeen: Date.now()
+        });
+        console.log(`✅ Online status: ${uid} -> ${isOnline}`);
+        if (allUsersCache[uid]) {
+            allUsersCache[uid].online = isOnline;
+        }
+        renderFriends();
+        updateChatHeaderStatus();
+        updateCallButtons();
+        return true;
+    } catch (e) {
+        console.error('❌ Update online status error:', e);
+        return false;
+    }
 }
 
 // ============================================
@@ -522,17 +499,15 @@ function updateUI(user) {
         loadFriendsAndRequests();
         loadAllUsers();
         switchTab('chats');
-        // Initialize Peer
-        setTimeout(() => initPeer(user.uid), 2000);
-        // Update online status every 10 seconds (reduced frequency)
-        if (onlineUpdateInterval) clearInterval(onlineUpdateInterval);
-        onlineUpdateInterval = setInterval(() => {
-            if (currentUser && peerId) {
+        // Update online status every 5 seconds
+        if (window._onlineInterval) clearInterval(window._onlineInterval);
+        window._onlineInterval = setInterval(() => {
+            if (currentUser) {
                 updateOnlineStatus(currentUser.uid, true);
             }
-        }, 10000);
+        }, 5000);
     } else {
-        if (onlineUpdateInterval) clearInterval(onlineUpdateInterval);
+        if (window._onlineInterval) clearInterval(window._onlineInterval);
         DOM.userProfileMini.style.display = 'none';
         DOM.loginBtn.style.display = 'block';
         DOM.logoutBtn.style.display = 'none';
@@ -549,7 +524,6 @@ function updateUI(user) {
         if (friendsListener) { friendsListener(); friendsListener = null; }
         if (requestsListener) { requestsListener(); requestsListener = null; }
         if (allUsersListener) { allUsersListener(); allUsersListener = null; }
-        if (peer) { peer.destroy(); peer = null; peerInitialized = false; peerId = null; }
     }
 }
 
@@ -564,11 +538,9 @@ function loadAllUsers() {
         if (data) {
             allUsersCache = data;
             console.log('📊 Users loaded:', Object.keys(data).length);
-            // Update friends with fresh online status
             Object.keys(friends).forEach(uid => {
                 if (friends[uid] && allUsersCache[uid]) {
                     friends[uid].online = allUsersCache[uid].online || false;
-                    friends[uid].peerId = allUsersCache[uid].peerId || null;
                 }
             });
             renderFriends();
@@ -605,13 +577,12 @@ function updateCallButtons() {
     }
     
     const isOnline = allUsersCache[currentChatFriend]?.online || false;
-    const hasPeerId = allUsersCache[currentChatFriend]?.peerId || false;
-    const show = isOnline && hasPeerId;
+    const show = isOnline;
     
     if (voiceBtn) voiceBtn.style.display = show ? 'flex' : 'none';
     if (videoBtn) videoBtn.style.display = show ? 'flex' : 'none';
     
-    console.log(`Call buttons ${show ? '✅ shown' : '❌ hidden'} for ${currentChatFriend} - Online: ${isOnline}, PeerId: ${hasPeerId}`);
+    console.log(`Call buttons ${show ? '✅ shown' : '❌ hidden'} for ${currentChatFriend} - Online: ${isOnline}`);
 }
 
 // ============================================
@@ -629,8 +600,7 @@ function loadFriendsAndRequests() {
         Object.keys(data).forEach(uid => {
             friends[uid] = {
                 ...data[uid],
-                online: allUsersCache[uid]?.online || false,
-                peerId: allUsersCache[uid]?.peerId || null
+                online: allUsersCache[uid]?.online || false
             };
         });
         DOM.friendCount.textContent = Object.keys(friends).length;
@@ -726,143 +696,21 @@ function handleTyping() {
 }
 
 // ============================================
-// PEER / CALL SYSTEM - FIXED
+// SIMPLE CALL SYSTEM (No PeerJS)
 // ============================================
-function initPeer(userId) {
-    if (peer) { 
-        try { peer.destroy(); } catch(e) {}
-        peer = null; 
-        peerInitialized = false;
-        peerId = null;
-    }
-    
-    try {
-        // Use the userId as peer ID
-        const id = userId;
-        peerId = id;
-        
-        peer = new Peer(id, {
-            debug: 0,
-            config: {
-                iceServers: [
-                    { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun2.l.google.com:19302' }
-                ]
-            }
-        });
-        
-        peer.on('open', (id) => {
-            console.log('📞 Peer connected:', id);
-            peerInitialized = true;
-            peerId = id;
-            if (currentUser) {
-                // Update online status with peerId
-                update(ref(db, `users/${currentUser.uid}`), { 
-                    peerId: id,
-                    online: true,
-                    lastSeen: Date.now()
-                });
-                // Update local cache
-                if (allUsersCache[currentUser.uid]) {
-                    allUsersCache[currentUser.uid].peerId = id;
-                    allUsersCache[currentUser.uid].online = true;
-                }
-                showToast('📞 কল সংযোগ প্রস্তুত!', 'success');
-            }
-        });
-        
-        peer.on('call', (incomingCall) => {
-            console.log('📞 Incoming call from:', incomingCall.peer);
-            const meta = incomingCall.metadata || {};
-            let callerName = meta.callerName || 'ইউজার';
-            let callerPhoto = meta.callerPhoto || '';
-            // Find caller in cache
-            for (const uid in allUsersCache) {
-                if (allUsersCache[uid]?.peerId === incomingCall.peer) {
-                    callerName = allUsersCache[uid].displayName || callerName;
-                    callerPhoto = allUsersCache[uid].photoURL || callerPhoto;
-                    break;
-                }
-            }
-            incomingCallData = {
-                call: incomingCall,
-                callerName: callerName,
-                callerPhoto: callerPhoto,
-                callType: meta.callType || 'voice'
-            };
-            showIncomingCall(callerName, callerPhoto, incomingCall);
-        });
-        
-        peer.on('error', (err) => {
-            console.error('Peer error:', err);
-            // Don't retry on unavailable-id error
-            if (err.type === 'unavailable-id') {
-                console.log('Peer ID already taken, using new ID');
-                const newId = userId + '_' + Date.now();
-                peerId = newId;
-                // Update peerId in database
-                if (currentUser) {
-                    update(ref(db, `users/${currentUser.uid}`), { peerId: newId });
-                }
-                setTimeout(() => initPeer(newId), 1000);
-            }
-        });
-        
-        peer.on('disconnected', () => {
-            console.log('Peer disconnected, reconnecting...');
-            peerInitialized = false;
-            setTimeout(() => {
-                if (peer && currentUser) {
-                    try { peer.reconnect(); } catch(e) {
-                        // If reconnect fails, reinitialize
-                        initPeer(currentUser.uid);
-                    }
-                }
-            }, 3000);
-        });
-        
-        peer.on('close', () => {
-            console.log('Peer closed');
-            peerInitialized = false;
-            peerId = null;
-        });
-        
-    } catch (e) { 
-        console.error('Peer init error:', e);
-        setTimeout(() => {
-            if (currentUser) {
-                const newId = currentUser.uid + '_' + Date.now();
-                peerId = newId;
-                initPeer(newId);
-            }
-        }, 3000);
-    }
-}
+let localStream = null;
+let currentCall = null;
+let isMuted = false;
+let callTimerInterval = null;
+let callStartTime = null;
+let incomingCallData = null;
 
 // ============================================
-// START CALL
+// START CALL - Simple WebRTC
 // ============================================
 async function startCall(receiverId, callType = 'voice') {
     if (!currentUser) {
         showToast('প্রথমে লগইন করুন!', 'error');
-        return;
-    }
-    
-    if (!peerInitialized || !peer) {
-        showToast('📞 কল সংযোগ তৈরি হচ্ছে...', 'success');
-        await initPeer(currentUser.uid);
-        await new Promise(resolve => {
-            const checkPeer = () => {
-                if (peerInitialized) {
-                    resolve();
-                } else {
-                    setTimeout(checkPeer, 500);
-                }
-            };
-            checkPeer();
-        });
-        setTimeout(() => startCall(receiverId, callType), 500);
         return;
     }
     
@@ -873,12 +721,6 @@ async function startCall(receiverId, callType = 'voice') {
         
         if (!receiverData) {
             showToast('ব্যবহারকারী পাওয়া যায়নি!', 'error');
-            return;
-        }
-        
-        const receiverPeerId = receiverData.peerId;
-        if (!receiverPeerId) {
-            showToast('ব্যবহারকারী কলের জন্য উপলব্ধ নয়!', 'error');
             return;
         }
         
@@ -900,20 +742,27 @@ async function startCall(receiverId, callType = 'voice') {
             DOM.localVideo.srcObject = stream;
         }
 
-        // Make the call
-        const call = peer.call(receiverPeerId, stream, {
-            metadata: { 
-                callerName: currentUser.displayName || 'ইউজার', 
-                callerPhoto: currentUser.photoURL || '', 
-                callType: callType 
-            }
+        // Show call UI
+        showCallUI(receiverData, 'calling', callType);
+        
+        // Create an offer
+        const pc = new RTCPeerConnection({
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
         });
         
-        currentCall = call;
-        incomingCallData = null;
-        showCallUI(receiverData, 'calling', callType);
-
-        call.on('stream', (remoteStream) => {
+        currentCall = pc;
+        
+        // Add local stream
+        stream.getTracks().forEach(track => {
+            pc.addTrack(track, stream);
+        });
+        
+        // Handle remote stream
+        pc.ontrack = (event) => {
+            const remoteStream = event.streams[0];
             if (callType === 'video') {
                 DOM.videoContainer.style.display = 'block';
                 DOM.remoteVideo.srcObject = remoteStream;
@@ -925,11 +774,48 @@ async function startCall(receiverId, callType = 'voice') {
             updateCallStatus('answered');
             DOM.callAnswer.style.display = 'none';
             startCallTimer();
+        };
+        
+        // Create offer
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        
+        // Send offer to receiver via Firebase
+        const callRef = ref(db, `calls/${receiverId}/${currentUser.uid}`);
+        await set(callRef, {
+            offer: offer,
+            callerName: currentUser.displayName || 'ইউজার',
+            callerPhoto: currentUser.photoURL || '',
+            callType: callType,
+            timestamp: Date.now()
         });
         
-        call.on('close', () => {
-            endCall();
-        });
+        // Listen for answer
+        const answerRef = ref(db, `calls/${currentUser.uid}/${receiverId}`);
+        onValue(answerRef, async (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.answer) {
+                await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+                remove(answerRef);
+                updateCallStatus('answered');
+                DOM.callAnswer.style.display = 'none';
+                startCallTimer();
+            }
+            if (data && data.rejected) {
+                endCall();
+                showToast('কল রিজেক্ট করা হয়েছে', 'error');
+                remove(answerRef);
+            }
+        }, { onlyOnce: true });
+        
+        // Auto reject after 30 seconds
+        setTimeout(() => {
+            if (currentCall && DOM.callOverlay.classList.contains('active')) {
+                endCall();
+                showToast('কল রিজেক্ট (টাইমআউট)', 'error');
+                remove(ref(db, `calls/${receiverId}/${currentUser.uid}`));
+            }
+        }, 30000);
         
     } catch (e) {
         console.error('Call error:', e);
@@ -939,15 +825,40 @@ async function startCall(receiverId, callType = 'voice') {
 }
 
 // ============================================
+// LISTEN FOR INCOMING CALLS
+// ============================================
+function listenForCalls() {
+    if (!currentUser) return;
+    const callsRef = ref(db, `calls/${currentUser.uid}`);
+    onValue(callsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+        
+        Object.keys(data).forEach(callerId => {
+            const callData = data[callerId];
+            if (callData.offer && !callData.answered && !callData.rejected) {
+                // Show incoming call
+                incomingCallData = {
+                    callerId: callerId,
+                    callerName: callData.callerName || 'ইউজার',
+                    callerPhoto: callData.callerPhoto || '',
+                    callType: callData.callType || 'voice',
+                    offer: callData.offer
+                };
+                showIncomingCall(callData.callerName, callData.callerPhoto, callData.offer, callerId);
+            }
+        });
+    });
+}
+
+// ============================================
 // SHOW INCOMING CALL
 // ============================================
-function showIncomingCall(name, photo, incomingCall) {
+function showIncomingCall(name, photo, offer, callerId) {
     if (DOM.callOverlay.classList.contains('active')) {
-        incomingCall.close();
         return;
     }
     
-    currentCall = incomingCall;
     DOM.callAvatar.src = photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
     DOM.callName.textContent = name;
     DOM.callStatus.textContent = '📞 ইনকামিং কল...';
@@ -961,9 +872,16 @@ function showIncomingCall(name, photo, incomingCall) {
     if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
     playRingtone();
     
+    // Store for answering
+    window._incomingCallerId = callerId;
+    window._incomingOffer = offer;
+    
     setTimeout(() => {
-        if (DOM.callOverlay.classList.contains('active') && currentCall) {
+        if (DOM.callOverlay.classList.contains('active')) {
             endCall();
+            // Reject call
+            const rejectRef = ref(db, `calls/${currentUser.uid}/${callerId}`);
+            set(rejectRef, { rejected: true });
             showToast('কল রিজেক্ট (টাইমআউট)', 'error');
         }
     }, 30000);
@@ -973,10 +891,17 @@ function showIncomingCall(name, photo, incomingCall) {
 // ANSWER CALL
 // ============================================
 async function answerCall() {
-    if (!currentCall || !incomingCallData) return;
+    const callerId = window._incomingCallerId;
+    const offer = window._incomingOffer;
+    
+    if (!callerId || !offer) {
+        showToast('কল গ্রহণ ব্যর্থ!', 'error');
+        return;
+    }
     
     try {
-        const callType = incomingCallData.callType || 'voice';
+        const callType = incomingCallData?.callType || 'voice';
+        
         const stream = await navigator.mediaDevices.getUserMedia({ 
             audio: true, 
             video: callType === 'video' 
@@ -989,15 +914,23 @@ async function answerCall() {
             DOM.localVideo.srcObject = stream;
         }
         
-        currentCall.answer(stream);
-        DOM.callAnswer.style.display = 'none';
-        DOM.callMute.style.display = 'flex';
-        DOM.callMute.textContent = '🔊';
-        DOM.callMute.classList.remove('active');
-        isMuted = false;
+        const pc = new RTCPeerConnection({
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        });
         
-        currentCall.on('stream', (remoteStream) => {
+        currentCall = pc;
+        
+        stream.getTracks().forEach(track => {
+            pc.addTrack(track, stream);
+        });
+        
+        pc.ontrack = (event) => {
+            const remoteStream = event.streams[0];
             if (callType === 'video') {
+                DOM.videoContainer.style.display = 'block';
                 DOM.remoteVideo.srcObject = remoteStream;
             } else {
                 const audio = new Audio();
@@ -1005,12 +938,27 @@ async function answerCall() {
                 audio.play();
             }
             updateCallStatus('answered');
+            DOM.callAnswer.style.display = 'none';
             startCallTimer();
-        });
+        };
         
-        currentCall.on('close', () => {
-            endCall();
-        });
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        
+        // Send answer back
+        const answerRef = ref(db, `calls/${callerId}/${currentUser.uid}`);
+        await set(answerRef, { answer: answer });
+        
+        // Mark as answered
+        const callRef = ref(db, `calls/${currentUser.uid}/${callerId}`);
+        await update(callRef, { answered: true });
+        
+        DOM.callAnswer.style.display = 'none';
+        DOM.callMute.style.display = 'flex';
+        DOM.callMute.textContent = '🔊';
+        DOM.callMute.classList.remove('active');
+        isMuted = false;
         
         stopRingtone();
         
@@ -1079,6 +1027,8 @@ function endCall() {
     DOM.remoteVideo.srcObject = null;
     DOM.localVideo.srcObject = null;
     if (navigator.vibrate) navigator.vibrate(0);
+    window._incomingCallerId = null;
+    window._incomingOffer = null;
 }
 
 function toggleMute() {
@@ -1157,7 +1107,6 @@ function startChat(friendUid) {
     const name = friend.displayName || 'ইউজার';
     const photo = friend.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
     
-    // Get fresh online status from cache
     const isOnline = allUsersCache[friendUid]?.online || false;
     
     DOM.chatFriendInfo.innerHTML = `
@@ -1181,10 +1130,8 @@ function startChat(friendUid) {
     DOM.fileUpload.disabled = false;
     DOM.messageInput.focus();
     
-    // Add call buttons after a delay
     setTimeout(addCallButtons, 500);
     
-    // Listen for typing
     const typingRef = ref(db, `typing/${currentUser.uid}/${friendUid}`);
     onValue(typingRef, (snapshot) => {
         const isTyping = snapshot.val();
@@ -1204,7 +1151,6 @@ function startChat(friendUid) {
 // ADD CALL BUTTONS
 // ============================================
 function addCallButtons() {
-    // Remove old buttons
     const oldVoice = document.getElementById('voiceCallBtn');
     const oldVideo = document.getElementById('videoCallBtn');
     if (oldVoice) oldVoice.remove();
@@ -1212,19 +1158,15 @@ function addCallButtons() {
     
     if (!currentChatFriend || !friends[currentChatFriend]) return;
     
-    // Get fresh data from cache
     const isOnline = allUsersCache[currentChatFriend]?.online || false;
-    const hasPeerId = allUsersCache[currentChatFriend]?.peerId || false;
     
-    console.log(`Friend ${currentChatFriend} - Online: ${isOnline}, PeerId: ${hasPeerId}`);
+    console.log(`Friend ${currentChatFriend} - Online: ${isOnline}`);
     
-    // Only show if online AND has peerId
-    if (!isOnline || !hasPeerId) {
-        console.log('❌ Call buttons hidden - friend not available');
+    if (!isOnline) {
+        console.log('❌ Call buttons hidden - friend offline');
         return;
     }
     
-    // Voice call button
     const voiceBtn = document.createElement('button');
     voiceBtn.id = 'voiceCallBtn';
     voiceBtn.textContent = '📞';
@@ -1235,7 +1177,6 @@ function addCallButtons() {
         if (currentChatFriend) startCall(currentChatFriend, 'voice'); 
     };
     
-    // Video call button
     const videoBtn = document.createElement('button');
     videoBtn.id = 'videoCallBtn';
     videoBtn.textContent = '📹';
@@ -1577,6 +1518,8 @@ DOM.loginBtn.onclick = async () => {
         const user = result.user;
         await saveUserData(user);
         showToast(`স্বাগতম ${user.displayName || 'ইউজার'}! 🎉`);
+        // Start listening for calls after login
+        setTimeout(listenForCalls, 1000);
     } catch (e) {
         if (e.code !== 'auth/popup-closed-by-user') {
             showToast(`লগইন ব্যর্থ: ${e.message}`, 'error');
@@ -1592,15 +1535,10 @@ DOM.logoutBtn.onclick = async () => {
     try {
         if (currentUser) {
             await updateOnlineStatus(currentUser.uid, false);
-            if (peer) { 
-                try { peer.destroy(); } catch(e) {}
-                peer = null; 
-                peerInitialized = false; 
-                peerId = null; 
-            }
         }
         await signOut(auth);
         showToast('সাইন আউট করা হয়েছে।');
+        endCall();
     } catch(e) { showToast(`সাইন আউট ব্যর্থ: ${e.message}`, 'error'); }
 };
 
@@ -1612,7 +1550,7 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         await saveUserData(user);
         await updateOnlineStatus(user.uid, true);
-        setTimeout(() => initPeer(user.uid), 2000);
+        setTimeout(listenForCalls, 2000);
     }
 });
 
@@ -1681,17 +1619,13 @@ window.addEventListener('resize', () => {
 window.addEventListener('beforeunload', () => {
     if (currentUser) updateOnlineStatus(currentUser.uid, false);
     if (localStream) localStream.getTracks().forEach(t => t.stop());
-    if (peer) { 
-        try { peer.destroy(); } catch(e) {}
-        peer = null; 
-    }
+    if (currentCall) { try { currentCall.close(); } catch(e) {} }
 });
 
 console.log('📱 ConnectBD WhatsApp Style Ready!');
-console.log('📞 Call System Fully Fixed!');
+console.log('📞 Call System - Simple WebRTC (No PeerJS)');
 console.log('🔍 Search works with email and name!');
-console.log('✅ Online status updates every 10 seconds!');
-console.log('⚠️ Make sure both users are ONLINE and have PEER ID!');
+console.log('✅ Online status updates every 5 seconds!');
 </script>
 </body>
 </html>
