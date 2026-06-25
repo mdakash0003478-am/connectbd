@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
-        /* All styles remain same - keeping it compact */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --whatsapp-green: #00A884;
@@ -24,43 +23,33 @@
             --tab-height: 48px;
         }
         html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--whatsapp-dark); color: var(--whatsapp-text-primary); }
-        
         .status-bar { height: 24px; background: var(--whatsapp-dark); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 12px; color: var(--whatsapp-text-secondary); flex-shrink: 0; }
         .status-bar .time { font-weight: 600; color: var(--whatsapp-text-primary); }
-        
         .app-container { display: flex; flex-direction: column; height: 100vh; height: 100dvh; background: var(--whatsapp-dark); max-width: 100%; overflow: hidden; }
-        
         .header { height: var(--header-height); background: var(--whatsapp-dark-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; flex-shrink: 0; border-bottom: 1px solid var(--whatsapp-border); }
         .header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .header-left .app-logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--whatsapp-green); }
         .header-left .app-title { font-size: 18px; font-weight: 700; color: var(--whatsapp-text-primary); }
         .header-left .app-title span { color: var(--whatsapp-green); }
         .header-right { display: flex; align-items: center; gap: 8px; }
-        
         .user-profile-mini { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px 4px 4px; border-radius: 30px; transition: all 0.2s; }
         .user-profile-mini img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--whatsapp-green); }
         .user-profile-mini .user-name { font-size: 13px; font-weight: 500; color: var(--whatsapp-text-primary); max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
         .login-btn { background: var(--whatsapp-green); color: white; border: none; padding: 8px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .login-btn:active { transform: scale(0.94); }
         .logout-btn { background: transparent; color: #FF3B30; border: none; font-size: 20px; padding: 6px 10px; cursor: pointer; border-radius: 50%; }
         .logout-btn:active { background: rgba(255,255,255,0.05); }
-        
         .tabs { display: flex; background: var(--whatsapp-dark-secondary); border-bottom: 1px solid var(--whatsapp-border); flex-shrink: 0; height: var(--tab-height); }
         .tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--whatsapp-text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; padding: 0 8px; position: relative; }
         .tab.active { color: var(--whatsapp-green); border-bottom-color: var(--whatsapp-green); }
         .tab .tab-badge { background: var(--whatsapp-green); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 50%; min-width: 18px; text-align: center; }
         .tab .tab-badge.danger { background: #FF3B30; }
-        
         .main-content { flex: 1; display: flex; overflow: hidden; background: var(--whatsapp-dark); position: relative; }
-        
         .chat-list { width: 100%; max-width: 420px; flex-shrink: 0; background: var(--whatsapp-dark); display: flex; flex-direction: column; border-right: 1px solid var(--whatsapp-border); overflow: hidden; position: relative; z-index: 5; }
         .chat-list.hidden { transform: translateX(-100%); position: absolute; width: 100%; max-width: 100%; z-index: 5; }
-        
         .search-bar { padding: 6px 12px; background: var(--whatsapp-dark-secondary); flex-shrink: 0; display: flex; gap: 8px; align-items: center; }
         .search-bar input { flex: 1; background: var(--whatsapp-dark-tertiary); border: none; border-radius: var(--whatsapp-radius); padding: 8px 14px; color: var(--whatsapp-text-primary); font-size: 14px; font-family: inherit; outline: none; }
         .search-bar input::placeholder { color: var(--whatsapp-text-secondary); }
-        
         .friend-list-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
         .friend-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--whatsapp-border); }
         .friend-item:active { background: var(--whatsapp-dark-tertiary); }
@@ -74,10 +63,8 @@
         .friend-item .meta .time { font-size: 11px; color: var(--whatsapp-text-secondary); }
         .friend-item .meta .unread-badge { background: var(--whatsapp-green); color: white; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 50%; min-width: 20px; text-align: center; }
         .friend-item .meta .unread-badge.danger { background: #FF3B30; }
-        
         .empty-state { text-align: center; padding: 40px 20px; color: var(--whatsapp-text-secondary); font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .empty-state .icon { font-size: 48px; opacity: 0.5; }
-        
         .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--whatsapp-dark); min-width: 0; position: relative; }
         .chat-area .chat-header { height: var(--header-height); background: var(--whatsapp-dark-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--whatsapp-border); flex-shrink: 0; }
         .chat-area .chat-header .back-btn { display: none; background: none; border: none; color: var(--whatsapp-text-primary); font-size: 22px; cursor: pointer; padding: 4px 8px; }
@@ -90,7 +77,6 @@
         .chat-area .chat-header .header-actions { display: flex; gap: 2px; flex-shrink: 0; align-items: center; }
         .chat-area .chat-header .header-actions button { background: none; border: none; color: var(--whatsapp-text-secondary); font-size: 18px; padding: 6px 10px; cursor: pointer; border-radius: 50%; transition: all 0.2s; }
         .chat-area .chat-header .header-actions button:active { background: rgba(255,255,255,0.1); }
-        
         .messages-container { flex: 1; overflow-y: auto; padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 4px; background: var(--whatsapp-dark); }
         .message { display: flex; gap: 8px; max-width: 85%; animation: fadeIn 0.2s ease; }
         .message.own { align-self: flex-end; flex-direction: row-reverse; }
@@ -107,12 +93,9 @@
         .message .msg-actions { display: flex; gap: 2px; margin-top: 2px; justify-content: flex-end; }
         .message .msg-actions button { background: none; border: none; font-size: 11px; cursor: pointer; opacity: 0.4; padding: 2px 4px; border-radius: 4px; color: inherit; }
         .message.own .msg-actions button { color: #111B21; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        
         .typing-indicator { font-size: 12px; color: var(--whatsapp-text-secondary); padding: 2px 20px 6px; min-height: 20px; flex-shrink: 0; }
         .typing-indicator.active { color: var(--whatsapp-green); }
-        
         .composer { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--whatsapp-dark-secondary); border-top: 1px solid var(--whatsapp-border); flex-shrink: 0; min-height: var(--composer-height); }
         .composer .attach-btn { background: none; border: none; color: var(--whatsapp-text-secondary); font-size: 22px; cursor: pointer; padding: 4px 6px; }
         .composer .attach-btn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -122,11 +105,9 @@
         .composer .send-btn { background: var(--whatsapp-green); color: white; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .composer .send-btn:active { transform: scale(0.88); }
         .composer .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        
         .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--whatsapp-dark-secondary); color: var(--whatsapp-text-primary); padding: 10px 24px; border-radius: var(--whatsapp-radius); font-size: 14px; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 999; opacity: 0; transition: all 0.4s ease; max-width: 92%; text-align: center; pointer-events: none; border: 1px solid var(--whatsapp-border); }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error { border-color: #FF3B30; }
-        
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal { background: var(--whatsapp-dark-secondary); border-radius: 16px; padding: 28px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--whatsapp-border); }
@@ -143,7 +124,6 @@
         .modal .modal-actions button { flex: 1; padding: 10px; border: none; border-radius: var(--whatsapp-radius); font-weight: 600; font-size: 14px; cursor: pointer; }
         .modal .modal-actions .save-btn { background: var(--whatsapp-green); color: white; }
         .modal .modal-actions .cancel-btn { background: var(--whatsapp-dark-tertiary); color: var(--whatsapp-text-primary); }
-        
         .image-preview-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.92); z-index: 2000; justify-content: center; align-items: center; cursor: pointer; padding: 20px; }
         .image-preview-overlay.active { display: flex; }
         .image-preview-overlay .preview-content { position: relative; max-width: 95%; max-height: 95%; }
@@ -151,7 +131,6 @@
         .image-preview-overlay .preview-actions { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; }
         .image-preview-overlay .preview-actions button { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
         .image-preview-overlay .preview-actions .download-btn-preview { background: var(--whatsapp-green); border-color: var(--whatsapp-green); }
-        
         .call-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; padding: 20px; }
         .call-overlay.active { display: flex; }
         .call-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid var(--whatsapp-green); margin-bottom: 20px; }
@@ -169,9 +148,7 @@
         .video-container { position: relative; width: 100%; max-width: 800px; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 20px; display: none; }
         .video-container video { width: 100%; height: 100%; object-fit: cover; }
         .video-container .local-video { position: absolute; bottom: 20px; right: 20px; width: 120px; height: 160px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); object-fit: cover; }
-        
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        
         @media (max-width: 768px) {
             .chat-list { max-width: 100%; position: absolute; z-index: 5; width: 100%; height: 100%; background: var(--whatsapp-dark); transition: transform 0.3s ease; }
             .chat-list.hidden { transform: translateX(-100%); position: absolute; }
@@ -395,6 +372,7 @@ let toastTimeout = null;
 let isMobile = window.innerWidth <= 768;
 let friendsListener = null;
 let requestsListener = null;
+let allUsersListener = null;
 
 // ===== CALL STATE =====
 let peer = null;
@@ -480,16 +458,19 @@ async function sendImageMessageBase64(file) {
 // ===== UPDATE ONLINE STATUS =====
 async function updateOnlineStatus(uid, isOnline) {
     try {
-        await update(ref(db, `users/${uid}`), { 
+        const updates = { 
             online: isOnline, 
-            lastSeen: isOnline ? Date.now() : Date.now()
-        });
+            lastSeen: Date.now()
+        };
         if (isOnline && peerId) {
-            await update(ref(db, `users/${uid}`), { peerId: peerId });
+            updates.peerId = peerId;
         }
-        console.log(`✅ Online status updated: ${uid} -> ${isOnline}`);
+        await update(ref(db, `users/${uid}`), updates);
+        console.log(`✅ Online status updated: ${uid} -> ${isOnline}, peerId: ${peerId}`);
+        return true;
     } catch (e) {
         console.error('Error updating online status:', e);
+        return false;
     }
 }
 
@@ -542,13 +523,13 @@ function updateUI(user) {
         switchTab('chats');
         // Initialize Peer
         setTimeout(() => initPeer(user.uid), 1000);
-        // Update online status every 10 seconds
+        // Update online status every 5 seconds
         if (window._onlineInterval) clearInterval(window._onlineInterval);
         window._onlineInterval = setInterval(() => {
             if (currentUser && peerId) {
                 updateOnlineStatus(currentUser.uid, true);
             }
-        }, 10000);
+        }, 5000);
     } else {
         if (window._onlineInterval) clearInterval(window._onlineInterval);
         userProfileMini.style.display = 'none';
@@ -566,17 +547,20 @@ function updateUI(user) {
         if (messageListener) { messageListener(); messageListener = null; }
         if (friendsListener) { friendsListener(); friendsListener = null; }
         if (requestsListener) { requestsListener(); requestsListener = null; }
+        if (allUsersListener) { allUsersListener(); allUsersListener = null; }
         if (peer) { peer.destroy(); peer = null; peerInitialized = false; peerId = null; }
     }
 }
 
 // ===== LOAD ALL USERS =====
 function loadAllUsers() {
+    if (allUsersListener) { allUsersListener(); allUsersListener = null; }
     const usersRef = ref(db, 'users');
-    onValue(usersRef, (snapshot) => {
+    allUsersListener = onValue(usersRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
             allUsersCache = data;
+            console.log('📊 All users loaded:', Object.keys(data).length);
             // Update friends list with fresh online status
             renderFriends();
             // Update chat header status if chat is open
@@ -588,13 +572,31 @@ function loadAllUsers() {
                     statusEl.className = `status ${isOnline ? 'online' : ''}`;
                 }
                 // Show/hide call buttons based on online status
-                const voiceBtn = document.getElementById('voiceCallBtn');
-                const videoBtn = document.getElementById('videoCallBtn');
-                if (voiceBtn) voiceBtn.style.display = isOnline ? 'flex' : 'none';
-                if (videoBtn) videoBtn.style.display = isOnline ? 'flex' : 'none';
+                updateCallButtons();
             }
         }
     });
+}
+
+// ===== UPDATE CALL BUTTONS =====
+function updateCallButtons() {
+    const voiceBtn = document.getElementById('voiceCallBtn');
+    const videoBtn = document.getElementById('videoCallBtn');
+    
+    if (!currentChatFriend || !allUsersCache[currentChatFriend]) {
+        if (voiceBtn) voiceBtn.style.display = 'none';
+        if (videoBtn) videoBtn.style.display = 'none';
+        return;
+    }
+    
+    const isOnline = allUsersCache[currentChatFriend]?.online || false;
+    const hasPeerId = allUsersCache[currentChatFriend]?.peerId || false;
+    const show = isOnline && hasPeerId;
+    
+    if (voiceBtn) voiceBtn.style.display = show ? 'flex' : 'none';
+    if (videoBtn) videoBtn.style.display = show ? 'flex' : 'none';
+    
+    console.log(`Call buttons ${show ? 'shown' : 'hidden'} for ${currentChatFriend} - Online: ${isOnline}, PeerId: ${hasPeerId}`);
 }
 
 // ===== LOAD FRIENDS & REQUESTS =====
@@ -667,7 +669,6 @@ function renderFriends() {
             const isActive = currentChatFriend === uid;
             // Get fresh online status from cache
             const isOnline = allUsersCache[uid]?.online || false;
-            const hasPeerId = allUsersCache[uid]?.peerId || false;
             html += `
                 <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
                     <img src="${photo}" class="avatar ${isOnline ? 'online' : ''}" loading="lazy" />
@@ -714,7 +715,6 @@ function initPeer(userId) {
     }
     
     try {
-        // Use a simple ID for better compatibility
         const id = userId;
         peerId = id;
         
@@ -724,9 +724,7 @@ function initPeer(userId) {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
                     { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun2.l.google.com:19302' },
-                    { urls: 'stun:stun3.l.google.com:19302' },
-                    { urls: 'stun:stun4.l.google.com:19302' }
+                    { urls: 'stun:stun2.l.google.com:19302' }
                 ]
             }
         });
@@ -735,7 +733,6 @@ function initPeer(userId) {
             console.log('📞 Peer connected with ID:', id);
             peerInitialized = true;
             peerId = id;
-            // Save peer ID to database
             if (currentUser) {
                 updateOnlineStatus(currentUser.uid, true);
                 update(ref(db, `users/${currentUser.uid}`), { peerId: id });
@@ -746,7 +743,6 @@ function initPeer(userId) {
         peer.on('call', (incomingCall) => {
             console.log('📞 Incoming call from:', incomingCall.peer);
             const meta = incomingCall.metadata || {};
-            // Find caller info
             let callerName = meta.callerName || 'ইউজার';
             let callerPhoto = meta.callerPhoto || '';
             // Try to find in cache
@@ -769,12 +765,9 @@ function initPeer(userId) {
         peer.on('error', (err) => {
             console.error('Peer error:', err);
             if (err.type === 'unavailable-id') {
-                // Try with a different ID
                 const newId = userId + '_' + Date.now();
                 peerId = newId;
                 setTimeout(() => initPeer(newId), 1000);
-            } else {
-                showToast('📞 কল সংযোগে সমস্যা!', 'error');
             }
         });
         
@@ -796,7 +789,6 @@ function initPeer(userId) {
         
     } catch (e) { 
         console.error('Peer init error:', e);
-        // Retry after 3 seconds
         setTimeout(() => {
             if (currentUser) {
                 const newId = currentUser.uid + '_' + Date.now();
@@ -814,11 +806,9 @@ async function startCall(receiverId, callType = 'voice') {
         return;
     }
     
-    // Check if peer is initialized
     if (!peerInitialized || !peer) {
         showToast('📞 কল সংযোগ তৈরি হচ্ছে...', 'success');
         await initPeer(currentUser.uid);
-        // Wait for peer to connect
         await new Promise(resolve => {
             const checkPeer = () => {
                 if (peerInitialized) {
@@ -829,13 +819,11 @@ async function startCall(receiverId, callType = 'voice') {
             };
             checkPeer();
         });
-        // Retry after peer is ready
         setTimeout(() => startCall(receiverId, callType), 500);
         return;
     }
     
     try {
-        // Get receiver's data
         const snap = await get(ref(db, `users/${receiverId}`));
         const receiverData = snap.val();
         
@@ -855,7 +843,6 @@ async function startCall(receiverId, callType = 'voice') {
             return;
         }
 
-        // Get media stream
         const stream = await navigator.mediaDevices.getUserMedia({ 
             audio: true, 
             video: callType === 'video' 
@@ -868,7 +855,6 @@ async function startCall(receiverId, callType = 'voice') {
             localVideo.srcObject = stream;
         }
 
-        // Make the call
         const call = peer.call(receiverPeerId, stream, {
             metadata: { 
                 callerName: currentUser.displayName || 'ইউজার', 
@@ -879,8 +865,6 @@ async function startCall(receiverId, callType = 'voice') {
         
         currentCall = call;
         incomingCallData = null;
-        
-        // Show call UI
         showCallUI(receiverData, 'calling', callType);
 
         call.on('stream', (remoteStream) => {
@@ -910,7 +894,6 @@ async function startCall(receiverId, callType = 'voice') {
 
 // ===== SHOW INCOMING CALL =====
 function showIncomingCall(name, photo, incomingCall) {
-    // Check if already in a call
     if (callOverlay.classList.contains('active')) {
         incomingCall.close();
         return;
@@ -927,12 +910,9 @@ function showIncomingCall(name, photo, incomingCall) {
     callMuteBtn.style.display = 'none';
     callOverlay.classList.add('active');
     
-    // Vibrate on mobile
     if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
-    
     playRingtone();
     
-    // Auto reject after 30 seconds
     setTimeout(() => {
         if (callOverlay.classList.contains('active') && currentCall) {
             endCall();
@@ -947,7 +927,6 @@ async function answerCall() {
     
     try {
         const callType = incomingCallData.callType || 'voice';
-        
         const stream = await navigator.mediaDevices.getUserMedia({ 
             audio: true, 
             video: callType === 'video' 
@@ -992,7 +971,6 @@ async function answerCall() {
     }
 }
 
-// ===== SHOW CALL UI =====
 function showCallUI(userData, status, callType = 'voice') {
     callAvatar.src = userData.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.displayName || 'User') + '&background=00A884&color=fff';
     callName.textContent = userData.displayName || 'ইউজার';
@@ -1008,7 +986,6 @@ function showCallUI(userData, status, callType = 'voice') {
     callOverlay.classList.add('active');
 }
 
-// ===== UPDATE CALL STATUS =====
 function updateCallStatus(status) {
     const map = { 
         'ringing': '🔔 রিং হচ্ছে...', 
@@ -1021,7 +998,6 @@ function updateCallStatus(status) {
     if (status === 'ringing') callStatus.classList.add('ringing');
 }
 
-// ===== CALL TIMER =====
 function startCallTimer() {
     callStartTime = Date.now();
     if (callTimerInterval) clearInterval(callTimerInterval);
@@ -1031,7 +1007,6 @@ function startCallTimer() {
     }, 1000);
 }
 
-// ===== END CALL =====
 function endCall() {
     if (localStream) { 
         localStream.getTracks().forEach(t => t.stop()); 
@@ -1053,7 +1028,6 @@ function endCall() {
     if (navigator.vibrate) navigator.vibrate(0);
 }
 
-// ===== TOGGLE MUTE =====
 function toggleMute() {
     if (!localStream) return;
     isMuted = !isMuted;
@@ -1062,7 +1036,6 @@ function toggleMute() {
     callMuteBtn.classList.toggle('active', isMuted);
 }
 
-// ===== RINGTONE =====
 let ringtoneCtx = null;
 let ringtoneInterval = null;
 
@@ -1129,7 +1102,6 @@ function startChat(friendUid) {
     const name = friend.displayName || 'ইউজার';
     const photo = friend.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
     
-    // Get fresh online status from allUsersCache
     const isOnline = allUsersCache[friendUid]?.online || false;
     
     chatFriendInfo.innerHTML = `
@@ -1153,8 +1125,8 @@ function startChat(friendUid) {
     fileUploadBtn.disabled = false;
     messageInput.focus();
     
-    // Add call buttons
-    setTimeout(addCallButtons, 300);
+    // Add call buttons after a delay
+    setTimeout(addCallButtons, 500);
     
     // Listen for typing
     const typingRef = ref(db, `typing/${currentUser.uid}/${friendUid}`);
@@ -1181,13 +1153,11 @@ function addCallButtons() {
     
     if (!currentChatFriend || !friends[currentChatFriend]) return;
     
-    // Check if friend is online and has peer ID
     const isOnline = allUsersCache[currentChatFriend]?.online || false;
     const hasPeerId = allUsersCache[currentChatFriend]?.peerId || false;
     
     console.log(`Friend ${currentChatFriend} - Online: ${isOnline}, PeerId: ${hasPeerId}`);
     
-    // Only show call buttons if friend is online and has peer ID
     if (!isOnline || !hasPeerId) {
         console.log('Call buttons hidden - friend not available');
         return;
@@ -1516,7 +1486,6 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         await saveUserData(user);
         await updateOnlineStatus(user.uid, true);
-        // Initialize peer after login
         setTimeout(() => initPeer(user.uid), 1500);
     }
 });
@@ -1582,8 +1551,8 @@ window.addEventListener('beforeunload', () => {
 });
 
 console.log('📱 ConnectBD WhatsApp Style Ready!');
-console.log('📞 Call System Fully Fixed!');
-console.log('💡 Make sure both users are logged in and online');
+console.log('📞 Call System Fixed!');
+console.log('🔍 Search works with email and name!');
 </script>
 </body>
 </html>
