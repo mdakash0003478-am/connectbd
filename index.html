@@ -375,6 +375,7 @@ let isMobile = window.innerWidth <= 768;
 let friendsListener = null;
 let requestsListener = null;
 let allUsersListener = null;
+let onlineUpdateInterval = null;
 
 // CALL STATE
 let peer = null;
@@ -435,9 +436,10 @@ function imageToBase64(file) {
 }
 
 // ============================================
-// UPDATE ONLINE STATUS - CRITICAL FIX
+// UPDATE ONLINE STATUS - FIXED
 // ============================================
 async function updateOnlineStatus(uid, isOnline) {
+    if (!uid) return;
     try {
         const updates = { 
             online: isOnline, 
@@ -448,6 +450,18 @@ async function updateOnlineStatus(uid, isOnline) {
         }
         await update(ref(db, `users/${uid}`), updates);
         console.log(`✅ Online status: ${uid} -> ${isOnline}, peerId: ${peerId}`);
+        
+        // Update local cache
+        if (allUsersCache[uid]) {
+            allUsersCache[uid].online = isOnline;
+            if (isOnline && peerId) allUsersCache[uid].peerId = peerId;
+        }
+        
+        // Re-render friends
+        renderFriends();
+        updateChatHeaderStatus();
+        updateCallButtons();
+        
         return true;
     } catch (e) {
         console.error('❌ Update online status error:', e);
@@ -509,16 +523,16 @@ function updateUI(user) {
         loadAllUsers();
         switchTab('chats');
         // Initialize Peer
-        setTimeout(() => initPeer(user.uid), 1000);
-        // Update online status every 3 seconds
-        if (window._onlineInterval) clearInterval(window._onlineInterval);
-        window._onlineInterval = setInterval(() => {
+        setTimeout(() => initPeer(user.uid), 2000);
+        // Update online status every 10 seconds (reduced frequency)
+        if (onlineUpdateInterval) clearInterval(onlineUpdateInterval);
+        onlineUpdateInterval = setInterval(() => {
             if (currentUser && peerId) {
                 updateOnlineStatus(currentUser.uid, true);
             }
-        }, 3000);
+        }, 10000);
     } else {
-        if (window._onlineInterval) clearInterval(window._onlineInterval);
+        if (onlineUpdateInterval) clearInterval(onlineUpdateInterval);
         DOM.userProfileMini.style.display = 'none';
         DOM.loginBtn.style.display = 'block';
         DOM.logoutBtn.style.display = 'none';
@@ -550,6 +564,13 @@ function loadAllUsers() {
         if (data) {
             allUsersCache = data;
             console.log('📊 Users loaded:', Object.keys(data).length);
+            // Update friends with fresh online status
+            Object.keys(friends).forEach(uid => {
+                if (friends[uid] && allUsersCache[uid]) {
+                    friends[uid].online = allUsersCache[uid].online || false;
+                    friends[uid].peerId = allUsersCache[uid].peerId || null;
+                }
+            });
             renderFriends();
             updateChatHeaderStatus();
             updateCallButtons();
@@ -705,17 +726,18 @@ function handleTyping() {
 }
 
 // ============================================
-// PEER / CALL SYSTEM
+// PEER / CALL SYSTEM - FIXED
 // ============================================
 function initPeer(userId) {
     if (peer) { 
-        peer.destroy(); 
+        try { peer.destroy(); } catch(e) {}
         peer = null; 
         peerInitialized = false;
         peerId = null;
     }
     
     try {
+        // Use the userId as peer ID
         const id = userId;
         peerId = id;
         
@@ -735,8 +757,17 @@ function initPeer(userId) {
             peerInitialized = true;
             peerId = id;
             if (currentUser) {
-                updateOnlineStatus(currentUser.uid, true);
-                update(ref(db, `users/${currentUser.uid}`), { peerId: id });
+                // Update online status with peerId
+                update(ref(db, `users/${currentUser.uid}`), { 
+                    peerId: id,
+                    online: true,
+                    lastSeen: Date.now()
+                });
+                // Update local cache
+                if (allUsersCache[currentUser.uid]) {
+                    allUsersCache[currentUser.uid].peerId = id;
+                    allUsersCache[currentUser.uid].online = true;
+                }
                 showToast('📞 কল সংযোগ প্রস্তুত!', 'success');
             }
         });
@@ -746,6 +777,7 @@ function initPeer(userId) {
             const meta = incomingCall.metadata || {};
             let callerName = meta.callerName || 'ইউজার';
             let callerPhoto = meta.callerPhoto || '';
+            // Find caller in cache
             for (const uid in allUsersCache) {
                 if (allUsersCache[uid]?.peerId === incomingCall.peer) {
                     callerName = allUsersCache[uid].displayName || callerName;
@@ -764,9 +796,15 @@ function initPeer(userId) {
         
         peer.on('error', (err) => {
             console.error('Peer error:', err);
+            // Don't retry on unavailable-id error
             if (err.type === 'unavailable-id') {
+                console.log('Peer ID already taken, using new ID');
                 const newId = userId + '_' + Date.now();
                 peerId = newId;
+                // Update peerId in database
+                if (currentUser) {
+                    update(ref(db, `users/${currentUser.uid}`), { peerId: newId });
+                }
                 setTimeout(() => initPeer(newId), 1000);
             }
         });
@@ -776,7 +814,10 @@ function initPeer(userId) {
             peerInitialized = false;
             setTimeout(() => {
                 if (peer && currentUser) {
-                    peer.reconnect();
+                    try { peer.reconnect(); } catch(e) {
+                        // If reconnect fails, reinitialize
+                        initPeer(currentUser.uid);
+                    }
                 }
             }, 3000);
         });
@@ -826,6 +867,7 @@ async function startCall(receiverId, callType = 'voice') {
     }
     
     try {
+        // Get receiver's data
         const snap = await get(ref(db, `users/${receiverId}`));
         const receiverData = snap.val();
         
@@ -845,6 +887,7 @@ async function startCall(receiverId, callType = 'voice') {
             return;
         }
 
+        // Get media stream
         const stream = await navigator.mediaDevices.getUserMedia({ 
             audio: true, 
             video: callType === 'video' 
@@ -857,6 +900,7 @@ async function startCall(receiverId, callType = 'voice') {
             DOM.localVideo.srcObject = stream;
         }
 
+        // Make the call
         const call = peer.call(receiverPeerId, stream, {
             metadata: { 
                 callerName: currentUser.displayName || 'ইউজার', 
@@ -1113,6 +1157,7 @@ function startChat(friendUid) {
     const name = friend.displayName || 'ইউজার';
     const photo = friend.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
     
+    // Get fresh online status from cache
     const isOnline = allUsersCache[friendUid]?.online || false;
     
     DOM.chatFriendInfo.innerHTML = `
@@ -1136,8 +1181,10 @@ function startChat(friendUid) {
     DOM.fileUpload.disabled = false;
     DOM.messageInput.focus();
     
+    // Add call buttons after a delay
     setTimeout(addCallButtons, 500);
     
+    // Listen for typing
     const typingRef = ref(db, `typing/${currentUser.uid}/${friendUid}`);
     onValue(typingRef, (snapshot) => {
         const isTyping = snapshot.val();
@@ -1165,16 +1212,19 @@ function addCallButtons() {
     
     if (!currentChatFriend || !friends[currentChatFriend]) return;
     
+    // Get fresh data from cache
     const isOnline = allUsersCache[currentChatFriend]?.online || false;
     const hasPeerId = allUsersCache[currentChatFriend]?.peerId || false;
     
     console.log(`Friend ${currentChatFriend} - Online: ${isOnline}, PeerId: ${hasPeerId}`);
     
+    // Only show if online AND has peerId
     if (!isOnline || !hasPeerId) {
         console.log('❌ Call buttons hidden - friend not available');
         return;
     }
     
+    // Voice call button
     const voiceBtn = document.createElement('button');
     voiceBtn.id = 'voiceCallBtn';
     voiceBtn.textContent = '📞';
@@ -1185,6 +1235,7 @@ function addCallButtons() {
         if (currentChatFriend) startCall(currentChatFriend, 'voice'); 
     };
     
+    // Video call button
     const videoBtn = document.createElement('button');
     videoBtn.id = 'videoCallBtn';
     videoBtn.textContent = '📹';
@@ -1197,7 +1248,7 @@ function addCallButtons() {
     
     DOM.headerActions.appendChild(voiceBtn);
     DOM.headerActions.appendChild(videoBtn);
-    console.log('✅ Call buttons added');
+    console.log('✅ Call buttons added successfully!');
 }
 
 // ============================================
@@ -1541,7 +1592,12 @@ DOM.logoutBtn.onclick = async () => {
     try {
         if (currentUser) {
             await updateOnlineStatus(currentUser.uid, false);
-            if (peer) { peer.destroy(); peer = null; peerInitialized = false; peerId = null; }
+            if (peer) { 
+                try { peer.destroy(); } catch(e) {}
+                peer = null; 
+                peerInitialized = false; 
+                peerId = null; 
+            }
         }
         await signOut(auth);
         showToast('সাইন আউট করা হয়েছে।');
@@ -1556,7 +1612,7 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         await saveUserData(user);
         await updateOnlineStatus(user.uid, true);
-        setTimeout(() => initPeer(user.uid), 1500);
+        setTimeout(() => initPeer(user.uid), 2000);
     }
 });
 
@@ -1625,13 +1681,17 @@ window.addEventListener('resize', () => {
 window.addEventListener('beforeunload', () => {
     if (currentUser) updateOnlineStatus(currentUser.uid, false);
     if (localStream) localStream.getTracks().forEach(t => t.stop());
-    if (peer) { peer.destroy(); peer = null; }
+    if (peer) { 
+        try { peer.destroy(); } catch(e) {}
+        peer = null; 
+    }
 });
 
 console.log('📱 ConnectBD WhatsApp Style Ready!');
 console.log('📞 Call System Fully Fixed!');
 console.log('🔍 Search works with email and name!');
-console.log('✅ Online status updates every 3 seconds!');
+console.log('✅ Online status updates every 10 seconds!');
+console.log('⚠️ Make sure both users are ONLINE and have PEER ID!');
 </script>
 </body>
 </html>
