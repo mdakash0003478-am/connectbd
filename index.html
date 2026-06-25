@@ -125,6 +125,7 @@
             align-items: center;
             justify-content: center;
             touch-action: manipulation;
+            position: relative;
         }
         .header-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.92); }
         .header-btn .badge {
@@ -1107,7 +1108,6 @@ const friendList = document.getElementById('friendList');
 const friendCount = document.getElementById('friendCount');
 const requestCount = document.getElementById('requestCount');
 const chatFriendInfo = document.getElementById('chatFriendInfo');
-const chatStatus = document.getElementById('chatStatus');
 const searchFriend = document.getElementById('searchFriend');
 const toastEl = document.getElementById('toast');
 const fileUploadBtn = document.getElementById('fileUploadBtn');
@@ -1115,7 +1115,6 @@ const fileInput = document.getElementById('fileInput');
 const logoClick = document.getElementById('logoClick');
 const backBtn = document.getElementById('backBtn');
 const chatList = document.getElementById('chatList');
-const chatArea = document.getElementById('chatArea');
 
 // Modal Elements
 const profileModal = document.getElementById('profileModal');
@@ -1134,11 +1133,6 @@ const closePreviewBtn = document.getElementById('closePreviewBtn');
 
 // Tab switching
 const tabs = document.querySelectorAll('.tab');
-const tabContents = {
-    chats: document.getElementById('chatList'),
-    requests: null,
-    search: null
-};
 
 let currentUser = null;
 let currentChatFriend = null;
@@ -1150,6 +1144,8 @@ let unreadCounts = {};
 let typingTimeout = null;
 let toastTimeout = null;
 let isMobile = window.innerWidth <= 768;
+let friendsListener = null;
+let requestsListener = null;
 
 // ===== TOAST =====
 function showToast(message, type = 'success') {
@@ -1287,6 +1283,8 @@ function updateUI(user) {
         fileUploadBtn.disabled = false;
         loadFriendsAndRequests();
         loadAllUsers();
+        // Switch to chats tab
+        switchTab('chats');
     } else {
         userProfileMini.style.display = 'none';
         loginBtn.style.display = 'flex';
@@ -1301,6 +1299,8 @@ function updateUI(user) {
         requestCount.textContent = '0';
         currentChatFriend = null;
         if (messageListener) { messageListener(); messageListener = null; }
+        if (friendsListener) { friendsListener(); friendsListener = null; }
+        if (requestsListener) { requestsListener(); requestsListener = null; }
     }
 }
 
@@ -1316,18 +1316,40 @@ function loadAllUsers() {
 // ===== LOAD FRIENDS & REQUESTS =====
 function loadFriendsAndRequests() {
     if (!currentUser) return;
+    
+    // Remove old listeners
+    if (friendsListener) { friendsListener(); friendsListener = null; }
+    if (requestsListener) { requestsListener(); requestsListener = null; }
+    
     const friendsRef = ref(db, `friends/${currentUser.uid}`);
-    onValue(friendsRef, (snapshot) => {
+    friendsListener = onValue(friendsRef, (snapshot) => {
         friends = snapshot.val() || {};
         friendCount.textContent = Object.keys(friends).length;
-        renderFriends();
+        // Re-render based on current tab
+        const activeTab = document.querySelector('.tab.active');
+        if (activeTab) {
+            const tabName = activeTab.dataset.tab;
+            if (tabName === 'chats') {
+                renderFriends();
+            } else if (tabName === 'requests') {
+                renderRequestsTab();
+            } else if (tabName === 'search') {
+                renderSearchTab();
+            }
+        }
         loadUnreadCounts();
     });
+    
     const requestsRef = ref(db, `friendRequests/${currentUser.uid}`);
-    onValue(requestsRef, (snapshot) => {
+    requestsListener = onValue(requestsRef, (snapshot) => {
         requests = snapshot.val() || {};
         const count = Object.keys(requests).filter(key => requests[key].status === 'pending').length;
         requestCount.textContent = count;
+        // Re-render requests tab if active
+        const activeTab = document.querySelector('.tab.active');
+        if (activeTab && activeTab.dataset.tab === 'requests') {
+            renderRequestsTab();
+        }
     });
 }
 
@@ -1337,7 +1359,10 @@ function loadUnreadCounts() {
     const unreadRef = ref(db, `unread/${currentUser.uid}`);
     onValue(unreadRef, (snapshot) => {
         unreadCounts = snapshot.val() || {};
-        renderFriends();
+        const activeTab = document.querySelector('.tab.active');
+        if (activeTab && activeTab.dataset.tab === 'chats') {
+            renderFriends();
+        }
     });
 }
 
@@ -1619,26 +1644,32 @@ fileInput.addEventListener('change', async (e) => {
     fileInput.value = '';
 });
 
+// ===== SWITCH TAB =====
+function switchTab(tabName) {
+    tabs.forEach(t => t.classList.remove('active'));
+    const targetTab = document.querySelector(`[data-tab="${tabName}"]`);
+    if (targetTab) targetTab.classList.add('active');
+    
+    if (tabName === 'chats') {
+        chatList.classList.remove('hidden');
+        chatList.style.display = 'flex';
+        renderFriends();
+    } else if (tabName === 'requests') {
+        chatList.classList.remove('hidden');
+        chatList.style.display = 'flex';
+        renderRequestsTab();
+    } else if (tabName === 'search') {
+        chatList.classList.remove('hidden');
+        chatList.style.display = 'flex';
+        renderSearchTab();
+    }
+}
+
 // ===== TABS =====
 tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
         const tabName = tab.dataset.tab;
-        
-        if (tabName === 'chats') {
-            chatList.classList.remove('hidden');
-            chatList.style.display = 'flex';
-        } else if (tabName === 'requests') {
-            chatList.classList.remove('hidden');
-            chatList.style.display = 'flex';
-            // Show requests in friend list
-            renderRequestsTab();
-        } else if (tabName === 'search') {
-            chatList.classList.remove('hidden');
-            chatList.style.display = 'flex';
-            renderSearchTab();
-        }
+        switchTab(tabName);
     });
 });
 
@@ -1660,8 +1691,8 @@ function renderRequestsTab() {
                         <div class="last-msg" style="color:var(--whatsapp-text-secondary);">📨 ফ্রেন্ড রিকোয়েস্ট</div>
                     </div>
                     <div class="meta" style="flex-direction:row;gap:4px;">
-                        <button class="btn-accept" style="background:var(--whatsapp-green);color:white;border:none;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;" data-uid="${uid}">✅</button>
-                        <button class="btn-reject" style="background:#FF3B30;color:white;border:none;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;" data-uid="${uid}">❌</button>
+                        <button class="btn-accept" style="background:var(--whatsapp-green);color:white;border:none;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;" data-uid="${uid}">✅ গ্রহণ</button>
+                        <button class="btn-reject" style="background:#FF3B30;color:white;border:none;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;" data-uid="${uid}">❌ বাতিল</button>
                     </div>
                 </div>
             `;
@@ -1752,10 +1783,10 @@ async function acceptFriendRequest(fromUid) {
         });
         await remove(ref(db, `friendRequests/${currentUser.uid}/${fromUid}`));
         showToast('বন্ধু রিকোয়েস্ট গ্রহণ করা হয়েছে! 🎉');
-        // Switch to chats tab
-        tabs.forEach(t => t.classList.remove('active'));
-        document.querySelector('[data-tab="chats"]').classList.add('active');
-        renderFriends();
+        // Force refresh friends list and switch to chats tab
+        friends[fromUid] = senderData;
+        friendCount.textContent = Object.keys(friends).length;
+        switchTab('chats');
     } catch (error) {
         showToast(`এক্সেপ্ট করতে ব্যর্থ: ${error.message}`, 'error');
     }
@@ -1805,7 +1836,6 @@ messageInput.addEventListener('input', handleTyping);
 // Back button (mobile)
 backBtn.addEventListener('click', () => {
     chatList.classList.remove('hidden');
-    if (messageListener) { messageListener(); messageListener = null; }
 });
 
 // ===== LOGIN =====
