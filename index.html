@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
-        /* Previous styles remain same - keeping it compact */
+        /* All styles remain same - keeping it compact */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --whatsapp-green: #00A884;
@@ -405,6 +405,7 @@ let localStream = null;
 let isMuted = false;
 let incomingCallData = null;
 let peerInitialized = false;
+let peerId = null;
 
 // ===== TOAST =====
 function showToast(msg, type = 'success') {
@@ -476,6 +477,22 @@ async function sendImageMessageBase64(file) {
     } catch (e) { showToast(`ছবি পাঠাতে ব্যর্থ: ${e.message}`, 'error'); }
 }
 
+// ===== UPDATE ONLINE STATUS =====
+async function updateOnlineStatus(uid, isOnline) {
+    try {
+        await update(ref(db, `users/${uid}`), { 
+            online: isOnline, 
+            lastSeen: isOnline ? Date.now() : Date.now()
+        });
+        if (isOnline && peerId) {
+            await update(ref(db, `users/${uid}`), { peerId: peerId });
+        }
+        console.log(`✅ Online status updated: ${uid} -> ${isOnline}`);
+    } catch (e) {
+        console.error('Error updating online status:', e);
+    }
+}
+
 // ===== SAVE USER =====
 async function saveUserData(user) {
     try {
@@ -492,6 +509,7 @@ async function saveUserData(user) {
         } else {
             await update(userRef, { online: true, lastSeen: Date.now() });
         }
+        console.log('✅ User data saved');
         return true;
     } catch (e) { console.error('Save user error:', e); return false; }
 }
@@ -522,15 +540,17 @@ function updateUI(user) {
         loadFriendsAndRequests();
         loadAllUsers();
         switchTab('chats');
-        // Initialize Peer with better handling
-        setTimeout(() => initPeer(user.uid), 2000);
-        // Update online status periodically
-        setInterval(() => {
-            if (currentUser) {
-                update(ref(db, `users/${currentUser.uid}`), { online: true, lastSeen: Date.now() });
+        // Initialize Peer
+        setTimeout(() => initPeer(user.uid), 1000);
+        // Update online status every 10 seconds
+        if (window._onlineInterval) clearInterval(window._onlineInterval);
+        window._onlineInterval = setInterval(() => {
+            if (currentUser && peerId) {
+                updateOnlineStatus(currentUser.uid, true);
             }
-        }, 30000);
+        }, 10000);
     } else {
+        if (window._onlineInterval) clearInterval(window._onlineInterval);
         userProfileMini.style.display = 'none';
         loginBtn.style.display = 'block';
         logoutBtn.style.display = 'none';
@@ -546,7 +566,7 @@ function updateUI(user) {
         if (messageListener) { messageListener(); messageListener = null; }
         if (friendsListener) { friendsListener(); friendsListener = null; }
         if (requestsListener) { requestsListener(); requestsListener = null; }
-        if (peer) { peer.destroy(); peer = null; peerInitialized = false; }
+        if (peer) { peer.destroy(); peer = null; peerInitialized = false; peerId = null; }
     }
 }
 
@@ -557,8 +577,22 @@ function loadAllUsers() {
         const data = snapshot.val();
         if (data) {
             allUsersCache = data;
-            // Update friends online status
+            // Update friends list with fresh online status
             renderFriends();
+            // Update chat header status if chat is open
+            if (currentChatFriend && allUsersCache[currentChatFriend]) {
+                const isOnline = allUsersCache[currentChatFriend]?.online || false;
+                const statusEl = document.getElementById('chatStatus');
+                if (statusEl) {
+                    statusEl.textContent = isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন';
+                    statusEl.className = `status ${isOnline ? 'online' : ''}`;
+                }
+                // Show/hide call buttons based on online status
+                const voiceBtn = document.getElementById('voiceCallBtn');
+                const videoBtn = document.getElementById('videoCallBtn');
+                if (voiceBtn) voiceBtn.style.display = isOnline ? 'flex' : 'none';
+                if (videoBtn) videoBtn.style.display = isOnline ? 'flex' : 'none';
+            }
         }
     });
 }
@@ -631,8 +665,9 @@ function renderFriends() {
             const unread = unreadCounts[uid] || 0;
             if (searchTerm && !name.toLowerCase().includes(searchTerm)) return;
             const isActive = currentChatFriend === uid;
-            // Check if user is online from allUsersCache
+            // Get fresh online status from cache
             const isOnline = allUsersCache[uid]?.online || false;
+            const hasPeerId = allUsersCache[uid]?.peerId || false;
             html += `
                 <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
                     <img src="${photo}" class="avatar ${isOnline ? 'online' : ''}" loading="lazy" />
@@ -667,7 +702,7 @@ function handleTyping() {
 }
 
 // =============================================
-// ===== PEER / CALL SYSTEM FIXED =====
+// ===== PEER / CALL SYSTEM =====
 // =============================================
 
 function initPeer(userId) {
@@ -675,19 +710,23 @@ function initPeer(userId) {
         peer.destroy(); 
         peer = null; 
         peerInitialized = false;
+        peerId = null;
     }
     
     try {
-        // Generate a unique peer ID
-        const peerId = userId + '_' + Date.now();
+        // Use a simple ID for better compatibility
+        const id = userId;
+        peerId = id;
         
-        peer = new Peer(peerId, {
+        peer = new Peer(id, {
             debug: 0,
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
                     { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun2.l.google.com:19302' }
+                    { urls: 'stun:stun2.l.google.com:19302' },
+                    { urls: 'stun:stun3.l.google.com:19302' },
+                    { urls: 'stun:stun4.l.google.com:19302' }
                 ]
             }
         });
@@ -695,44 +734,53 @@ function initPeer(userId) {
         peer.on('open', (id) => {
             console.log('📞 Peer connected with ID:', id);
             peerInitialized = true;
+            peerId = id;
             // Save peer ID to database
             if (currentUser) {
-                update(ref(db, `users/${currentUser.uid}`), { 
-                    peerId: id,
-                    online: true,
-                    lastSeen: Date.now()
-                });
+                updateOnlineStatus(currentUser.uid, true);
+                update(ref(db, `users/${currentUser.uid}`), { peerId: id });
+                showToast('📞 কল সংযোগ প্রস্তুত!', 'success');
             }
-            showToast('📞 কল সংযোগ প্রস্তুত!', 'success');
         });
         
         peer.on('call', (incomingCall) => {
             console.log('📞 Incoming call from:', incomingCall.peer);
             const meta = incomingCall.metadata || {};
+            // Find caller info
+            let callerName = meta.callerName || 'ইউজার';
+            let callerPhoto = meta.callerPhoto || '';
+            // Try to find in cache
+            for (const uid in allUsersCache) {
+                if (allUsersCache[uid]?.peerId === incomingCall.peer) {
+                    callerName = allUsersCache[uid].displayName || callerName;
+                    callerPhoto = allUsersCache[uid].photoURL || callerPhoto;
+                    break;
+                }
+            }
             incomingCallData = {
                 call: incomingCall,
-                callerName: meta.callerName || 'ইউজার',
-                callerPhoto: meta.callerPhoto || '',
+                callerName: callerName,
+                callerPhoto: callerPhoto,
                 callType: meta.callType || 'voice'
             };
-            showIncomingCall(incomingCallData.callerName, incomingCallData.callerPhoto, incomingCall);
+            showIncomingCall(callerName, callerPhoto, incomingCall);
         });
         
         peer.on('error', (err) => {
             console.error('Peer error:', err);
             if (err.type === 'unavailable-id') {
-                // Retry with new ID
-                setTimeout(() => {
-                    if (currentUser) {
-                        const newId = currentUser.uid + '_' + Date.now();
-                        initPeer(newId);
-                    }
-                }, 2000);
+                // Try with a different ID
+                const newId = userId + '_' + Date.now();
+                peerId = newId;
+                setTimeout(() => initPeer(newId), 1000);
+            } else {
+                showToast('📞 কল সংযোগে সমস্যা!', 'error');
             }
         });
         
         peer.on('disconnected', () => {
             console.log('Peer disconnected, reconnecting...');
+            peerInitialized = false;
             setTimeout(() => {
                 if (peer && currentUser) {
                     peer.reconnect();
@@ -743,6 +791,7 @@ function initPeer(userId) {
         peer.on('close', () => {
             console.log('Peer closed');
             peerInitialized = false;
+            peerId = null;
         });
         
     } catch (e) { 
@@ -750,7 +799,9 @@ function initPeer(userId) {
         // Retry after 3 seconds
         setTimeout(() => {
             if (currentUser) {
-                initPeer(currentUser.uid);
+                const newId = currentUser.uid + '_' + Date.now();
+                peerId = newId;
+                initPeer(newId);
             }
         }, 3000);
     }
@@ -793,7 +844,8 @@ async function startCall(receiverId, callType = 'voice') {
             return;
         }
         
-        if (!receiverData.peerId) {
+        const receiverPeerId = receiverData.peerId;
+        if (!receiverPeerId) {
             showToast('ব্যবহারকারী কলের জন্য উপলব্ধ নয়!', 'error');
             return;
         }
@@ -817,7 +869,7 @@ async function startCall(receiverId, callType = 'voice') {
         }
 
         // Make the call
-        const call = peer.call(receiverData.peerId, stream, {
+        const call = peer.call(receiverPeerId, stream, {
             metadata: { 
                 callerName: currentUser.displayName || 'ইউজার', 
                 callerPhoto: currentUser.photoURL || '', 
@@ -876,7 +928,7 @@ function showIncomingCall(name, photo, incomingCall) {
     callOverlay.classList.add('active');
     
     // Vibrate on mobile
-    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
     
     playRingtone();
     
@@ -1102,10 +1154,11 @@ function startChat(friendUid) {
     messageInput.focus();
     
     // Add call buttons
-    setTimeout(addCallButtons, 200);
+    setTimeout(addCallButtons, 300);
     
     // Listen for typing
-    onValue(ref(db, `typing/${currentUser.uid}/${friendUid}`), (snapshot) => {
+    const typingRef = ref(db, `typing/${currentUser.uid}/${friendUid}`);
+    onValue(typingRef, (snapshot) => {
         const isTyping = snapshot.val();
         const statusEl = document.getElementById('chatStatus');
         if (isTyping) {
@@ -1128,17 +1181,23 @@ function addCallButtons() {
     
     if (!currentChatFriend || !friends[currentChatFriend]) return;
     
+    // Check if friend is online and has peer ID
     const isOnline = allUsersCache[currentChatFriend]?.online || false;
     const hasPeerId = allUsersCache[currentChatFriend]?.peerId || false;
     
+    console.log(`Friend ${currentChatFriend} - Online: ${isOnline}, PeerId: ${hasPeerId}`);
+    
     // Only show call buttons if friend is online and has peer ID
-    if (!isOnline || !hasPeerId) return;
+    if (!isOnline || !hasPeerId) {
+        console.log('Call buttons hidden - friend not available');
+        return;
+    }
     
     const voiceBtn = document.createElement('button');
     voiceBtn.id = 'voiceCallBtn';
     voiceBtn.textContent = '📞';
     voiceBtn.title = 'ভয়েস কল';
-    voiceBtn.style.cssText = 'background:none;border:none;color:var(--whatsapp-text-secondary);font-size:18px;padding:6px 10px;cursor:pointer;border-radius:50%;';
+    voiceBtn.style.cssText = 'background:none;border:none;color:var(--whatsapp-text-secondary);font-size:18px;padding:6px 10px;cursor:pointer;border-radius:50%;display:flex;align-items:center;';
     voiceBtn.onclick = (e) => { 
         e.stopPropagation(); 
         if (currentChatFriend) startCall(currentChatFriend, 'voice'); 
@@ -1148,7 +1207,7 @@ function addCallButtons() {
     videoBtn.id = 'videoCallBtn';
     videoBtn.textContent = '📹';
     videoBtn.title = 'ভিডিও কল';
-    videoBtn.style.cssText = 'background:none;border:none;color:var(--whatsapp-text-secondary);font-size:18px;padding:6px 10px;cursor:pointer;border-radius:50%;';
+    videoBtn.style.cssText = 'background:none;border:none;color:var(--whatsapp-text-secondary);font-size:18px;padding:6px 10px;cursor:pointer;border-radius:50%;display:flex;align-items:center;';
     videoBtn.onclick = (e) => { 
         e.stopPropagation(); 
         if (currentChatFriend) startCall(currentChatFriend, 'video'); 
@@ -1156,6 +1215,7 @@ function addCallButtons() {
     
     headerActions.appendChild(voiceBtn);
     headerActions.appendChild(videoBtn);
+    console.log('✅ Call buttons added');
 }
 
 // ===== LOAD MESSAGES =====
@@ -1442,8 +1502,8 @@ loginBtn.onclick = async () => {
 logoutBtn.onclick = async () => {
     try {
         if (currentUser) {
-            await update(ref(db, `users/${currentUser.uid}`), { online: false, lastSeen: Date.now() });
-            if (peer) { peer.destroy(); peer = null; peerInitialized = false; }
+            await updateOnlineStatus(currentUser.uid, false);
+            if (peer) { peer.destroy(); peer = null; peerInitialized = false; peerId = null; }
         }
         await signOut(auth);
         showToast('সাইন আউট করা হয়েছে।');
@@ -1455,9 +1515,9 @@ onAuthStateChanged(auth, async (user) => {
     updateUI(user);
     if (user) {
         await saveUserData(user);
-        await update(ref(db, `users/${user.uid}`), { online: true, lastSeen: Date.now() });
+        await updateOnlineStatus(user.uid, true);
         // Initialize peer after login
-        setTimeout(() => initPeer(user.uid), 1000);
+        setTimeout(() => initPeer(user.uid), 1500);
     }
 });
 
@@ -1516,13 +1576,14 @@ window.addEventListener('resize', () => {
 
 // ===== BEFORE UNLOAD =====
 window.addEventListener('beforeunload', () => {
-    if (currentUser) update(ref(db, `users/${currentUser.uid}`), { online: false, lastSeen: Date.now() });
+    if (currentUser) updateOnlineStatus(currentUser.uid, false);
     if (localStream) localStream.getTracks().forEach(t => t.stop());
     if (peer) { peer.destroy(); peer = null; }
 });
 
 console.log('📱 ConnectBD WhatsApp Style Ready!');
-console.log('📞 Call System Fixed!');
+console.log('📞 Call System Fully Fixed!');
+console.log('💡 Make sure both users are logged in and online');
 </script>
 </body>
 </html>
