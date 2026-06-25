@@ -254,20 +254,6 @@
             color: #1f4c66;
         }
 
-        .friend-item .friend-phone {
-            font-size: 0.7rem;
-            color: #4caf50;
-            margin-left: 4px;
-        }
-
-        .friend-item .friend-phone.verified {
-            color: #4caf50;
-        }
-
-        .friend-item .friend-phone.unverified {
-            color: #ff9800;
-        }
-
         .friend-item .status-dot {
             width: 8px;
             height: 8px;
@@ -358,36 +344,6 @@
 
         .search-box:focus {
             border-color: #1976D2;
-        }
-
-        .search-type-selector {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 8px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 12px;
-            padding: 4px;
-        }
-
-        .search-type-selector button {
-            flex: 1;
-            padding: 4px 8px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: 0.2s;
-            background: transparent;
-            color: #53768b;
-        }
-
-        .search-type-selector button.active {
-            background: #1976D2;
-            color: white;
-        }
-
-        .search-type-selector button:hover:not(.active) {
-            background: rgba(25, 118, 210, 0.1);
         }
 
         .friend-list-scroll {
@@ -775,6 +731,7 @@
             background: #d32f2f;
         }
 
+        /* Profile Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -797,7 +754,7 @@
             background: white;
             border-radius: 24px;
             padding: 2rem;
-            max-width: 420px;
+            max-width: 400px;
             width: 90%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: fadeIn 0.3s ease;
@@ -861,58 +818,6 @@
             outline: none;
         }
 
-        .modal .form-group .input-with-btn {
-            display: flex;
-            gap: 8px;
-        }
-
-        .modal .form-group .input-with-btn input {
-            flex: 1;
-        }
-
-        .modal .form-group .input-with-btn button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 12px;
-            background: #1976D2;
-            color: white;
-            cursor: pointer;
-            font-weight: 600;
-            white-space: nowrap;
-            transition: 0.2s;
-        }
-
-        .modal .form-group .input-with-btn button:hover:not(:disabled) {
-            background: #1565C0;
-        }
-
-        .modal .form-group .input-with-btn button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .modal .form-group .otp-status {
-            font-size: 0.75rem;
-            margin-top: 4px;
-            padding: 4px 8px;
-            border-radius: 8px;
-        }
-
-        .modal .form-group .otp-status.verified {
-            color: #4caf50;
-            background: #e8f5e9;
-        }
-
-        .modal .form-group .otp-status.pending {
-            color: #ff9800;
-            background: #fff3e0;
-        }
-
-        .modal .form-group .otp-status.error {
-            color: #d32f2f;
-            background: #ffebee;
-        }
-
         .modal .modal-actions {
             display: flex;
             gap: 10px;
@@ -938,11 +843,6 @@
             background: #1565C0;
         }
 
-        .modal .modal-actions .save-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
         .modal .modal-actions .cancel-btn {
             background: #e0e0e0;
             color: #333;
@@ -952,6 +852,7 @@
             background: #d0d0d0;
         }
 
+        /* Image Preview Modal */
         .image-preview-overlay {
             display: none;
             position: fixed;
@@ -1122,15 +1023,11 @@
 
                 <div class="sidebar-section">
                     <div class="sidebar-title">🔍 ইউজার খুঁজুন</div>
-                    <div class="search-type-selector">
-                        <button class="active" data-type="email">📧 ইমেইল</button>
-                        <button data-type="phone">📱 ফোন</button>
-                    </div>
                     <div style="display: flex; gap: 6px;">
-                        <input type="text" id="searchUser" class="search-box" placeholder="ইমেইল বা ফোন নম্বর..." style="margin-bottom: 0;" />
+                        <input type="text" id="searchUser" class="search-box" placeholder="ইমেইল বা নাম..." style="margin-bottom: 0;" />
                         <button id="searchUserBtn" class="header-btn" style="font-size: 0.7rem; padding: 6px 12px;">খুঁজুন</button>
                     </div>
-                    <div id="searchResults" style="margin-top: 6px; font-size: 0.8rem; max-height: 150px; overflow-y: auto;"></div>
+                    <div id="searchResults" style="margin-top: 6px; font-size: 0.8rem;"></div>
                 </div>
             </div>
 
@@ -1162,7 +1059,7 @@
         </div>
     </div>
 
-    <!-- Profile Modal with Phone Verification -->
+    <!-- Profile Modal -->
     <div class="modal-overlay" id="profileModal">
         <div class="modal">
             <h2>👤 প্রোফাইল</h2>
@@ -1178,29 +1075,14 @@
                 <label>ইমেইল</label>
                 <input type="email" id="modalEmail" disabled />
             </div>
-            <div class="form-group">
-                <label>📱 ফোন নম্বর</label>
-                <div class="input-with-btn">
-                    <input type="text" id="modalPhone" placeholder="01XXXXXXXXX" />
-                    <button id="verifyPhoneBtn">ভেরিফাই</button>
-                </div>
-                <div id="otpStatus" class="otp-status"></div>
-            </div>
-            <div class="form-group" id="otpGroup" style="display:none;">
-                <label>OTP কোড</label>
-                <div class="input-with-btn">
-                    <input type="text" id="modalOtp" placeholder="6 ডিজিটের কোড" maxlength="6" />
-                    <button id="confirmOtpBtn">কনফার্ম</button>
-                </div>
-            </div>
             <div class="modal-actions">
                 <button class="cancel-btn" id="modalCancel">বাতিল</button>
-                <button class="save-btn" id="modalSave" disabled>সেভ করুন</button>
+                <button class="save-btn" id="modalSave">সেভ করুন</button>
             </div>
         </div>
     </div>
 
-    <!-- Image Preview Modal -->
+    <!-- Image Preview Modal with Download -->
     <div class="image-preview-overlay" id="imagePreview">
         <div class="preview-content">
             <img id="previewImage" src="" alt="Preview" />
@@ -1233,6 +1115,7 @@
             onChildAdded,
             set,
             get,
+            child,
             update,
             onValue,
             query,
@@ -1288,35 +1171,9 @@
         const modalProfilePic = document.getElementById('modalProfilePic');
         const modalDisplayName = document.getElementById('modalDisplayName');
         const modalEmail = document.getElementById('modalEmail');
-        const modalPhone = document.getElementById('modalPhone');
-        const modalOtp = document.getElementById('modalOtp');
         const modalSave = document.getElementById('modalSave');
         const modalCancel = document.getElementById('modalCancel');
         const modalUploadPic = document.getElementById('modalUploadPic');
-        const verifyPhoneBtn = document.getElementById('verifyPhoneBtn');
-        const confirmOtpBtn = document.getElementById('confirmOtpBtn');
-        const otpStatus = document.getElementById('otpStatus');
-        const otpGroup = document.getElementById('otpGroup');
-
-        // Search type selector
-        const searchTypeButtons = document.querySelectorAll('.search-type-selector button');
-        let searchType = 'email';
-
-        searchTypeButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                searchTypeButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                searchType = btn.dataset.type;
-                const placeholders = {
-                    'email': 'ইমেইল দিয়ে খুঁজুন...',
-                    'phone': '📱 ফোন নম্বর দিয়ে খুঁজুন...'
-                };
-                searchUser.placeholder = placeholders[searchType] || 'খুঁজুন...';
-                if (searchUser.value.trim()) {
-                    performSearch();
-                }
-            });
-        });
 
         // Image Preview
         const imagePreview = document.getElementById('imagePreview');
@@ -1332,8 +1189,6 @@
         let allUsersCache = {};
         let unreadCounts = {};
         let typingTimeout = null;
-        let isPhoneVerified = false;
-        let tempPhone = '';
 
         // Toast
         let toastTimeout = null;
@@ -1352,104 +1207,6 @@
                 toastEl.classList.remove('show');
                 toastTimeout = null;
             }, 3500);
-        }
-
-        // ===== Phone Verification Functions =====
-        
-        // Generate random OTP
-        function generateOTP() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
-
-        // Send OTP (Simulated)
-        async function sendOTP(phone) {
-            try {
-                // Clean phone number
-                const cleanPhone = phone.replace(/[^0-9]/g, '');
-                if (cleanPhone.length < 10) {
-                    showToast('সঠিক ফোন নম্বর দিন!', 'error');
-                    return false;
-                }
-
-                // Generate OTP
-                const otp = generateOTP();
-                
-                // Save OTP to database (for demo - in production use Firebase Auth)
-                const otpRef = ref(db, `otp_verification/${cleanPhone}`);
-                await set(otpRef, {
-                    otp: otp,
-                    timestamp: Date.now(),
-                    verified: false
-                });
-
-                // Show OTP in console for demo
-                console.log('📱 Your OTP:', otp);
-                console.log('🔑 Use this OTP to verify your phone');
-
-                // Show OTP in toast (for demo purposes)
-                showToast(`📱 আপনার OTP: ${otp} (চেক করুন Console-এ)`);
-                
-                // Show OTP in status
-                otpStatus.textContent = `✅ OTP পাঠানো হয়েছে! আপনার OTP: ${otp}`;
-                otpStatus.className = 'otp-status pending';
-                
-                // Show OTP input
-                otpGroup.style.display = 'block';
-                modalOtp.value = '';
-                modalOtp.focus();
-                
-                return true;
-            } catch (error) {
-                console.error('Send OTP error:', error);
-                showToast('OTP পাঠাতে ব্যর্থ!', 'error');
-                return false;
-            }
-        }
-
-        // Verify OTP
-        async function verifyOTP(phone, otp) {
-            try {
-                const cleanPhone = phone.replace(/[^0-9]/g, '');
-                const otpRef = ref(db, `otp_verification/${cleanPhone}`);
-                const snapshot = await get(otpRef);
-                const data = snapshot.val();
-
-                if (!data) {
-                    otpStatus.textContent = '❌ OTP পাওয়া যায়নি! নতুন OTP নিন।';
-                    otpStatus.className = 'otp-status error';
-                    return false;
-                }
-
-                // Check if OTP expired (5 minutes)
-                if (Date.now() - data.timestamp > 5 * 60 * 1000) {
-                    otpStatus.textContent = '❌ OTP এর মেয়াদ শেষ! নতুন OTP নিন।';
-                    otpStatus.className = 'otp-status error';
-                    return false;
-                }
-
-                if (data.otp !== otp) {
-                    otpStatus.textContent = '❌ ভুল OTP! আবার চেষ্টা করুন।';
-                    otpStatus.className = 'otp-status error';
-                    return false;
-                }
-
-                // Mark as verified
-                await update(otpRef, { verified: true });
-                
-                isPhoneVerified = true;
-                tempPhone = cleanPhone;
-                otpStatus.textContent = '✅ ফোন নম্বর ভেরিফাইড!';
-                otpStatus.className = 'otp-status verified';
-                modalSave.disabled = false;
-                otpGroup.style.display = 'none';
-                
-                showToast('✅ ফোন নম্বর ভেরিফাইড!');
-                return true;
-            } catch (error) {
-                console.error('Verify OTP error:', error);
-                showToast('OTP ভেরিফাই করতে ব্যর্থ!', 'error');
-                return false;
-            }
         }
 
         // ===== Compress Image =====
@@ -1528,6 +1285,7 @@
             try {
                 showToast('📤 ছবি প্রস্তুত হচ্ছে...', 'success');
                 
+                // Compress image before sending
                 const compressed = await compressImage(file, 800, 800);
                 const base64Image = await imageToBase64(compressed);
                 
@@ -1549,12 +1307,15 @@
                     fileName: fileName
                 });
 
+                // Try unread count (silent fail)
                 try {
                     const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
                     const snapshot = await get(unreadRef);
                     const count = (snapshot.val() || 0) + 1;
                     await set(unreadRef, count);
-                } catch (_) {}
+                } catch (_) {
+                    // Ignore unread errors
+                }
 
                 showToast('✅ ছবি পাঠানো হয়েছে!');
             } catch (error) {
@@ -1563,8 +1324,8 @@
             }
         }
 
-        // ===== Save user data with phone =====
-        async function saveUserData(user, phone = '') {
+        // ===== Save user data =====
+        async function saveUserData(user) {
             try {
                 const userRef = ref(db, `users/${user.uid}`);
                 const snapshot = await get(userRef);
@@ -1574,8 +1335,6 @@
                     displayName: user.displayName || 'ইউজার',
                     email: user.email || '',
                     photoURL: user.photoURL || '',
-                    phone: phone || existingData?.phone || '',
-                    phoneVerified: phone ? true : (existingData?.phoneVerified || false),
                     online: true,
                     lastSeen: Date.now()
                 };
@@ -1621,9 +1380,7 @@
                         await update(ref(db, `users/${uid}`), {
                             displayName: user.displayName || 'ইউজার',
                             email: user.email || 'user@email.com',
-                            photoURL: user.photoURL || '',
-                            phone: user.phone || '',
-                            phoneVerified: user.phoneVerified || false
+                            photoURL: user.photoURL || ''
                         });
                         fixed++;
                         console.log(`✅ Fixed user: ${uid}`);
@@ -1639,15 +1396,16 @@
             }
         }
 
-        // ===== Update profile with phone verification =====
-        async function updateUserProfile(displayName, photoURL, phone, phoneVerified = false) {
+        // ===== Update profile with compression =====
+        async function updateUserProfile(displayName, photoURL) {
             if (!currentUser) return;
             try {
                 let finalPhotoURL = photoURL;
                 
+                // If photo is base64 and too large, compress it
                 if (photoURL && photoURL.startsWith('data:image')) {
                     const sizeInBytes = (photoURL.length * 3) / 4;
-                    if (sizeInBytes > 150 * 1024) {
+                    if (sizeInBytes > 150 * 1024) { // 150KB limit
                         showToast('ছবি কম্প্রেস করা হচ্ছে...', 'success');
                         try {
                             const response = await fetch(photoURL);
@@ -1661,21 +1419,10 @@
                     }
                 }
                 
-                const updateData = {
+                await update(ref(db, `users/${currentUser.uid}`), {
                     displayName: displayName,
                     photoURL: finalPhotoURL
-                };
-
-                // Only update phone if verified or if no phone exists
-                if (phone && phoneVerified) {
-                    updateData.phone = phone;
-                    updateData.phoneVerified = true;
-                } else if (!phone) {
-                    updateData.phone = '';
-                    updateData.phoneVerified = false;
-                }
-
-                await update(ref(db, `users/${currentUser.uid}`), updateData);
+                });
                 
                 try {
                     await firebaseUpdateProfile(auth.currentUser, {
@@ -1744,45 +1491,6 @@
                 const data = snapshot.val();
                 if (data) {
                     allUsersCache = data;
-                    console.log('📊 Users loaded:', Object.keys(data).length);
-                    // If there's a search query, re-run search
-                    if (searchUser.value.trim()) {
-                        performSearch();
-                    }
-                }
-            }, (error) => {
-                console.warn('⚠️ Could not load users (permission issue):', error);
-                // Try to load from friends list instead
-                if (currentUser) {
-                    loadFriendsAsUsers();
-                }
-            });
-        }
-
-        // Load friends as users (fallback when permission denied)
-        function loadFriendsAsUsers() {
-            if (!currentUser) return;
-            const friendsRef = ref(db, `friends/${currentUser.uid}`);
-            onValue(friendsRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    // Add friends to users cache
-                    Object.keys(data).forEach(uid => {
-                        if (!allUsersCache[uid]) {
-                            allUsersCache[uid] = {
-                                displayName: data[uid].displayName || 'ইউজার',
-                                email: data[uid].email || '',
-                                photoURL: data[uid].photoURL || '',
-                                phone: data[uid].phone || '',
-                                phoneVerified: data[uid].phoneVerified || false,
-                                online: data[uid].online || false
-                            };
-                        }
-                    });
-                    console.log('📊 Friends loaded as users:', Object.keys(data).length);
-                    if (searchUser.value.trim()) {
-                        performSearch();
-                    }
                 }
             });
         }
@@ -1848,18 +1556,10 @@
                     if (searchTerm && !name.toLowerCase().includes(searchTerm)) return;
 
                     const isActive = currentChatFriend === uid;
-                    let phoneStatus = '';
-                    if (friend.phone) {
-                        phoneStatus = friend.phoneVerified ? 
-                            `<span class="friend-phone verified">✅ 📱${friend.phone}</span>` : 
-                            `<span class="friend-phone unverified">⚠️ 📱${friend.phone}</span>`;
-                    }
-
                     html += `
                         <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
                             <img src="${photo}" alt="${name}" />
                             <span class="friend-name">${name}</span>
-                            ${phoneStatus}
                             ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ''}
                             <span class="status-dot ${friend.online ? '' : 'offline'}"></span>
                         </div>
@@ -1941,8 +1641,6 @@
                 await set(ref(db, `friends/${currentUser.uid}/${fromUid}`), {
                     displayName: senderData.displayName || 'ইউজার',
                     photoURL: senderData.photoURL || '',
-                    phone: senderData.phone || '',
-                    phoneVerified: senderData.phoneVerified || false,
                     online: false,
                     addedAt: Date.now()
                 });
@@ -1950,8 +1648,6 @@
                 await set(ref(db, `friends/${fromUid}/${currentUser.uid}`), {
                     displayName: currentUser.displayName || 'ইউজার',
                     photoURL: currentUser.photoURL || '',
-                    phone: currentUser.phone || '',
-                    phoneVerified: currentUser.phoneVerified || false,
                     online: true,
                     addedAt: Date.now()
                 });
@@ -1976,10 +1672,7 @@
 
         // Send friend request
         async function sendFriendRequest(toUid) {
-            if (!currentUser) {
-                showToast('প্রথমে লগইন করুন!', 'error');
-                return;
-            }
+            if (!currentUser) return;
             if (toUid === currentUser.uid) {
                 showToast('নিজেকে ফ্রেন্ড রিকোয়েস্ট পাঠানো যায় না!', 'error');
                 return;
@@ -2008,158 +1701,15 @@
                 await set(ref(db, `friendRequests/${toUid}/${currentUser.uid}`), {
                     displayName: currentUser.displayName || 'ইউজার',
                     photoURL: currentUser.photoURL || '',
-                    phone: currentUser.phone || '',
-                    phoneVerified: currentUser.phoneVerified || false,
                     status: 'pending',
                     timestamp: Date.now()
                 });
 
                 showToast('ফ্রেন্ড রিকোয়েস্ট পাঠানো হয়েছে! 📨');
-                // Refresh search results
-                performSearch();
+                searchResults.innerHTML = `<div style="color: #4caf50;">✅ রিকোয়েস্ট পাঠানো হয়েছে</div>`;
             } catch (error) {
-                console.error('Send friend request error:', error);
                 showToast(`রিকোয়েস্ট পাঠাতে ব্যর্থ: ${error.message}`, 'error');
             }
-        }
-
-        // ===== Perform Search (Email & Phone Only) =====
-        function performSearch() {
-            const query = searchUser.value.trim().toLowerCase();
-            
-            // Clear results if query is empty
-            if (!query) {
-                searchResults.innerHTML = '';
-                return;
-            }
-
-            if (!currentUser) {
-                showToast('লগইন করুন প্রথমে!', 'error');
-                return;
-            }
-
-            // Show loading state
-            searchResults.innerHTML = `<div style="color: #1976D2; padding: 8px;">⏳ খুঁজছি...</div>`;
-
-            // First try to get users from database
-            const usersRef = ref(db, 'users');
-            get(usersRef).then((snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    allUsersCache = data;
-                    displaySearchResults(data);
-                } else {
-                    // If no data, try friends list
-                    if (Object.keys(friends).length > 0) {
-                        searchResults.innerHTML = `<div style="color: #ff9800; padding: 8px;">⚠️ শুধুমাত্র আপনার বন্ধুদের মধ্যে খুঁজছি...</div>`;
-                        displaySearchResults(allUsersCache);
-                    } else {
-                        searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ কোনো ইউজার পাওয়া যায়নি</div>`;
-                    }
-                }
-            }).catch((error) => {
-                console.warn('⚠️ Permission denied for users list, trying friends list only...');
-                // If permission denied, use friends list
-                if (Object.keys(friends).length > 0) {
-                    // Build friends data in cache
-                    Object.keys(friends).forEach(uid => {
-                        if (!allUsersCache[uid]) {
-                            allUsersCache[uid] = {
-                                displayName: friends[uid].displayName || 'ইউজার',
-                                email: friends[uid].email || '',
-                                photoURL: friends[uid].photoURL || '',
-                                phone: friends[uid].phone || '',
-                                phoneVerified: friends[uid].phoneVerified || false,
-                                online: friends[uid].online || false
-                            };
-                        }
-                    });
-                    searchResults.innerHTML = `<div style="color: #ff9800; padding: 8px;">⚠️ শুধুমাত্র আপনার বন্ধুদের মধ্যে খুঁজছি...</div>`;
-                    displaySearchResults(allUsersCache);
-                } else {
-                    searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ কোনো বন্ধু নেই। নতুন বন্ধু যোগ করতে পারেন!</div>`;
-                }
-            });
-        }
-
-        // Display search results
-        function displaySearchResults(usersData) {
-            const query = searchUser.value.trim().toLowerCase();
-            if (!query) {
-                searchResults.innerHTML = '';
-                return;
-            }
-
-            let foundUsers = [];
-            Object.keys(usersData).forEach(uid => {
-                const user = usersData[uid];
-                if (uid === currentUser.uid) return;
-                
-                const email = (user.email || '').toLowerCase();
-                const phone = (user.phone || '').toLowerCase();
-                
-                let match = false;
-                switch(searchType) {
-                    case 'email':
-                        match = email.includes(query);
-                        break;
-                    case 'phone':
-                        match = phone.includes(query);
-                        break;
-                    default:
-                        match = email.includes(query) || phone.includes(query);
-                }
-                
-                if (match) {
-                    foundUsers.push({ uid, ...user });
-                }
-            });
-
-            console.log('🔍 Search results:', foundUsers.length, 'Type:', searchType);
-
-            if (foundUsers.length === 0) {
-                searchResults.innerHTML = `<div style="color: #53768b; padding: 8px;">❌ "${query}" দিয়ে কোনো ইউজার পাওয়া যায়নি</div>`;
-                return;
-            }
-
-            let html = '';
-            foundUsers.forEach(user => {
-                const isFriend = friends[user.uid];
-                const isRequested = requests[user.uid] && requests[user.uid].status === 'pending';
-                const photo = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
-                    .displayName || 'U') + '&background=1976D2&color=fff';
-
-                let phoneStatus = '';
-                if (user.phone) {
-                    phoneStatus = user.phoneVerified ? 
-                        `✅ 📱${user.phone}` : 
-                        `⚠️ 📱${user.phone}`;
-                }
-
-                html += `
-                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px 4px; border-bottom: 1px solid rgba(0,0,0,0.08);">
-                        <img src="${photo}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white;" />
-                        <div style="flex: 1; font-size: 0.85rem;">
-                            <strong style="color: #0b2b40;">${user.displayName || 'ইউজার'}</strong>
-                            ${phoneStatus ? `<span style="font-size:0.7rem;color:#53768b;display:block;">${phoneStatus}</span>` : ''}
-                            <span style="font-size:0.65rem;color:#53768b;display:block;">${user.email || ''}</span>
-                        </div>
-                        ${isFriend ? '<span style="color: #4caf50; font-size: 0.75rem; font-weight: 600;">✅ বন্ধু</span>' :
-                        isRequested ? '<span style="color: #ff9800; font-size: 0.75rem; font-weight: 600;">⏳ রিকোয়েস্ট পাঠানো</span>' :
-                        `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px; background: #1976D2; color: white; border: none; border-radius: 20px; cursor: pointer;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
-                        }
-                    </div>
-                `;
-            });
-
-            searchResults.innerHTML = html;
-
-            document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    sendFriendRequest(btn.dataset.uid);
-                });
-            });
         }
 
         // Typing indicator
@@ -2461,9 +2011,60 @@
         });
 
         // ===== Search =====
-        searchUserBtn.addEventListener('click', performSearch);
-        searchUser.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performSearch();
+        searchUserBtn.addEventListener('click', async () => {
+            const query = searchUser.value.trim().toLowerCase();
+            if (!query) {
+                searchResults.innerHTML = '';
+                return;
+            }
+
+            if (!currentUser) {
+                showToast('লগইন করুন প্রথমে!', 'error');
+                return;
+            }
+
+            let foundUsers = [];
+            Object.keys(allUsersCache).forEach(uid => {
+                const user = allUsersCache[uid];
+                if (uid === currentUser.uid) return;
+                const name = (user.displayName || '').toLowerCase();
+                const email = (user.email || '').toLowerCase();
+                if (name.includes(query) || email.includes(query)) {
+                    foundUsers.push({ uid, ...user });
+                }
+            });
+
+            if (foundUsers.length === 0) {
+                searchResults.innerHTML = `<div style="color: #53768b; font-size: 0.8rem;">কোনো ইউজার পাওয়া যায়নি</div>`;
+                return;
+            }
+
+            let html = '';
+            foundUsers.forEach(user => {
+                const isFriend = friends[user.uid];
+                const isRequested = requests[user.uid] && requests[user.uid].status === 'pending';
+                const photo = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user
+                    .displayName || 'U') + '&background=1976D2&color=fff';
+
+                html += `
+                    <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <img src="${photo}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;" />
+                        <span style="flex: 1; font-size: 0.85rem;">${user.displayName || 'ইউজার'}</span>
+                        ${isFriend ? '<span style="color: #4caf50; font-size: 0.7rem;">✅ বন্ধু</span>' :
+                        isRequested ? '<span style="color: #ff9800; font-size: 0.7rem;">⏳ রিকোয়েস্ট পাঠানো</span>' :
+                        `<button class="header-btn" style="font-size: 0.7rem; padding: 4px 12px;" data-uid="${user.uid}">➕ বন্ধু করুন</button>`
+                        }
+                    </div>
+                `;
+            });
+
+            searchResults.innerHTML = html;
+
+            document.querySelectorAll('#searchResults button[data-uid]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    sendFriendRequest(btn.dataset.uid);
+                });
+            });
         });
 
         searchFriend.addEventListener('input', renderFriends);
@@ -2537,101 +2138,24 @@
             }
         });
 
-        // ===== Profile Modal with Phone Verification =====
+        // ===== Profile Modal =====
         userProfileMini.addEventListener('click', () => {
             if (!currentUser) return;
-            isPhoneVerified = false;
-            tempPhone = '';
             modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
             modalDisplayName.value = currentUser.displayName || '';
             modalEmail.value = currentUser.email || '';
-            modalPhone.value = currentUser.phone || '';
-            modalOtp.value = '';
-            otpGroup.style.display = 'none';
-            otpStatus.textContent = '';
-            otpStatus.className = 'otp-status';
-            modalSave.disabled = false;
             profileModal.classList.add('active');
         });
 
         logoClick.addEventListener('click', () => {
             if (!currentUser) return;
-            isPhoneVerified = false;
-            tempPhone = '';
             modalProfilePic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=1976D2&color=fff';
             modalDisplayName.value = currentUser.displayName || '';
             modalEmail.value = currentUser.email || '';
-            modalPhone.value = currentUser.phone || '';
-            modalOtp.value = '';
-            otpGroup.style.display = 'none';
-            otpStatus.textContent = '';
-            otpStatus.className = 'otp-status';
-            modalSave.disabled = false;
             profileModal.classList.add('active');
         });
 
-        // ===== Verify Phone Button =====
-        verifyPhoneBtn.addEventListener('click', async () => {
-            const phone = modalPhone.value.trim();
-            if (!phone) {
-                showToast('ফোন নম্বর দিন!', 'error');
-                return;
-            }
-            
-            if (phone.length < 10) {
-                showToast('সঠিক ফোন নম্বর দিন (01XXXXXXXXX)', 'error');
-                return;
-            }
-
-            // Check if phone already exists for another user
-            let phoneExists = false;
-            Object.keys(allUsersCache).forEach(uid => {
-                if (uid !== currentUser.uid && allUsersCache[uid].phone === phone) {
-                    phoneExists = true;
-                }
-            });
-
-            if (phoneExists) {
-                showToast('এই ফোন নম্বরটি অন্য কেউ ব্যবহার করছে!', 'error');
-                return;
-            }
-
-            verifyPhoneBtn.disabled = true;
-            verifyPhoneBtn.textContent = 'পাঠানো হচ্ছে...';
-            
-            const success = await sendOTP(phone);
-            
-            verifyPhoneBtn.disabled = false;
-            verifyPhoneBtn.textContent = 'ভেরিফাই';
-            
-            if (success) {
-                tempPhone = phone;
-                modalSave.disabled = true;
-            }
-        });
-
-        // ===== Confirm OTP Button =====
-        confirmOtpBtn.addEventListener('click', async () => {
-            const otp = modalOtp.value.trim();
-            if (!otp || otp.length < 6) {
-                showToast('6 ডিজিটের OTP দিন!', 'error');
-                return;
-            }
-
-            confirmOtpBtn.disabled = true;
-            confirmOtpBtn.textContent = 'চেক করা হচ্ছে...';
-            
-            const success = await verifyOTP(tempPhone, otp);
-            
-            confirmOtpBtn.disabled = false;
-            confirmOtpBtn.textContent = 'কনফার্ম';
-            
-            if (success) {
-                modalSave.disabled = false;
-            }
-        });
-
-        // ===== Profile Upload Handler =====
+        // ===== Profile Upload Handler (with compression) =====
         modalUploadPic.addEventListener('click', () => {
             const input = document.createElement('input');
             input.type = 'file';
@@ -2640,6 +2164,7 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 
+                // Max 500KB for profile picture
                 if (file.size > 500 * 1024) {
                     showToast('প্রোফাইল ছবি 500KB এর কম হতে হবে!', 'error');
                     return;
@@ -2648,11 +2173,14 @@
                 showToast('📤 কম্প্রেস করা হচ্ছে...', 'success');
                 
                 try {
+                    // Compress to 150x150
                     const compressed = await compressImage(file, 150, 150);
                     const base64 = await imageToBase64(compressed);
                     
+                    // Check final size
                     const sizeInBytes = (base64.length * 3) / 4;
                     if (sizeInBytes > 150 * 1024) {
+                        // Compress more if still too large
                         const smaller = await compressImage(compressed, 100, 100);
                         const smallerBase64 = await imageToBase64(smaller);
                         modalProfilePic.src = smallerBase64;
@@ -2675,24 +2203,11 @@
         modalSave.addEventListener('click', async () => {
             const displayName = modalDisplayName.value.trim();
             const photoURL = modalProfilePic.src;
-            const phone = modalPhone.value.trim();
-            
             if (!displayName) {
                 showToast('নাম দেওয়া আবশ্যক!', 'error');
                 return;
             }
-
-            // If phone is provided but not verified, don't save
-            if (phone && !isPhoneVerified && phone !== currentUser.phone) {
-                showToast('দয়া করে ফোন নম্বর ভেরিফাই করুন!', 'error');
-                return;
-            }
-
-            // If phone is being removed, allow it
-            const phoneToSave = isPhoneVerified ? phone : currentUser.phone || '';
-            const phoneVerified = isPhoneVerified || currentUser.phoneVerified || false;
-
-            await updateUserProfile(displayName, photoURL, phoneToSave, phoneVerified);
+            await updateUserProfile(displayName, photoURL);
             profileModal.classList.remove('active');
         });
 
@@ -2717,19 +2232,17 @@
         window.db = db;
         window.auth = auth;
 
-        console.log('🔥 ConnectBD Private Chat ready with Phone Verification!');
+        console.log('🔥 ConnectBD Private Chat ready with Image Download & Profile Fix!');
         console.log('📌 Features:');
         console.log('  ✅ Image Upload (Base64 - No Storage needed)');
-        console.log('  ✅ Image Download');
+        console.log('  ✅ Image Download (⬇️ button on image)');
         console.log('  ✅ Profile Picture Upload (Auto Compressed)');
-        console.log('  ✅ Search by: Email & Phone Only');
-        console.log('  ✅ Phone Number Verification (OTP based)');
         console.log('  ✅ Chat Message Delete/Edit');
         console.log('  ✅ Typing Indicator');
         console.log('  ✅ Online/Offline Status');
         console.log('  ✅ Unread Message Count');
         console.log('🔧 To fix all users, run: fixAllUsers()');
-        console.log('📱 Phone OTP will show in Console for demo');
+        console.log('💡 Profile image auto compressed to < 150KB');
     </script>
 </body>
 </html>
