@@ -244,13 +244,15 @@
             border-right: 1px solid var(--whatsapp-border);
             transition: all 0.3s ease;
             overflow: hidden;
+            position: relative;
+            z-index: 5;
         }
         .chat-list.hidden {
             transform: translateX(-100%);
             position: absolute;
             width: 100%;
             max-width: 100%;
-            z-index: 10;
+            z-index: 5;
         }
 
         /* Search Bar */
@@ -1650,17 +1652,20 @@ function switchTab(tabName) {
     const targetTab = document.querySelector(`[data-tab="${tabName}"]`);
     if (targetTab) targetTab.classList.add('active');
     
-    if (tabName === 'chats') {
+    // Always show chat list on mobile when switching tabs
+    if (isMobile) {
         chatList.classList.remove('hidden');
         chatList.style.display = 'flex';
+    } else {
+        chatList.classList.remove('hidden');
+        chatList.style.display = 'flex';
+    }
+    
+    if (tabName === 'chats') {
         renderFriends();
     } else if (tabName === 'requests') {
-        chatList.classList.remove('hidden');
-        chatList.style.display = 'flex';
         renderRequestsTab();
     } else if (tabName === 'search') {
-        chatList.classList.remove('hidden');
-        chatList.style.display = 'flex';
         renderSearchTab();
     }
 }
@@ -1783,10 +1788,23 @@ async function acceptFriendRequest(fromUid) {
         });
         await remove(ref(db, `friendRequests/${currentUser.uid}/${fromUid}`));
         showToast('বন্ধু রিকোয়েস্ট গ্রহণ করা হয়েছে! 🎉');
-        // Force refresh friends list and switch to chats tab
+        
+        // Force refresh friends list
         friends[fromUid] = senderData;
         friendCount.textContent = Object.keys(friends).length;
+        
+        // Switch to chats tab and force re-render
         switchTab('chats');
+        
+        // Also manually trigger renderFriends after a short delay for mobile
+        setTimeout(() => {
+            renderFriends();
+            // On mobile, make sure chat list is visible
+            if (isMobile) {
+                chatList.classList.remove('hidden');
+                chatList.style.display = 'flex';
+            }
+        }, 200);
     } catch (error) {
         showToast(`এক্সেপ্ট করতে ব্যর্থ: ${error.message}`, 'error');
     }
@@ -1836,6 +1854,7 @@ messageInput.addEventListener('input', handleTyping);
 // Back button (mobile)
 backBtn.addEventListener('click', () => {
     chatList.classList.remove('hidden');
+    chatList.style.display = 'flex';
 });
 
 // ===== LOGIN =====
@@ -1931,6 +1950,7 @@ window.addEventListener('resize', () => {
     isMobile = window.innerWidth <= 768;
     if (!isMobile) {
         chatList.classList.remove('hidden');
+        chatList.style.display = 'flex';
     }
 });
 
