@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ConnectBD - চ্যাট</title>
+    <title>ConnectBD - প্রো চ্যাট</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -25,14 +25,11 @@
         }
         html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text-primary); }
         
-        /* Status Bar */
         .status-bar { height: 24px; background: var(--bg-dark); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 12px; color: var(--text-secondary); flex-shrink: 0; }
         .status-bar .time { font-weight: 600; color: var(--text-primary); }
         
-        /* App Container */
         .app-container { display: flex; flex-direction: column; height: 100vh; height: 100dvh; background: var(--bg-dark); max-width: 100%; overflow: hidden; }
         
-        /* Header */
         .header { height: var(--header-height); background: var(--bg-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; flex-shrink: 0; border-bottom: 1px solid var(--border-color); }
         .header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .header-left .logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--primary); }
@@ -48,19 +45,15 @@
         .btn:active { transform: scale(0.94); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-danger { background: #FF3B30; color: white; padding: 8px 14px; font-size: 16px; }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
         
-        /* Tabs */
         .tabs { display: flex; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); flex-shrink: 0; height: var(--tab-height); }
         .tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; padding: 0 8px; }
         .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
         .tab .badge { background: var(--primary); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 50%; min-width: 18px; text-align: center; }
         .tab .badge.danger { background: #FF3B30; }
         
-        /* Main */
         .main-content { flex: 1; display: flex; overflow: hidden; background: var(--bg-dark); position: relative; }
         
-        /* Chat List */
         .chat-list { width: 100%; max-width: 420px; flex-shrink: 0; background: var(--bg-dark); display: flex; flex-direction: column; border-right: 1px solid var(--border-color); overflow: hidden; position: relative; z-index: 5; }
         .chat-list.hidden { transform: translateX(-100%); position: absolute; width: 100%; max-width: 100%; z-index: 5; }
         
@@ -85,7 +78,6 @@
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .empty-state .icon { font-size: 48px; opacity: 0.5; }
         
-        /* Chat Area */
         .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); min-width: 0; position: relative; }
         .chat-header { height: var(--header-height); background: var(--bg-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .chat-header .back-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 22px; cursor: pointer; padding: 4px 8px; }
@@ -95,6 +87,10 @@
         .chat-header .chat-info .details .name { font-size: 15px; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .chat-header .chat-info .details .status { font-size: 12px; color: var(--text-secondary); }
         .chat-header .chat-info .details .status.online { color: var(--primary); }
+        .chat-header .call-btns { display: flex; gap: 4px; }
+        .chat-header .call-btns button { background: none; border: none; color: var(--text-secondary); font-size: 20px; padding: 6px 10px; cursor: pointer; border-radius: 50%; transition: all 0.2s; }
+        .chat-header .call-btns button:active { background: rgba(255,255,255,0.1); }
+        .chat-header .call-btns button:disabled { opacity: 0.3; cursor: not-allowed; }
         
         .messages { flex: 1; overflow-y: auto; padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 4px; background: var(--bg-dark); }
         .message { display: flex; gap: 8px; max-width: 85%; animation: fadeIn 0.2s ease; }
@@ -107,7 +103,11 @@
         .message.own .msg-sender { color: #075E54; }
         .message .msg-text { font-size: 14px; line-height: 1.5; word-break: break-word; }
         .message .msg-text img { max-width: min(100%, 200px); max-height: 150px; border-radius: 4px; cursor: pointer; display: block; }
-        .message .msg-time { font-size: 10px; opacity: 0.6; margin-top: 2px; text-align: right; }
+        .message .msg-footer { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px; }
+        .message .msg-time { font-size: 10px; opacity: 0.6; }
+        .message .msg-status { font-size: 12px; }
+        .message .msg-status.delivered { color: var(--text-secondary); }
+        .message .msg-status.seen { color: var(--primary); }
         .message.own .msg-time { color: var(--chat-own-text); }
         .message .msg-actions { display: flex; gap: 2px; margin-top: 2px; justify-content: flex-end; }
         .message .msg-actions button { background: none; border: none; font-size: 11px; cursor: pointer; opacity: 0.4; padding: 2px 4px; border-radius: 4px; color: inherit; }
@@ -117,7 +117,6 @@
         .typing-indicator { font-size: 12px; color: var(--text-secondary); padding: 2px 20px 6px; min-height: 20px; flex-shrink: 0; }
         .typing-indicator.active { color: var(--primary); }
         
-        /* Composer */
         .composer { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-secondary); border-top: 1px solid var(--border-color); flex-shrink: 0; min-height: var(--composer-height); }
         .composer .attach-btn { background: none; border: none; color: var(--text-secondary); font-size: 22px; cursor: pointer; padding: 4px 6px; }
         .composer .attach-btn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -128,12 +127,10 @@
         .composer .send-btn:active { transform: scale(0.88); }
         .composer .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         
-        /* Toast */
         .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg-secondary); color: var(--text-primary); padding: 10px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 999; opacity: 0; transition: all 0.4s ease; max-width: 92%; text-align: center; pointer-events: none; border: 1px solid var(--border-color); }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error { border-color: #FF3B30; }
         
-        /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal { background: var(--bg-secondary); border-radius: 16px; padding: 28px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); }
@@ -150,7 +147,6 @@
         .modal .modal-actions .save-btn { background: var(--primary); color: white; }
         .modal .modal-actions .cancel-btn { background: var(--bg-tertiary); color: var(--text-primary); }
         
-        /* Image Preview */
         .image-preview-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.92); z-index: 2000; justify-content: center; align-items: center; cursor: pointer; padding: 20px; }
         .image-preview-overlay.active { display: flex; }
         .image-preview-overlay .preview-content { position: relative; max-width: 95%; max-height: 95%; }
@@ -158,6 +154,26 @@
         .image-preview-overlay .preview-actions { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; }
         .image-preview-overlay .preview-actions button { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
         .image-preview-overlay .preview-actions .download-btn { background: var(--primary); border-color: var(--primary); }
+        
+        .call-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; padding: 20px; }
+        .call-overlay.active { display: flex; }
+        .call-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary); margin-bottom: 20px; }
+        .call-name { font-size: 24px; font-weight: 600; color: white; margin-bottom: 8px; }
+        .call-status { font-size: 16px; color: var(--text-secondary); margin-bottom: 30px; }
+        .call-status.ringing { color: var(--primary); animation: pulse 1s infinite; }
+        .call-actions { display: flex; gap: 30px; margin-top: 20px; }
+        .call-actions button { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .call-actions button:active { transform: scale(0.9); }
+        .call-actions .call-end { background: #FF3B30; color: white; }
+        .call-actions .call-answer { background: var(--primary); color: white; }
+        .call-actions .call-mute { background: var(--bg-tertiary); color: white; }
+        .call-actions .call-mute.active { background: #FF3B30; }
+        .call-timer { font-size: 20px; color: white; font-weight: 300; margin-bottom: 20px; }
+        .video-container { position: relative; width: 100%; max-width: 800px; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 20px; display: none; }
+        .video-container video { width: 100%; height: 100%; object-fit: cover; }
+        .video-container .local-video { position: absolute; bottom: 20px; right: 20px; width: 120px; height: 160px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); object-fit: cover; }
+        
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         
         @media (max-width: 768px) {
             .chat-list { max-width: 100%; position: absolute; z-index: 5; width: 100%; height: 100%; background: var(--bg-dark); transition: transform 0.3s ease; }
@@ -167,6 +183,9 @@
             .status-bar { display: none; }
             .friend-item .avatar { width: 44px; height: 44px; }
             .message { max-width: 90%; }
+            .video-container .local-video { width: 80px; height: 106px; }
+            .call-avatar { width: 80px; height: 80px; }
+            .call-actions button { width: 50px; height: 50px; font-size: 22px; }
         }
         @media (min-width: 769px) {
             .chat-list.hidden { transform: none; position: relative; width: 420px; }
@@ -176,15 +195,12 @@
 </head>
 <body>
 
-<!-- Status Bar -->
 <div class="status-bar">
     <span class="time" id="statusTime">12:00</span>
     <span class="icons">📶 📶 🔋</span>
 </div>
 
-<!-- App -->
 <div class="app-container">
-    <!-- Header -->
     <header class="header">
         <div class="header-left">
             <img src="https://raw.githubusercontent.com/mdakash0003478-am/connectbd/main/logo.png.jpeg" alt="ConnectBD" class="logo" id="logoClick" />
@@ -200,16 +216,13 @@
         </div>
     </header>
 
-    <!-- Tabs -->
     <div class="tabs">
         <div class="tab active" data-tab="chats">💬 চ্যাট <span class="badge" id="friendCount">0</span></div>
         <div class="tab" data-tab="requests">📨 রিকোয়েস্ট <span class="badge danger" id="requestCount">0</span></div>
         <div class="tab" data-tab="search">🔍 খুঁজুন</div>
     </div>
 
-    <!-- Main -->
     <div class="main-content">
-        <!-- Chat List -->
         <div class="chat-list" id="chatList">
             <div class="search-bar">
                 <input type="text" id="searchFriend" placeholder="বন্ধু খুঁজুন..." />
@@ -219,12 +232,15 @@
             </div>
         </div>
 
-        <!-- Chat Area -->
         <div class="chat-area">
             <div class="chat-header">
                 <button class="back-btn" id="backBtn">←</button>
                 <div class="chat-info" id="chatFriendInfo">
                     <span style="color:var(--text-secondary);font-weight:500;">💬 বন্ধু নির্বাচন করুন</span>
+                </div>
+                <div class="call-btns" id="callBtns" style="display:none;">
+                    <button id="voiceCallBtn" title="ভয়েস কল">📞</button>
+                    <button id="videoCallBtn" title="ভিডিও কল">📹</button>
                 </div>
             </div>
 
@@ -240,6 +256,23 @@
                 <button class="send-btn" id="sendBtn" disabled>➤</button>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Call Overlay -->
+<div class="call-overlay" id="callOverlay">
+    <img id="callAvatar" class="call-avatar" src="" alt="Caller" />
+    <div class="call-name" id="callName">Caller Name</div>
+    <div class="call-status" id="callStatus">🔔 কল হচ্ছে...</div>
+    <div class="call-timer" id="callTimer">00:00</div>
+    <div class="video-container" id="videoContainer">
+        <video class="remote-video" id="remoteVideo" autoplay playsinline></video>
+        <video class="local-video" id="localVideo" autoplay playsinline muted></video>
+    </div>
+    <div class="call-actions">
+        <button class="call-mute" id="callMuteBtn">🔊</button>
+        <button class="call-end" id="callEndBtn">📞</button>
+        <button class="call-answer" id="callAnswerBtn" style="display:none;">📞</button>
     </div>
 </div>
 
@@ -271,7 +304,6 @@
     </div>
 </div>
 
-<!-- Toast -->
 <div id="toast" class="toast"></div>
 <input type="file" id="fileInput" accept="image/*" style="display:none;" />
 
@@ -283,7 +315,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
     getDatabase, ref, push, onChildAdded, set, get, update, onValue,
-    query, limitToLast, orderByChild, remove, onChildRemoved, onChildChanged
+    query, limitToLast, orderByChild, remove, onChildRemoved, onChildChanged,
+    onDisconnect, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // ===== FIREBASE CONFIG =====
@@ -324,6 +357,9 @@ const DOM = {
     backBtn: $('backBtn'),
     chatList: $('chatList'),
     typingIndicator: $('typingIndicator'),
+    callBtns: $('callBtns'),
+    voiceCallBtn: $('voiceCallBtn'),
+    videoCallBtn: $('videoCallBtn'),
     profileModal: $('profileModal'),
     modalPic: $('modalProfilePic'),
     modalName: $('modalDisplayName'),
@@ -334,7 +370,18 @@ const DOM = {
     imagePreview: $('imagePreview'),
     previewImage: $('previewImage'),
     downloadPreview: $('downloadPreviewBtn'),
-    closePreview: $('closePreviewBtn')
+    closePreview: $('closePreviewBtn'),
+    callOverlay: $('callOverlay'),
+    callAvatar: $('callAvatar'),
+    callName: $('callName'),
+    callStatus: $('callStatus'),
+    callTimer: $('callTimer'),
+    callEnd: $('callEndBtn'),
+    callAnswer: $('callAnswerBtn'),
+    callMute: $('callMuteBtn'),
+    videoContainer: $('videoContainer'),
+    remoteVideo: $('remoteVideo'),
+    localVideo: $('localVideo')
 };
 
 const tabs = document.querySelectorAll('.tab');
@@ -348,11 +395,40 @@ let requests = {};
 let allUsersCache = {};
 let unreadCounts = {};
 let typingTimeout = null;
+let typingListener = null;
 let toastTimeout = null;
 let isMobile = window.innerWidth <= 768;
 let friendsListener = null;
 let requestsListener = null;
 let allUsersListener = null;
+let disconnectRef = null;
+let disconnectLastSeenRef = null;
+
+// ===== CALL STATE =====
+let localStream = null;
+let currentCall = null;
+let callTimerInterval = null;
+let callStartTime = null;
+let isMuted = false;
+let incomingCallData = null;
+
+// ===== XSS PROTECTION =====
+function sanitize(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ===== SAFE IMAGE RENDER =====
+function createSafeImage(src, alt = 'Image') {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = alt;
+    img.loading = 'lazy';
+    img.onclick = () => window.openImagePreview(src);
+    return img;
+}
 
 // ===== TOAST =====
 function showToast(msg, type = 'success') {
@@ -395,36 +471,52 @@ function downloadImage(src, filename = 'image.jpg') {
     } catch (e) { showToast('ডাউনলোড ব্যর্থ!', 'error'); }
 }
 
-// ===== SAVE USER =====
+// ===== SAVE USER WITH onDisconnect (FIXED) =====
 async function saveUserData(user) {
     try {
         const userRef = ref(db, `users/${user.uid}`);
         const snap = await get(userRef);
+        const userData = {
+            displayName: user.displayName || 'ইউজার',
+            email: user.email || '',
+            photoURL: user.photoURL || '',
+            online: true,
+            lastSeen: serverTimestamp() // ✅ Fixed: Use serverTimestamp()
+        };
+        
         if (!snap.exists()) {
-            await set(userRef, {
-                displayName: user.displayName || 'ইউজার',
-                email: user.email || '',
-                photoURL: user.photoURL || '',
-                online: true,
-                lastSeen: Date.now()
-            });
+            await set(userRef, userData);
         } else {
-            await update(userRef, { online: true, lastSeen: Date.now() });
+            await update(userRef, { online: true, lastSeen: serverTimestamp() });
         }
+        
+        // ✅ Store disconnect refs for cleanup
+        disconnectRef = ref(db, `users/${user.uid}/online`);
+        disconnectLastSeenRef = ref(db, `users/${user.uid}/lastSeen`);
+        
+        // ✅ Set onDisconnect
+        onDisconnect(disconnectRef).set(false);
+        onDisconnect(disconnectLastSeenRef).set(serverTimestamp());
+        
         return true;
     } catch (e) { console.error('Save user error:', e); return false; }
 }
 
-// ===== UPDATE ONLINE STATUS =====
-async function updateOnlineStatus(uid, isOnline) {
-    if (!uid) return;
+// ===== CLEANUP onDisconnect (FIXED) =====
+async function cleanupDisconnect() {
     try {
-        await update(ref(db, `users/${uid}`), { online: isOnline, lastSeen: Date.now() });
-        if (allUsersCache[uid]) allUsersCache[uid].online = isOnline;
-        renderFriends();
-        updateChatStatus();
-        return true;
-    } catch (e) { console.error('Online status error:', e); return false; }
+        if (disconnectRef) {
+            await onDisconnect(disconnectRef).cancel();
+            disconnectRef = null;
+        }
+        if (disconnectLastSeenRef) {
+            await onDisconnect(disconnectLastSeenRef).cancel();
+            disconnectLastSeenRef = null;
+        }
+        console.log('✅ onDisconnect cleaned up');
+    } catch (e) {
+        console.error('Cleanup disconnect error:', e);
+    }
 }
 
 // ===== UPDATE PROFILE =====
@@ -453,13 +545,15 @@ function updateUI(user) {
         loadFriendsAndRequests();
         loadAllUsers();
         switchTab('chats');
-        // Update online status every 10 seconds
-        if (window._onlineInterval) clearInterval(window._onlineInterval);
-        window._onlineInterval = setInterval(() => {
-            if (currentUser) updateOnlineStatus(currentUser.uid, true);
-        }, 10000);
     } else {
-        if (window._onlineInterval) clearInterval(window._onlineInterval);
+        // ✅ Cleanup all listeners
+        if (allUsersListener) { allUsersListener(); allUsersListener = null; }
+        if (friendsListener) { friendsListener(); friendsListener = null; }
+        if (requestsListener) { requestsListener(); requestsListener = null; }
+        if (messageListener) { messageListener(); messageListener = null; }
+        if (typingListener) { typingListener(); typingListener = null; }
+        cleanupDisconnect();
+        
         DOM.userProfile.style.display = 'none';
         DOM.loginBtn.style.display = 'block';
         DOM.logoutBtn.style.display = 'none';
@@ -468,31 +562,46 @@ function updateUI(user) {
         DOM.fileUpload.disabled = true;
         DOM.messages.innerHTML = `<div class="empty-state"><div class="icon">🔑</div><span>চ্যাট শুরু করতে লগইন করুন</span></div>`;
         DOM.chatFriendInfo.innerHTML = `<span style="color:var(--text-secondary);font-weight:500;">💬 বন্ধু নির্বাচন করুন</span>`;
+        DOM.callBtns.style.display = 'none';
         DOM.friendList.innerHTML = `<div class="empty-state"><div class="icon">💬</div><span>কোনো বন্ধু নেই</span></div>`;
         DOM.friendCount.textContent = '0';
         DOM.requestCount.textContent = '0';
         currentChatFriend = null;
-        if (messageListener) { messageListener(); messageListener = null; }
-        if (friendsListener) { friendsListener(); friendsListener = null; }
-        if (requestsListener) { requestsListener(); requestsListener = null; }
-        if (allUsersListener) { allUsersListener(); allUsersListener = null; }
     }
 }
 
-// ===== LOAD ALL USERS =====
+// ===== LOAD ALL USERS (OPTIMIZED) =====
 function loadAllUsers() {
     if (allUsersListener) { allUsersListener(); allUsersListener = null; }
+    // ✅ Only load friends' data instead of all users
+    const friendIds = Object.keys(friends);
+    if (friendIds.length === 0) {
+        allUsersCache = {};
+        renderFriends();
+        return;
+    }
+    
+    // ✅ Load only friend data
     allUsersListener = onValue(ref(db, 'users'), (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            allUsersCache = data;
+            // ✅ Only keep data for friends and self
+            const filtered = {};
+            Object.keys(data).forEach(uid => {
+                if (uid === currentUser?.uid || friends[uid]) {
+                    filtered[uid] = data[uid];
+                }
+            });
+            allUsersCache = filtered;
             Object.keys(friends).forEach(uid => {
                 if (friends[uid] && allUsersCache[uid]) {
                     friends[uid].online = allUsersCache[uid].online || false;
+                    friends[uid].lastSeen = allUsersCache[uid].lastSeen || 0;
                 }
             });
             renderFriends();
             updateChatStatus();
+            updateCallButtons();
         }
     });
 }
@@ -509,13 +618,16 @@ function loadFriendsAndRequests() {
         Object.keys(data).forEach(uid => {
             friends[uid] = {
                 ...data[uid],
-                online: allUsersCache[uid]?.online || false
+                online: allUsersCache[uid]?.online || false,
+                lastSeen: allUsersCache[uid]?.lastSeen || 0
             };
         });
         DOM.friendCount.textContent = Object.keys(friends).length;
         const activeTab = document.querySelector('.tab.active');
         if (activeTab && activeTab.dataset.tab === 'chats') renderFriends();
         loadUnreadCounts();
+        // ✅ Reload users with new friend list
+        loadAllUsers();
     });
     
     requestsListener = onValue(ref(db, `friendRequests/${currentUser.uid}`), (snapshot) => {
@@ -545,6 +657,17 @@ async function markAsRead(friendUid) {
     renderFriends();
 }
 
+// ===== FORMAT LAST SEEN =====
+function formatLastSeen(timestamp) {
+    if (!timestamp) return 'অফলাইন';
+    const now = Date.now();
+    const diff = now - timestamp;
+    if (diff < 60000) return 'এখনই';
+    if (diff < 3600000) return `${Math.floor(diff/60000)} মিনিট আগে`;
+    if (diff < 86400000) return `${Math.floor(diff/3600000)} ঘন্টা আগে`;
+    return new Date(timestamp).toLocaleDateString('bn-BD');
+}
+
 // ===== RENDER FRIENDS =====
 function renderFriends() {
     const searchTerm = DOM.searchFriend.value.toLowerCase();
@@ -555,21 +678,30 @@ function renderFriends() {
     } else {
         keys.forEach(uid => {
             const f = friends[uid];
-            const name = f.displayName || 'ইউজার';
+            const name = sanitize(f.displayName || 'ইউজার');
             const photo = f.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
             const unread = unreadCounts[uid] || 0;
             if (searchTerm && !name.toLowerCase().includes(searchTerm)) return;
             const isActive = currentChatFriend === uid;
             const isOnline = allUsersCache[uid]?.online || false;
+            const lastSeen = allUsersCache[uid]?.lastSeen || 0;
+            
+            const lastMsg = f.lastMessage || '';
+            const lastMsgTime = f.lastMessageTime || 0;
+            const timeStr = lastMsgTime ? new Date(lastMsgTime).toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' }) : '';
+            
             html += `
                 <div class="friend-item ${isActive ? 'active' : ''}" data-uid="${uid}">
                     <img src="${photo}" class="avatar ${isOnline ? 'online' : ''}" loading="lazy" />
                     <div class="info">
                         <div class="name">${name}</div>
-                        <div class="last-msg">${unread > 0 ? '🔴 নতুন মেসেজ' : isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন'}</div>
+                        <div class="last-msg">
+                            ${isOnline ? '🟢 অনলাইন' : `⚪ ${formatLastSeen(lastSeen)}`}
+                            ${lastMsg ? ` · ${sanitize(lastMsg.substring(0, 30))}` : ''}
+                        </div>
                     </div>
                     <div class="meta">
-                        <span class="time">${isOnline ? 'অনলাইন' : 'অফলাইন'}</span>
+                        <span class="time">${timeStr}</span>
                         ${unread > 0 ? `<span class="unread danger">${unread}</span>` : ''}
                     </div>
                 </div>
@@ -589,14 +721,32 @@ function renderFriends() {
 function updateChatStatus() {
     if (!currentChatFriend || !allUsersCache[currentChatFriend]) return;
     const isOnline = allUsersCache[currentChatFriend]?.online || false;
+    const lastSeen = allUsersCache[currentChatFriend]?.lastSeen || 0;
     const statusEl = document.querySelector('.chat-header .status');
     if (statusEl) {
-        statusEl.textContent = isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন';
-        statusEl.className = `status ${isOnline ? 'online' : ''}`;
+        if (isOnline) {
+            statusEl.textContent = '🟢 অনলাইন';
+            statusEl.className = 'status online';
+        } else {
+            statusEl.textContent = `⚪ ${formatLastSeen(lastSeen)}`;
+            statusEl.className = 'status';
+        }
     }
 }
 
-// ===== TYPING =====
+// ===== UPDATE CALL BUTTONS =====
+function updateCallButtons() {
+    if (!currentChatFriend || !allUsersCache[currentChatFriend]) {
+        DOM.callBtns.style.display = 'none';
+        return;
+    }
+    const isOnline = allUsersCache[currentChatFriend]?.online || false;
+    DOM.callBtns.style.display = isOnline ? 'flex' : 'none';
+    DOM.voiceCallBtn.disabled = !isOnline;
+    DOM.videoCallBtn.disabled = !isOnline;
+}
+
+// ===== TYPING (FIXED - with cleanup) =====
 function handleTyping() {
     if (!currentUser || !currentChatFriend) return;
     const typingRef = ref(db, `typing/${currentChatFriend}/${currentUser.uid}`);
@@ -605,24 +755,346 @@ function handleTyping() {
     typingTimeout = setTimeout(() => remove(typingRef), 2000);
 }
 
-// ===== START CHAT =====
+// ============================================
+// WEBRTC CALL SYSTEM
+// ============================================
+
+// ===== START CALL =====
+async function startCall(receiverId, callType = 'voice') {
+    if (!currentUser) {
+        showToast('প্রথমে লগইন করুন!', 'error');
+        return;
+    }
+    
+    try {
+        const snap = await get(ref(db, `users/${receiverId}`));
+        const receiverData = snap.val();
+        if (!receiverData) { showToast('ব্যবহারকারী পাওয়া যায়নি!', 'error'); return; }
+        if (!receiverData.online) { showToast('ব্যবহারকারী অফলাইনে!', 'error'); return; }
+
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: true, 
+            video: callType === 'video' 
+        });
+        localStream = stream;
+        
+        if (callType === 'video') {
+            DOM.videoContainer.style.display = 'block';
+            DOM.localVideo.srcObject = stream;
+        }
+
+        const pc = new RTCPeerConnection({
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        });
+        currentCall = pc;
+        
+        stream.getTracks().forEach(track => pc.addTrack(track, stream));
+        
+        pc.ontrack = (event) => {
+            const remoteStream = event.streams[0];
+            if (callType === 'video') {
+                DOM.videoContainer.style.display = 'block';
+                DOM.remoteVideo.srcObject = remoteStream;
+            } else {
+                const audio = new Audio();
+                audio.srcObject = remoteStream;
+                audio.play();
+            }
+            updateCallStatus('answered');
+            DOM.callAnswer.style.display = 'none';
+            startCallTimer();
+        };
+        
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        
+        const callRef = ref(db, `calls/${receiverId}/${currentUser.uid}`);
+        await set(callRef, {
+            offer: offer,
+            callerName: currentUser.displayName || 'ইউজার',
+            callerPhoto: currentUser.photoURL || '',
+            callType: callType,
+            timestamp: Date.now()
+        });
+        
+        showCallUI(receiverData, 'calling', callType);
+        
+        const answerRef = ref(db, `calls/${currentUser.uid}/${receiverId}`);
+        onValue(answerRef, async (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.answer) {
+                await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+                remove(answerRef);
+                updateCallStatus('answered');
+                DOM.callAnswer.style.display = 'none';
+                startCallTimer();
+            }
+            if (data && data.rejected) {
+                endCall();
+                showToast('কল রিজেক্ট করা হয়েছে', 'error');
+                remove(answerRef);
+            }
+        }, { onlyOnce: true });
+        
+        setTimeout(() => {
+            if (currentCall && DOM.callOverlay.classList.contains('active')) {
+                endCall();
+                showToast('কল রিজেক্ট (টাইমআউট)', 'error');
+                remove(ref(db, `calls/${receiverId}/${currentUser.uid}`));
+            }
+        }, 30000);
+        
+    } catch (e) {
+        console.error('Call error:', e);
+        showToast('কল শুরু করতে ব্যর্থ! মাইক্রোফোন/ক্যামেরা পারমিশন চেক করুন', 'error');
+        endCall();
+    }
+}
+
+// ===== LISTEN FOR INCOMING CALLS =====
+function listenForCalls() {
+    if (!currentUser) return;
+    const callsRef = ref(db, `calls/${currentUser.uid}`);
+    onValue(callsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+        
+        Object.keys(data).forEach(callerId => {
+            const callData = data[callerId];
+            if (callData.offer && !callData.answered && !callData.rejected) {
+                incomingCallData = {
+                    callerId: callerId,
+                    callerName: callData.callerName || 'ইউজার',
+                    callerPhoto: callData.callerPhoto || '',
+                    callType: callData.callType || 'voice',
+                    offer: callData.offer
+                };
+                showIncomingCall(callData.callerName, callData.callerPhoto, callData.offer, callerId);
+            }
+        });
+    });
+}
+
+// ===== SHOW INCOMING CALL =====
+function showIncomingCall(name, photo, offer, callerId) {
+    if (DOM.callOverlay.classList.contains('active')) return;
+    
+    DOM.callAvatar.src = photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
+    DOM.callName.textContent = name;
+    DOM.callStatus.textContent = '📞 ইনকামিং কল...';
+    DOM.callStatus.className = 'call-status ringing';
+    DOM.callTimer.textContent = '00:00';
+    DOM.videoContainer.style.display = 'none';
+    DOM.callAnswer.style.display = 'flex';
+    DOM.callMute.style.display = 'none';
+    DOM.callOverlay.classList.add('active');
+    
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
+    playRingtone();
+    
+    window._incomingCallerId = callerId;
+    window._incomingOffer = offer;
+    
+    setTimeout(() => {
+        if (DOM.callOverlay.classList.contains('active')) {
+            endCall();
+            const rejectRef = ref(db, `calls/${currentUser.uid}/${callerId}`);
+            set(rejectRef, { rejected: true });
+            showToast('কল রিজেক্ট (টাইমআউট)', 'error');
+        }
+    }, 30000);
+}
+
+// ===== ANSWER CALL =====
+async function answerCall() {
+    const callerId = window._incomingCallerId;
+    const offer = window._incomingOffer;
+    if (!callerId || !offer) { showToast('কল গ্রহণ ব্যর্থ!', 'error'); return; }
+    
+    try {
+        const callType = incomingCallData?.callType || 'voice';
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: true, 
+            video: callType === 'video' 
+        });
+        localStream = stream;
+        
+        if (callType === 'video') {
+            DOM.videoContainer.style.display = 'block';
+            DOM.localVideo.srcObject = stream;
+        }
+        
+        const pc = new RTCPeerConnection({
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        });
+        currentCall = pc;
+        
+        stream.getTracks().forEach(track => pc.addTrack(track, stream));
+        
+        pc.ontrack = (event) => {
+            const remoteStream = event.streams[0];
+            if (callType === 'video') {
+                DOM.videoContainer.style.display = 'block';
+                DOM.remoteVideo.srcObject = remoteStream;
+            } else {
+                const audio = new Audio();
+                audio.srcObject = remoteStream;
+                audio.play();
+            }
+            updateCallStatus('answered');
+            DOM.callAnswer.style.display = 'none';
+            startCallTimer();
+        };
+        
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        
+        const answerRef = ref(db, `calls/${callerId}/${currentUser.uid}`);
+        await set(answerRef, { answer: answer });
+        
+        const callRef = ref(db, `calls/${currentUser.uid}/${callerId}`);
+        await update(callRef, { answered: true });
+        
+        DOM.callAnswer.style.display = 'none';
+        DOM.callMute.style.display = 'flex';
+        DOM.callMute.textContent = '🔊';
+        DOM.callMute.classList.remove('active');
+        isMuted = false;
+        stopRingtone();
+        
+    } catch (e) {
+        console.error('Answer call error:', e);
+        showToast('কল গ্রহণ ব্যর্থ!', 'error');
+        endCall();
+    }
+}
+
+// ===== CALL UI FUNCTIONS =====
+function showCallUI(userData, status, callType = 'voice') {
+    DOM.callAvatar.src = userData.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.displayName || 'User') + '&background=00A884&color=fff';
+    DOM.callName.textContent = userData.displayName || 'ইউজার';
+    DOM.callTimer.textContent = '00:00';
+    DOM.callStatus.textContent = status === 'calling' ? '🔔 কল হচ্ছে...' : '📞 ইনকামিং কল...';
+    DOM.callStatus.className = 'call-status ringing';
+    DOM.callAnswer.style.display = 'none';
+    DOM.callMute.style.display = 'flex';
+    DOM.callMute.textContent = '🔊';
+    DOM.callMute.classList.remove('active');
+    isMuted = false;
+    DOM.videoContainer.style.display = callType === 'video' ? 'block' : 'none';
+    DOM.callOverlay.classList.add('active');
+}
+
+function updateCallStatus(status) {
+    const map = { 'ringing': '🔔 রিং হচ্ছে...', 'answered': '📞 সংযুক্ত', 'rejected': '❌ রিজেক্ট', 'ended': '📞 শেষ' };
+    DOM.callStatus.textContent = map[status] || status;
+    DOM.callStatus.className = 'call-status';
+    if (status === 'ringing') DOM.callStatus.classList.add('ringing');
+}
+
+function startCallTimer() {
+    callStartTime = Date.now();
+    if (callTimerInterval) clearInterval(callTimerInterval);
+    callTimerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+        DOM.callTimer.textContent = `${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;
+    }, 1000);
+}
+
+function endCall() {
+    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+    if (currentCall) { try { currentCall.close(); } catch(e) {} currentCall = null; }
+    incomingCallData = null;
+    DOM.callOverlay.classList.remove('active');
+    DOM.videoContainer.style.display = 'none';
+    DOM.callAnswer.style.display = 'none';
+    DOM.callMute.style.display = 'flex';
+    if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+    stopRingtone();
+    DOM.remoteVideo.srcObject = null;
+    DOM.localVideo.srcObject = null;
+    if (navigator.vibrate) navigator.vibrate(0);
+    window._incomingCallerId = null;
+    window._incomingOffer = null;
+}
+
+function toggleMute() {
+    if (!localStream) return;
+    isMuted = !isMuted;
+    localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+    DOM.callMute.textContent = isMuted ? '🔇' : '🔊';
+    DOM.callMute.classList.toggle('active', isMuted);
+}
+
+// ===== RINGTONE =====
+let ringtoneCtx = null;
+let ringtoneInterval = null;
+
+function playRingtone() {
+    try {
+        ringtoneCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let count = 0;
+        ringtoneInterval = setInterval(() => {
+            if (count >= 20 || !ringtoneCtx) { clearInterval(ringtoneInterval); return; }
+            try {
+                const osc = ringtoneCtx.createOscillator();
+                const gain = ringtoneCtx.createGain();
+                osc.connect(gain); gain.connect(ringtoneCtx.destination);
+                osc.frequency.value = 440; osc.type = 'sine';
+                gain.gain.setValueAtTime(0.2, ringtoneCtx.currentTime);
+                osc.start(); osc.stop(ringtoneCtx.currentTime + 0.3);
+                setTimeout(() => {
+                    if (!ringtoneCtx) return;
+                    const osc2 = ringtoneCtx.createOscillator();
+                    const gain2 = ringtoneCtx.createGain();
+                    osc2.connect(gain2); gain2.connect(ringtoneCtx.destination);
+                    osc2.frequency.value = 440; osc2.type = 'sine';
+                    gain2.gain.setValueAtTime(0.2, ringtoneCtx.currentTime);
+                    osc2.start(); osc2.stop(ringtoneCtx.currentTime + 0.3);
+                }, 400);
+            } catch(e) {}
+            count += 2;
+        }, 1000);
+    } catch(e) { console.log('Ringtone error:', e); }
+}
+
+function stopRingtone() {
+    if (ringtoneInterval) { clearInterval(ringtoneInterval); ringtoneInterval = null; }
+    if (ringtoneCtx) { try { ringtoneCtx.close(); } catch(e) {} ringtoneCtx = null; }
+}
+
+// ============================================
+// START CHAT
+// ============================================
 function startChat(friendUid) {
     if (!friends[friendUid]) { showToast('এই ইউজার আপনার বন্ধু নয়!', 'error'); return; }
     
+    // ✅ Cleanup old typing listener
+    if (typingListener) { typingListener(); typingListener = null; }
+    
     currentChatFriend = friendUid;
     const friend = friends[friendUid];
-    const name = friend.displayName || 'ইউজার';
+    const name = sanitize(friend.displayName || 'ইউজার');
     const photo = friend.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
     const isOnline = allUsersCache[friendUid]?.online || false;
+    const lastSeen = allUsersCache[friendUid]?.lastSeen || 0;
     
     DOM.chatFriendInfo.innerHTML = `
         <img src="${photo}" alt="${name}" />
         <div class="details">
             <div class="name">${name}</div>
-            <div class="status ${isOnline ? 'online' : ''}">${isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন'}</div>
+            <div class="status ${isOnline ? 'online' : ''}">${isOnline ? '🟢 অনলাইন' : `⚪ ${formatLastSeen(lastSeen)}`}</div>
         </div>
     `;
     
+    updateCallButtons();
     markAsRead(friendUid);
     document.querySelectorAll('.friend-item').forEach(el => {
         el.classList.toggle('active', el.dataset.uid === friendUid);
@@ -636,18 +1108,21 @@ function startChat(friendUid) {
     DOM.fileUpload.disabled = false;
     DOM.messageInput.focus();
     
-    // Listen for typing
+    // ✅ Typing listener with cleanup
     const typingRef = ref(db, `typing/${currentUser.uid}/${friendUid}`);
-    onValue(typingRef, (snapshot) => {
+    typingListener = onValue(typingRef, (snapshot) => {
         const isTyping = snapshot.val();
         const statusEl = document.querySelector('.chat-header .status');
-        if (isTyping) {
-            statusEl.textContent = '✍️ টাইপ করছে...';
-            statusEl.className = 'status typing';
-        } else {
-            const online = allUsersCache[friendUid]?.online || false;
-            statusEl.textContent = online ? '🟢 অনলাইন' : '⚪ অফলাইন';
-            statusEl.className = `status ${online ? 'online' : ''}`;
+        if (statusEl) {
+            if (isTyping) {
+                statusEl.textContent = '✍️ টাইপ করছে...';
+                statusEl.className = 'status typing';
+            } else {
+                const online = allUsersCache[friendUid]?.online || false;
+                const seen = allUsersCache[friendUid]?.lastSeen || 0;
+                statusEl.textContent = online ? '🟢 অনলাইন' : `⚪ ${formatLastSeen(seen)}`;
+                statusEl.className = `status ${online ? 'online' : ''}`;
+            }
         }
     });
 }
@@ -670,8 +1145,19 @@ function loadPrivateMessages(friendUid) {
         if (el) {
             const textEl = el.querySelector('.msg-text');
             if (textEl) {
-                if (msg.image) textEl.innerHTML = `<img src="${msg.image}" onclick="window.openImagePreview('${msg.image}')" />`;
-                else textEl.innerHTML = msg.text + (msg.edited ? ' <span style="font-size:10px;opacity:0.5;">(edited)</span>' : '');
+                if (msg.image) {
+                    // ✅ Safe image rendering
+                    const img = createSafeImage(msg.image);
+                    textEl.innerHTML = '';
+                    textEl.appendChild(img);
+                } else {
+                    textEl.innerHTML = sanitize(msg.text) + (msg.edited ? ' <span style="font-size:10px;opacity:0.5;">(edited)</span>' : '');
+                }
+            }
+            const statusEl = el.querySelector('.msg-status');
+            if (statusEl && msg.status) {
+                statusEl.textContent = msg.status === 'seen' ? '✔✔' : '✔';
+                statusEl.className = `msg-status ${msg.status === 'seen' ? 'seen' : 'delivered'}`;
             }
         }
     });
@@ -689,26 +1175,77 @@ function appendMessage(key, msg) {
     div.className = `message ${isOwn ? 'own' : ''}`;
     div.dataset.key = key;
     const avatar = msg.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(msg.displayName || 'U') + '&background=00A884&color=fff';
-    let content = '';
+    
+    // ✅ Safe content rendering
+    let content;
     if (msg.image) {
-        content = `<img src="${msg.image}" onclick="window.openImagePreview('${msg.image}')" />`;
+        const img = createSafeImage(msg.image);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'msg-text';
+        wrapper.appendChild(img);
+        content = wrapper;
     } else {
-        content = msg.text + (msg.edited ? ' <span style="font-size:10px;opacity:0.5;">(edited)</span>' : '');
+        const textDiv = document.createElement('div');
+        textDiv.className = 'msg-text';
+        textDiv.innerHTML = sanitize(msg.text) + (msg.edited ? ' <span style="font-size:10px;opacity:0.5;">(edited)</span>' : '');
+        content = textDiv;
     }
-    div.innerHTML = `
-        <img src="${avatar}" class="msg-avatar" loading="lazy" />
-        <div class="msg-bubble">
-            <div class="msg-sender">${isOwn ? 'আপনি' : (msg.displayName || 'ইউজার')}</div>
-            <div class="msg-text">${content}</div>
-            <div class="msg-time">${time}</div>
-            ${isOwn ? `<div class="msg-actions"><button class="edit-btn" data-key="${key}">✏️</button><button class="delete-btn" data-key="${key}">🗑️</button></div>` : ''}
-        </div>
+    
+    const statusHtml = isOwn ? `<span class="msg-status ${msg.status === 'seen' ? 'seen' : 'delivered'}">${msg.status === 'seen' ? '✔✔' : '✔'}</span>` : '';
+    
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = `
+        <div class="msg-sender">${isOwn ? 'আপনি' : sanitize(msg.displayName || 'ইউজার')}</div>
     `;
+    bubble.appendChild(content);
+    
+    const footer = document.createElement('div');
+    footer.className = 'msg-footer';
+    footer.innerHTML = `
+        <span class="msg-time">${time}</span>
+        ${statusHtml}
+    `;
+    bubble.appendChild(footer);
+    
+    if (isOwn) {
+        const actions = document.createElement('div');
+        actions.className = 'msg-actions';
+        actions.innerHTML = `
+            <button class="edit-btn" data-key="${key}">✏️</button>
+            <button class="delete-btn" data-key="${key}">🗑️</button>
+        `;
+        bubble.appendChild(actions);
+    }
+    
+    const avatarEl = document.createElement('img');
+    avatarEl.src = avatar;
+    avatarEl.className = 'msg-avatar';
+    avatarEl.loading = 'lazy';
+    
+    div.appendChild(avatarEl);
+    div.appendChild(bubble);
     DOM.messages.appendChild(div);
     DOM.messages.scrollTop = DOM.messages.scrollHeight;
+    
+    // Update last message in friend list
+    if (currentChatFriend) {
+        update(ref(db, `friends/${currentUser.uid}/${currentChatFriend}`), {
+            lastMessage: msg.text || '📷',
+            lastMessageTime: msg.timestamp || Date.now()
+        });
+    }
+    
     if (isOwn) {
         div.querySelector('.edit-btn')?.addEventListener('click', () => editMessage(key, msg.text));
         div.querySelector('.delete-btn')?.addEventListener('click', () => deleteMessage(key));
+        update(ref(db, `privateChats/${[currentUser.uid, currentChatFriend].sort().join('_')}/messages/${key}`), {
+            status: 'delivered'
+        });
+    } else {
+        update(ref(db, `privateChats/${[currentUser.uid, currentChatFriend].sort().join('_')}/messages/${key}`), {
+            status: 'seen'
+        });
     }
 }
 
@@ -723,7 +1260,12 @@ async function deleteMessage(key) {
     if (!currentUser || !currentChatFriend || !confirm('মেসেজ ডিলিট করতে চান?')) return;
     const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
     try {
-        await update(ref(db, `privateChats/${chatId}/messages/${key}`), { text: '🔴 ডিলিট করা হয়েছে', deleted: true });
+        // ✅ Mark as deleted instead of removing
+        await update(ref(db, `privateChats/${chatId}/messages/${key}`), { 
+            text: '🔴 ডিলিট করা হয়েছে', 
+            deleted: true,
+            image: null // Remove image for security
+        });
         showToast('✅ ডিলিট করা হয়েছে');
     } catch(e) { showToast('ডিলিট ব্যর্থ!', 'error'); }
 }
@@ -745,8 +1287,12 @@ async function sendPrivateMessage() {
     const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
     const newMsgRef = push(ref(db, `privateChats/${chatId}/messages`));
     await set(newMsgRef, {
-        text, uid: currentUser.uid, displayName: currentUser.displayName || 'ইউজার',
-        photoURL: currentUser.photoURL || '', timestamp: Date.now()
+        text: sanitize(text),
+        uid: currentUser.uid,
+        displayName: currentUser.displayName || 'ইউজার',
+        photoURL: currentUser.photoURL || '',
+        timestamp: Date.now(),
+        status: 'sent'
     });
     const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
     const snap = await get(unreadRef);
@@ -770,7 +1316,8 @@ async function sendImageMessage(file) {
             displayName: currentUser.displayName || 'ইউজার',
             photoURL: currentUser.photoURL || '',
             timestamp: Date.now(),
-            fileName: file.name
+            fileName: file.name,
+            status: 'sent'
         });
         const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
         const snap = await get(unreadRef);
@@ -815,7 +1362,7 @@ function renderRequestsTab() {
     } else {
         pending.forEach(uid => {
             const req = requests[uid];
-            const name = req.displayName || 'ইউজার';
+            const name = sanitize(req.displayName || 'ইউজার');
             const photo = req.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
             html += `
                 <div class="friend-item" style="cursor:default;" data-uid="${uid}">
@@ -834,7 +1381,7 @@ function renderRequestsTab() {
     document.querySelectorAll('.btn-danger[data-uid]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); rejectFriendRequest(b.dataset.uid); }));
 }
 
-// ===== RENDER SEARCH TAB =====
+// ===== RENDER SEARCH TAB (OPTIMIZED) =====
 function renderSearchTab() {
     let html = `
         <div style="padding:12px;">
@@ -850,25 +1397,56 @@ function renderSearchTab() {
         const query = $('searchUserInput').value.trim().toLowerCase();
         if (!query) { $('searchResults').innerHTML = ''; return; }
         if (!currentUser) { showToast('লগইন করুন!', 'error'); return; }
-        const found = Object.keys(allUsersCache).filter(uid => {
+        
+        // ✅ OPTIMIZED: Search only friends + cached users
+        const friendIds = Object.keys(friends);
+        const searchPool = {};
+        
+        // Add friends
+        friendIds.forEach(uid => {
+            if (allUsersCache[uid]) {
+                searchPool[uid] = allUsersCache[uid];
+            }
+        });
+        
+        // Add self
+        if (currentUser) {
+            searchPool[currentUser.uid] = allUsersCache[currentUser.uid] || { displayName: currentUser.displayName, email: currentUser.email };
+        }
+        
+        // Add some recently active users (limit to 50 for performance)
+        const allUsers = Object.keys(allUsersCache);
+        const sortedUsers = allUsers.sort((a, b) => {
+            return (allUsersCache[b]?.lastSeen || 0) - (allUsersCache[a]?.lastSeen || 0);
+        });
+        const recentUsers = sortedUsers.slice(0, 50);
+        recentUsers.forEach(uid => {
+            if (!searchPool[uid]) {
+                searchPool[uid] = allUsersCache[uid];
+            }
+        });
+        
+        const found = Object.keys(searchPool).filter(uid => {
             if (uid === currentUser.uid) return false;
-            const u = allUsersCache[uid];
+            const u = searchPool[uid];
+            if (!u) return false;
             const name = (u.displayName || '').toLowerCase();
             const email = (u.email || '').toLowerCase();
             return name.includes(query) || email.includes(query);
         });
+        
         const results = $('searchResults');
         if (found.length === 0) { results.innerHTML = `<div style="color:var(--text-secondary);text-align:center;padding:20px;">কোনো ইউজার পাওয়া যায়নি</div>`; return; }
         let html2 = '';
         found.forEach(uid => {
-            const u = allUsersCache[uid];
+            const u = searchPool[uid];
             const isFriend = friends[uid];
             const isRequested = requests[uid] && requests[uid].status === 'pending';
             const photo = u.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.displayName || 'U') + '&background=00A884&color=fff';
             html2 += `
                 <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-color);">
                     <img src="${photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" loading="lazy" />
-                    <span style="flex:1;font-size:14px;font-weight:500;">${u.displayName || 'ইউজার'}</span>
+                    <span style="flex:1;font-size:14px;font-weight:500;">${sanitize(u.displayName || 'ইউজার')}</span>
                     ${isFriend ? '<span style="color:var(--primary);font-size:12px;font-weight:600;">✅ বন্ধু</span>' :
                     isRequested ? '<span style="color:#F59E0B;font-size:12px;font-weight:600;">⏳ রিকোয়েস্ট পাঠানো</span>' :
                     `<button class="btn btn-primary" style="padding:4px 14px;font-size:12px;" data-uid="${uid}">➕ বন্ধু করুন</button>`
@@ -938,6 +1516,13 @@ DOM.messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') se
 DOM.messageInput.addEventListener('input', handleTyping);
 DOM.backBtn.addEventListener('click', () => { DOM.chatList.classList.remove('hidden'); DOM.chatList.style.display = 'flex'; });
 
+// Call buttons
+DOM.voiceCallBtn.onclick = () => { if (currentChatFriend) startCall(currentChatFriend, 'voice'); };
+DOM.videoCallBtn.onclick = () => { if (currentChatFriend) startCall(currentChatFriend, 'video'); };
+DOM.callEnd.onclick = endCall;
+DOM.callAnswer.onclick = answerCall;
+DOM.callMute.onclick = toggleMute;
+
 // ===== LOGIN =====
 DOM.loginBtn.onclick = async () => {
     const provider = new GoogleAuthProvider();
@@ -947,6 +1532,7 @@ DOM.loginBtn.onclick = async () => {
         const user = result.user;
         await saveUserData(user);
         showToast(`স্বাগতম ${user.displayName || 'ইউজার'}! 🎉`);
+        setTimeout(listenForCalls, 1000);
     } catch (e) {
         if (e.code !== 'auth/popup-closed-by-user') {
             showToast(`লগইন ব্যর্থ: ${e.message}`, 'error');
@@ -958,9 +1544,13 @@ DOM.loginBtn.onclick = async () => {
 // ===== LOGOUT =====
 DOM.logoutBtn.onclick = async () => {
     try {
-        if (currentUser) await updateOnlineStatus(currentUser.uid, false);
+        if (currentUser) {
+            await cleanupDisconnect();
+            await update(ref(db, `users/${currentUser.uid}`), { online: false, lastSeen: serverTimestamp() });
+        }
         await signOut(auth);
         showToast('সাইন আউট করা হয়েছে।');
+        endCall();
     } catch(e) { showToast(`সাইন আউট ব্যর্থ: ${e.message}`, 'error'); }
 };
 
@@ -969,7 +1559,7 @@ onAuthStateChanged(auth, async (user) => {
     updateUI(user);
     if (user) {
         await saveUserData(user);
-        await updateOnlineStatus(user.uid, true);
+        setTimeout(listenForCalls, 2000);
     }
 });
 
@@ -1027,12 +1617,18 @@ window.addEventListener('resize', () => {
 });
 
 // ===== BEFORE UNLOAD =====
-window.addEventListener('beforeunload', () => {
-    if (currentUser) updateOnlineStatus(currentUser.uid, false);
+window.addEventListener('beforeunload', async () => {
+    if (currentUser) {
+        await cleanupDisconnect();
+        await update(ref(db, `users/${currentUser.uid}`), { online: false, lastSeen: serverTimestamp() });
+    }
+    if (localStream) localStream.getTracks().forEach(t => t.stop());
+    if (currentCall) { try { currentCall.close(); } catch(e) {} }
 });
 
-console.log('✅ ConnectBD Ready!');
-console.log('📱 চ্যাট, বন্ধু, রিকোয়েস্ট সব কাজ করবে!');
+console.log('✅ ConnectBD Pro Ready!');
+console.log('📱 ফিচারসমূহ: চ্যাট, কল, অনলাইন/অফলাইন (onDisconnect), Seen/Delivered, Last Seen (serverTimestamp)');
+console.log('🔒 XSS Protection, Optimized Listeners, Performance Tuned');
 </script>
 </body>
 </html>
