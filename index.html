@@ -3,222 +3,234 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ConnectBD - WhatsApp Style</title>
+    <title>ConnectBD - চ্যাট</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
-            --whatsapp-green: #00A884;
-            --whatsapp-dark: #111B21;
-            --whatsapp-dark-secondary: #202C33;
-            --whatsapp-dark-tertiary: #2A3942;
-            --whatsapp-text-primary: #E9EDF0;
-            --whatsapp-text-secondary: #AEBAC1;
-            --whatsapp-border: #2A3942;
-            --whatsapp-chat-own: #D9FDD3;
-            --whatsapp-radius: 8px;
+            --primary: #00A884;
+            --primary-dark: #008f72;
+            --bg-dark: #111B21;
+            --bg-secondary: #202C33;
+            --bg-tertiary: #2A3942;
+            --text-primary: #E9EDF0;
+            --text-secondary: #AEBAC1;
+            --border-color: #2A3942;
+            --chat-own: #D9FDD3;
+            --chat-own-text: #111B21;
+            --radius: 8px;
             --header-height: 60px;
-            --composer-height: 62px;
             --tab-height: 48px;
+            --composer-height: 62px;
         }
-        html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--whatsapp-dark); color: var(--whatsapp-text-primary); }
-        .status-bar { height: 24px; background: var(--whatsapp-dark); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 12px; color: var(--whatsapp-text-secondary); flex-shrink: 0; }
-        .status-bar .time { font-weight: 600; color: var(--whatsapp-text-primary); }
-        .app-container { display: flex; flex-direction: column; height: 100vh; height: 100dvh; background: var(--whatsapp-dark); max-width: 100%; overflow: hidden; }
-        .header { height: var(--header-height); background: var(--whatsapp-dark-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; flex-shrink: 0; border-bottom: 1px solid var(--whatsapp-border); }
+        html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text-primary); }
+        
+        /* Status Bar */
+        .status-bar { height: 24px; background: var(--bg-dark); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 12px; color: var(--text-secondary); flex-shrink: 0; }
+        .status-bar .time { font-weight: 600; color: var(--text-primary); }
+        
+        /* App Container */
+        .app-container { display: flex; flex-direction: column; height: 100vh; height: 100dvh; background: var(--bg-dark); max-width: 100%; overflow: hidden; }
+        
+        /* Header */
+        .header { height: var(--header-height); background: var(--bg-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; flex-shrink: 0; border-bottom: 1px solid var(--border-color); }
         .header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
-        .header-left .app-logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--whatsapp-green); }
-        .header-left .app-title { font-size: 18px; font-weight: 700; color: var(--whatsapp-text-primary); }
-        .header-left .app-title span { color: var(--whatsapp-green); }
+        .header-left .logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--primary); }
+        .header-left .title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+        .header-left .title span { color: var(--primary); }
         .header-right { display: flex; align-items: center; gap: 8px; }
-        .user-profile-mini { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px 4px 4px; border-radius: 30px; transition: all 0.2s; }
-        .user-profile-mini img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--whatsapp-green); }
-        .user-profile-mini .user-name { font-size: 13px; font-weight: 500; color: var(--whatsapp-text-primary); max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .login-btn { background: var(--whatsapp-green); color: white; border: none; padding: 8px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .login-btn:active { transform: scale(0.94); }
-        .logout-btn { background: transparent; color: #FF3B30; border: none; font-size: 20px; padding: 6px 10px; cursor: pointer; border-radius: 50%; }
-        .logout-btn:active { background: rgba(255,255,255,0.05); }
-        .tabs { display: flex; background: var(--whatsapp-dark-secondary); border-bottom: 1px solid var(--whatsapp-border); flex-shrink: 0; height: var(--tab-height); }
-        .tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--whatsapp-text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; padding: 0 8px; position: relative; }
-        .tab.active { color: var(--whatsapp-green); border-bottom-color: var(--whatsapp-green); }
-        .tab .tab-badge { background: var(--whatsapp-green); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 50%; min-width: 18px; text-align: center; }
-        .tab .tab-badge.danger { background: #FF3B30; }
-        .main-content { flex: 1; display: flex; overflow: hidden; background: var(--whatsapp-dark); position: relative; }
-        .chat-list { width: 100%; max-width: 420px; flex-shrink: 0; background: var(--whatsapp-dark); display: flex; flex-direction: column; border-right: 1px solid var(--whatsapp-border); overflow: hidden; position: relative; z-index: 5; }
+        
+        .user-profile { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px 4px 4px; border-radius: 30px; }
+        .user-profile img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .user-profile .name { font-size: 13px; font-weight: 500; color: var(--text-primary); max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        .btn { padding: 8px 20px; border: none; border-radius: 30px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn:active { transform: scale(0.94); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: #FF3B30; color: white; padding: 8px 14px; font-size: 16px; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+        
+        /* Tabs */
+        .tabs { display: flex; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); flex-shrink: 0; height: var(--tab-height); }
+        .tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; padding: 0 8px; }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab .badge { background: var(--primary); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 50%; min-width: 18px; text-align: center; }
+        .tab .badge.danger { background: #FF3B30; }
+        
+        /* Main */
+        .main-content { flex: 1; display: flex; overflow: hidden; background: var(--bg-dark); position: relative; }
+        
+        /* Chat List */
+        .chat-list { width: 100%; max-width: 420px; flex-shrink: 0; background: var(--bg-dark); display: flex; flex-direction: column; border-right: 1px solid var(--border-color); overflow: hidden; position: relative; z-index: 5; }
         .chat-list.hidden { transform: translateX(-100%); position: absolute; width: 100%; max-width: 100%; z-index: 5; }
-        .search-bar { padding: 6px 12px; background: var(--whatsapp-dark-secondary); flex-shrink: 0; display: flex; gap: 8px; align-items: center; }
-        .search-bar input { flex: 1; background: var(--whatsapp-dark-tertiary); border: none; border-radius: var(--whatsapp-radius); padding: 8px 14px; color: var(--whatsapp-text-primary); font-size: 14px; font-family: inherit; outline: none; }
-        .search-bar input::placeholder { color: var(--whatsapp-text-secondary); }
-        .friend-list-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
-        .friend-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--whatsapp-border); }
-        .friend-item:active { background: var(--whatsapp-dark-tertiary); }
-        .friend-item.active { background: var(--whatsapp-dark-tertiary); }
+        
+        .search-bar { padding: 6px 12px; background: var(--bg-secondary); flex-shrink: 0; display: flex; gap: 8px; align-items: center; }
+        .search-bar input { flex: 1; background: var(--bg-tertiary); border: none; border-radius: var(--radius); padding: 8px 14px; color: var(--text-primary); font-size: 14px; font-family: inherit; outline: none; }
+        .search-bar input::placeholder { color: var(--text-secondary); }
+        
+        .friend-list { flex: 1; overflow-y: auto; overflow-x: hidden; }
+        .friend-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+        .friend-item:active { background: var(--bg-tertiary); }
+        .friend-item.active { background: var(--bg-tertiary); }
         .friend-item .avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid transparent; }
-        .friend-item .avatar.online { border-color: var(--whatsapp-green); }
+        .friend-item .avatar.online { border-color: var(--primary); }
         .friend-item .info { flex: 1; min-width: 0; }
-        .friend-item .info .name { font-size: 15px; font-weight: 500; color: var(--whatsapp-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .friend-item .info .last-msg { font-size: 13px; color: var(--whatsapp-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .friend-item .info .name { font-size: 15px; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .friend-item .info .last-msg { font-size: 13px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .friend-item .meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-        .friend-item .meta .time { font-size: 11px; color: var(--whatsapp-text-secondary); }
-        .friend-item .meta .unread-badge { background: var(--whatsapp-green); color: white; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 50%; min-width: 20px; text-align: center; }
-        .friend-item .meta .unread-badge.danger { background: #FF3B30; }
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--whatsapp-text-secondary); font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .friend-item .meta .time { font-size: 11px; color: var(--text-secondary); }
+        .friend-item .meta .unread { background: var(--primary); color: white; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 50%; min-width: 20px; text-align: center; }
+        .friend-item .meta .unread.danger { background: #FF3B30; }
+        
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .empty-state .icon { font-size: 48px; opacity: 0.5; }
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--whatsapp-dark); min-width: 0; position: relative; }
-        .chat-area .chat-header { height: var(--header-height); background: var(--whatsapp-dark-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--whatsapp-border); flex-shrink: 0; }
-        .chat-area .chat-header .back-btn { display: none; background: none; border: none; color: var(--whatsapp-text-primary); font-size: 22px; cursor: pointer; padding: 4px 8px; }
-        .chat-area .chat-header .chat-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-        .chat-area .chat-header .chat-info img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-        .chat-area .chat-header .chat-info .details { flex: 1; min-width: 0; }
-        .chat-area .chat-header .chat-info .details .name { font-size: 15px; font-weight: 600; color: var(--whatsapp-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .chat-area .chat-header .chat-info .details .status { font-size: 12px; color: var(--whatsapp-text-secondary); }
-        .chat-area .chat-header .chat-info .details .status.online { color: var(--whatsapp-green); }
-        .chat-area .chat-header .header-actions { display: flex; gap: 2px; flex-shrink: 0; align-items: center; }
-        .chat-area .chat-header .header-actions button { background: none; border: none; color: var(--whatsapp-text-secondary); font-size: 18px; padding: 6px 10px; cursor: pointer; border-radius: 50%; transition: all 0.2s; }
-        .chat-area .chat-header .header-actions button:active { background: rgba(255,255,255,0.1); }
-        .messages-container { flex: 1; overflow-y: auto; padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 4px; background: var(--whatsapp-dark); }
+        
+        /* Chat Area */
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg-dark); min-width: 0; position: relative; }
+        .chat-header { height: var(--header-height); background: var(--bg-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .chat-header .back-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 22px; cursor: pointer; padding: 4px 8px; }
+        .chat-header .chat-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .chat-header .chat-info img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .chat-header .chat-info .details { flex: 1; min-width: 0; }
+        .chat-header .chat-info .details .name { font-size: 15px; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .chat-header .chat-info .details .status { font-size: 12px; color: var(--text-secondary); }
+        .chat-header .chat-info .details .status.online { color: var(--primary); }
+        
+        .messages { flex: 1; overflow-y: auto; padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 4px; background: var(--bg-dark); }
         .message { display: flex; gap: 8px; max-width: 85%; animation: fadeIn 0.2s ease; }
         .message.own { align-self: flex-end; flex-direction: row-reverse; }
-        .message .msg-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; align-self: flex-end; border: 2px solid var(--whatsapp-dark); }
-        .message .msg-bubble { padding: 8px 12px; border-radius: 8px; word-wrap: break-word; max-width: 100%; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .message:not(.own) .msg-bubble { background: var(--whatsapp-dark-tertiary); color: var(--whatsapp-text-primary); border-top-left-radius: 0; }
-        .message.own .msg-bubble { background: var(--whatsapp-chat-own); color: #111B21; border-top-right-radius: 0; }
-        .message .msg-sender { font-size: 11px; font-weight: 600; color: var(--whatsapp-green); margin-bottom: 2px; }
+        .message .msg-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; align-self: flex-end; border: 2px solid var(--bg-dark); }
+        .message .msg-bubble { padding: 8px 12px; border-radius: 8px; word-wrap: break-word; max-width: 100%; position: relative; }
+        .message:not(.own) .msg-bubble { background: var(--bg-tertiary); color: var(--text-primary); border-top-left-radius: 0; }
+        .message.own .msg-bubble { background: var(--chat-own); color: var(--chat-own-text); border-top-right-radius: 0; }
+        .message .msg-sender { font-size: 11px; font-weight: 600; color: var(--primary); margin-bottom: 2px; }
         .message.own .msg-sender { color: #075E54; }
         .message .msg-text { font-size: 14px; line-height: 1.5; word-break: break-word; }
-        .message .msg-text .image-container img { max-width: min(100%, 240px); max-height: 180px; border-radius: 4px; cursor: pointer; display: block; }
+        .message .msg-text img { max-width: min(100%, 200px); max-height: 150px; border-radius: 4px; cursor: pointer; display: block; }
         .message .msg-time { font-size: 10px; opacity: 0.6; margin-top: 2px; text-align: right; }
-        .message.own .msg-time { color: #111B21; }
+        .message.own .msg-time { color: var(--chat-own-text); }
         .message .msg-actions { display: flex; gap: 2px; margin-top: 2px; justify-content: flex-end; }
         .message .msg-actions button { background: none; border: none; font-size: 11px; cursor: pointer; opacity: 0.4; padding: 2px 4px; border-radius: 4px; color: inherit; }
-        .message.own .msg-actions button { color: #111B21; }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        .typing-indicator { font-size: 12px; color: var(--whatsapp-text-secondary); padding: 2px 20px 6px; min-height: 20px; flex-shrink: 0; }
-        .typing-indicator.active { color: var(--whatsapp-green); }
-        .composer { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--whatsapp-dark-secondary); border-top: 1px solid var(--whatsapp-border); flex-shrink: 0; min-height: var(--composer-height); }
-        .composer .attach-btn { background: none; border: none; color: var(--whatsapp-text-secondary); font-size: 22px; cursor: pointer; padding: 4px 6px; }
+        
+        .typing-indicator { font-size: 12px; color: var(--text-secondary); padding: 2px 20px 6px; min-height: 20px; flex-shrink: 0; }
+        .typing-indicator.active { color: var(--primary); }
+        
+        /* Composer */
+        .composer { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-secondary); border-top: 1px solid var(--border-color); flex-shrink: 0; min-height: var(--composer-height); }
+        .composer .attach-btn { background: none; border: none; color: var(--text-secondary); font-size: 22px; cursor: pointer; padding: 4px 6px; }
         .composer .attach-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .composer input { flex: 1; background: var(--whatsapp-dark-tertiary); border: none; border-radius: var(--whatsapp-radius); padding: 9px 14px; color: var(--whatsapp-text-primary); font-size: 14px; font-family: inherit; outline: none; min-width: 0; }
-        .composer input::placeholder { color: var(--whatsapp-text-secondary); }
+        .composer input { flex: 1; background: var(--bg-tertiary); border: none; border-radius: var(--radius); padding: 9px 14px; color: var(--text-primary); font-size: 14px; font-family: inherit; outline: none; min-width: 0; }
+        .composer input::placeholder { color: var(--text-secondary); }
         .composer input:disabled { opacity: 0.4; cursor: not-allowed; }
-        .composer .send-btn { background: var(--whatsapp-green); color: white; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .composer .send-btn { background: var(--primary); color: white; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .composer .send-btn:active { transform: scale(0.88); }
         .composer .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--whatsapp-dark-secondary); color: var(--whatsapp-text-primary); padding: 10px 24px; border-radius: var(--whatsapp-radius); font-size: 14px; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 999; opacity: 0; transition: all 0.4s ease; max-width: 92%; text-align: center; pointer-events: none; border: 1px solid var(--whatsapp-border); }
+        
+        /* Toast */
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg-secondary); color: var(--text-primary); padding: 10px 24px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 999; opacity: 0; transition: all 0.4s ease; max-width: 92%; text-align: center; pointer-events: none; border: 1px solid var(--border-color); }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error { border-color: #FF3B30; }
+        
+        /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
-        .modal { background: var(--whatsapp-dark-secondary); border-radius: 16px; padding: 28px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--whatsapp-border); }
-        .modal h2 { font-size: 20px; font-weight: 700; color: var(--whatsapp-text-primary); margin-bottom: 20px; text-align: center; }
-        .profile-pic-wrapper { position: relative; width: 100px; margin: 0 auto 20px; }
-        .profile-pic-wrapper .profile-pic { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; display: block; border: 3px solid var(--whatsapp-green); }
-        .profile-pic-wrapper .upload-overlay { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 4px 14px; border-radius: 30px; font-size: 11px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+        .modal { background: var(--bg-secondary); border-radius: 16px; padding: 28px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); }
+        .modal h2 { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; text-align: center; }
+        .modal .profile-pic-wrapper { position: relative; width: 100px; margin: 0 auto 20px; }
+        .modal .profile-pic-wrapper img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; display: block; border: 3px solid var(--primary); }
+        .modal .profile-pic-wrapper .upload-overlay { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 4px 14px; border-radius: 30px; font-size: 11px; font-weight: 500; cursor: pointer; white-space: nowrap; }
         .modal .form-group { margin-bottom: 16px; }
-        .modal .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--whatsapp-text-secondary); margin-bottom: 4px; }
-        .modal .form-group input { width: 100%; padding: 10px 14px; border: 1px solid var(--whatsapp-border); border-radius: var(--whatsapp-radius); font-size: 14px; font-family: inherit; background: var(--whatsapp-dark); color: var(--whatsapp-text-primary); }
-        .modal .form-group input:focus { border-color: var(--whatsapp-green); outline: none; }
-        .modal .form-group input:disabled { opacity: 0.6; }
+        .modal .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; }
+        .modal .form-group input { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 14px; font-family: inherit; background: var(--bg-dark); color: var(--text-primary); }
+        .modal .form-group input:focus { border-color: var(--primary); outline: none; }
         .modal .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .modal .modal-actions button { flex: 1; padding: 10px; border: none; border-radius: var(--whatsapp-radius); font-weight: 600; font-size: 14px; cursor: pointer; }
-        .modal .modal-actions .save-btn { background: var(--whatsapp-green); color: white; }
-        .modal .modal-actions .cancel-btn { background: var(--whatsapp-dark-tertiary); color: var(--whatsapp-text-primary); }
+        .modal .modal-actions button { flex: 1; padding: 10px; border: none; border-radius: var(--radius); font-weight: 600; font-size: 14px; cursor: pointer; }
+        .modal .modal-actions .save-btn { background: var(--primary); color: white; }
+        .modal .modal-actions .cancel-btn { background: var(--bg-tertiary); color: var(--text-primary); }
+        
+        /* Image Preview */
         .image-preview-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.92); z-index: 2000; justify-content: center; align-items: center; cursor: pointer; padding: 20px; }
         .image-preview-overlay.active { display: flex; }
         .image-preview-overlay .preview-content { position: relative; max-width: 95%; max-height: 95%; }
         .image-preview-overlay img { max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 4px; }
         .image-preview-overlay .preview-actions { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; }
         .image-preview-overlay .preview-actions button { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-        .image-preview-overlay .preview-actions .download-btn-preview { background: var(--whatsapp-green); border-color: var(--whatsapp-green); }
-        .call-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; padding: 20px; }
-        .call-overlay.active { display: flex; }
-        .call-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid var(--whatsapp-green); margin-bottom: 20px; }
-        .call-name { font-size: 24px; font-weight: 600; color: white; margin-bottom: 8px; }
-        .call-status { font-size: 16px; color: var(--whatsapp-text-secondary); margin-bottom: 30px; }
-        .call-status.ringing { color: var(--whatsapp-green); animation: pulse 1s infinite; }
-        .call-actions { display: flex; gap: 30px; margin-top: 20px; }
-        .call-actions button { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .call-actions button:active { transform: scale(0.9); }
-        .call-actions .call-end { background: #FF3B30; color: white; }
-        .call-actions .call-answer { background: var(--whatsapp-green); color: white; }
-        .call-actions .call-mute { background: var(--whatsapp-dark-tertiary); color: white; }
-        .call-actions .call-mute.active { background: #FF3B30; }
-        .call-timer { font-size: 20px; color: white; font-weight: 300; margin-bottom: 20px; }
-        .video-container { position: relative; width: 100%; max-width: 800px; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 20px; display: none; }
-        .video-container video { width: 100%; height: 100%; object-fit: cover; }
-        .video-container .local-video { position: absolute; bottom: 20px; right: 20px; width: 120px; height: 160px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); object-fit: cover; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .image-preview-overlay .preview-actions .download-btn { background: var(--primary); border-color: var(--primary); }
+        
         @media (max-width: 768px) {
-            .chat-list { max-width: 100%; position: absolute; z-index: 5; width: 100%; height: 100%; background: var(--whatsapp-dark); transition: transform 0.3s ease; }
+            .chat-list { max-width: 100%; position: absolute; z-index: 5; width: 100%; height: 100%; background: var(--bg-dark); transition: transform 0.3s ease; }
             .chat-list.hidden { transform: translateX(-100%); position: absolute; }
             .chat-list:not(.hidden) { transform: translateX(0); position: relative; }
-            .chat-area .chat-header .back-btn { display: flex !important; }
+            .chat-header .back-btn { display: flex !important; }
             .status-bar { display: none; }
             .friend-item .avatar { width: 44px; height: 44px; }
             .message { max-width: 90%; }
-            .video-container .local-video { width: 80px; height: 106px; }
-            .call-avatar { width: 80px; height: 80px; }
-            .call-actions button { width: 50px; height: 50px; font-size: 22px; }
         }
         @media (min-width: 769px) {
             .chat-list.hidden { transform: none; position: relative; width: 420px; }
-            .chat-area .chat-header .back-btn { display: none !important; }
+            .chat-header .back-btn { display: none !important; }
         }
     </style>
 </head>
 <body>
 
+<!-- Status Bar -->
 <div class="status-bar">
     <span class="time" id="statusTime">12:00</span>
     <span class="icons">📶 📶 🔋</span>
 </div>
 
+<!-- App -->
 <div class="app-container">
+    <!-- Header -->
     <header class="header">
         <div class="header-left">
-            <img src="https://raw.githubusercontent.com/mdakash0003478-am/connectbd/main/logo.png.jpeg" alt="ConnectBD" class="app-logo" id="logoClick" />
-            <div class="app-title">Connect<span>BD</span></div>
+            <img src="https://raw.githubusercontent.com/mdakash0003478-am/connectbd/main/logo.png.jpeg" alt="ConnectBD" class="logo" id="logoClick" />
+            <div class="title">Connect<span>BD</span></div>
         </div>
         <div class="header-right">
-            <div id="userProfileMini" class="user-profile-mini" style="display:none;">
+            <div id="userProfile" class="user-profile" style="display:none;">
                 <img id="miniAvatar" src="" alt="avatar" />
-                <span class="user-name" id="miniName">User</span>
+                <span class="name" id="miniName">User</span>
             </div>
-            <button id="loginBtn" class="login-btn">🔑 লগইন</button>
-            <button id="logoutBtn" class="logout-btn" style="display:none;">🚪</button>
+            <button id="loginBtn" class="btn btn-primary">🔑 লগইন</button>
+            <button id="logoutBtn" class="btn btn-danger" style="display:none;">🚪</button>
         </div>
     </header>
 
+    <!-- Tabs -->
     <div class="tabs">
-        <div class="tab active" data-tab="chats">💬 চ্যাট <span class="tab-badge" id="friendCount">0</span></div>
-        <div class="tab" data-tab="requests">📨 রিকোয়েস্ট <span class="tab-badge danger" id="requestCount">0</span></div>
+        <div class="tab active" data-tab="chats">💬 চ্যাট <span class="badge" id="friendCount">0</span></div>
+        <div class="tab" data-tab="requests">📨 রিকোয়েস্ট <span class="badge danger" id="requestCount">0</span></div>
         <div class="tab" data-tab="search">🔍 খুঁজুন</div>
     </div>
 
+    <!-- Main -->
     <div class="main-content">
+        <!-- Chat List -->
         <div class="chat-list" id="chatList">
             <div class="search-bar">
                 <input type="text" id="searchFriend" placeholder="বন্ধু খুঁজুন..." />
             </div>
-            <div class="friend-list-scroll" id="friendList">
+            <div class="friend-list" id="friendList">
                 <div class="empty-state"><div class="icon">💬</div><span>কোনো বন্ধু নেই</span></div>
             </div>
         </div>
 
-        <div class="chat-area" id="chatArea">
+        <!-- Chat Area -->
+        <div class="chat-area">
             <div class="chat-header">
                 <button class="back-btn" id="backBtn">←</button>
                 <div class="chat-info" id="chatFriendInfo">
-                    <span style="color:var(--whatsapp-text-secondary);font-weight:500;">💬 বন্ধু নির্বাচন করুন</span>
-                </div>
-                <div class="header-actions" id="headerActions">
-                    <button id="chatMenuBtn">⋮</button>
+                    <span style="color:var(--text-secondary);font-weight:500;">💬 বন্ধু নির্বাচন করুন</span>
                 </div>
             </div>
 
             <div class="typing-indicator" id="typingIndicator"></div>
 
-            <div class="messages-container" id="messagesContainer">
+            <div class="messages" id="messagesContainer">
                 <div class="empty-state"><div class="icon">💬</div><span>একটি চ্যাট শুরু করুন</span></div>
             </div>
 
@@ -231,29 +243,12 @@
     </div>
 </div>
 
-<!-- CALL OVERLAY -->
-<div class="call-overlay" id="callOverlay">
-    <img id="callAvatar" class="call-avatar" src="" alt="Caller" />
-    <div class="call-name" id="callName">Caller Name</div>
-    <div class="call-status" id="callStatus">🔔 কল হচ্ছে...</div>
-    <div class="call-timer" id="callTimer">00:00</div>
-    <div class="video-container" id="videoContainer">
-        <video class="remote-video" id="remoteVideo" autoplay playsinline></video>
-        <video class="local-video" id="localVideo" autoplay playsinline muted></video>
-    </div>
-    <div class="call-actions">
-        <button class="call-mute" id="callMuteBtn">🔊</button>
-        <button class="call-end" id="callEndBtn">📞</button>
-        <button class="call-answer" id="callAnswerBtn" style="display:none;">📞</button>
-    </div>
-</div>
-
-<!-- MODALS -->
+<!-- Profile Modal -->
 <div class="modal-overlay" id="profileModal">
     <div class="modal">
         <h2>👤 প্রোফাইল</h2>
         <div class="profile-pic-wrapper">
-            <img id="modalProfilePic" class="profile-pic" src="" alt="Profile" />
+            <img id="modalProfilePic" src="" alt="Profile" />
             <div class="upload-overlay" id="modalUploadPic">📸 পরিবর্তন</div>
         </div>
         <div class="form-group"><label>ডিসপ্লে নাম</label><input type="text" id="modalDisplayName" /></div>
@@ -265,16 +260,18 @@
     </div>
 </div>
 
+<!-- Image Preview -->
 <div class="image-preview-overlay" id="imagePreview">
     <div class="preview-content">
         <img id="previewImage" src="" alt="Preview" />
         <div class="preview-actions">
-            <button class="download-btn-preview" id="downloadPreviewBtn">⬇️</button>
+            <button class="download-btn" id="downloadPreviewBtn">⬇️</button>
             <button id="closePreviewBtn">✕</button>
         </div>
     </div>
 </div>
 
+<!-- Toast -->
 <div id="toast" class="toast"></div>
 <input type="file" id="fileInput" accept="image/*" style="display:none;" />
 
@@ -289,9 +286,7 @@ import {
     query, limitToLast, orderByChild, remove, onChildRemoved, onChildChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ============================================
-// FIREBASE CONFIG
-// ============================================
+// ===== FIREBASE CONFIG =====
 const firebaseConfig = {
     apiKey: "AIzaSyDZliPdFlc3iQRMGxs5-hgcDGQYNdACqm4",
     authDomain: "connectbd-4a8f2.firebaseapp.com",
@@ -306,9 +301,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// ============================================
-// DOM REFS
-// ============================================
+// ===== DOM REFS =====
 const $ = id => document.getElementById(id);
 const DOM = {
     messages: $('messagesContainer'),
@@ -316,7 +309,7 @@ const DOM = {
     sendBtn: $('sendBtn'),
     loginBtn: $('loginBtn'),
     logoutBtn: $('logoutBtn'),
-    userProfileMini: $('userProfileMini'),
+    userProfile: $('userProfile'),
     miniAvatar: $('miniAvatar'),
     miniName: $('miniName'),
     friendList: $('friendList'),
@@ -330,7 +323,7 @@ const DOM = {
     logo: $('logoClick'),
     backBtn: $('backBtn'),
     chatList: $('chatList'),
-    headerActions: $('headerActions'),
+    typingIndicator: $('typingIndicator'),
     profileModal: $('profileModal'),
     modalPic: $('modalProfilePic'),
     modalName: $('modalDisplayName'),
@@ -341,26 +334,12 @@ const DOM = {
     imagePreview: $('imagePreview'),
     previewImage: $('previewImage'),
     downloadPreview: $('downloadPreviewBtn'),
-    closePreview: $('closePreviewBtn'),
-    callOverlay: $('callOverlay'),
-    callAvatar: $('callAvatar'),
-    callName: $('callName'),
-    callStatus: $('callStatus'),
-    callTimer: $('callTimer'),
-    callEnd: $('callEndBtn'),
-    callAnswer: $('callAnswerBtn'),
-    callMute: $('callMuteBtn'),
-    videoContainer: $('videoContainer'),
-    remoteVideo: $('remoteVideo'),
-    localVideo: $('localVideo'),
-    typingIndicator: $('typingIndicator')
+    closePreview: $('closePreviewBtn')
 };
 
 const tabs = document.querySelectorAll('.tab');
 
-// ============================================
-// STATE
-// ============================================
+// ===== STATE =====
 let currentUser = null;
 let currentChatFriend = null;
 let messageListener = null;
@@ -375,9 +354,7 @@ let friendsListener = null;
 let requestsListener = null;
 let allUsersListener = null;
 
-// ============================================
-// TOAST
-// ============================================
+// ===== TOAST =====
 function showToast(msg, type = 'success') {
     if (toastTimeout) { clearTimeout(toastTimeout); DOM.toast.classList.remove('show'); }
     DOM.toast.textContent = msg;
@@ -388,9 +365,7 @@ function showToast(msg, type = 'success') {
     toastTimeout = setTimeout(() => { DOM.toast.classList.remove('show'); toastTimeout = null; }, 3000);
 }
 
-// ============================================
-// STATUS BAR TIME
-// ============================================
+// ===== STATUS TIME =====
 function updateStatusTime() {
     const now = new Date();
     $('statusTime').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -398,21 +373,7 @@ function updateStatusTime() {
 updateStatusTime();
 setInterval(updateStatusTime, 30000);
 
-// ============================================
-// IMAGE FUNCTIONS
-// ============================================
-function downloadImage(src, filename = 'image.jpg') {
-    try {
-        const link = document.createElement('a');
-        link.href = src;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast('✅ ছবি ডাউনলোড শুরু হয়েছে!');
-    } catch (e) { showToast('ডাউনলোড ব্যর্থ!', 'error'); }
-}
-
+// ===== IMAGE FUNCTIONS =====
 function imageToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -422,14 +383,24 @@ function imageToBase64(file) {
     });
 }
 
-// ============================================
-// SAVE USER
-// ============================================
+function downloadImage(src, filename = 'image.jpg') {
+    try {
+        const link = document.createElement('a');
+        link.href = src;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('✅ ডাউনলোড শুরু!');
+    } catch (e) { showToast('ডাউনলোড ব্যর্থ!', 'error'); }
+}
+
+// ===== SAVE USER =====
 async function saveUserData(user) {
     try {
         const userRef = ref(db, `users/${user.uid}`);
-        const snapshot = await get(userRef);
-        if (!snapshot.exists()) {
+        const snap = await get(userRef);
+        if (!snap.exists()) {
             await set(userRef, {
                 displayName: user.displayName || 'ইউজার',
                 email: user.email || '',
@@ -440,55 +411,38 @@ async function saveUserData(user) {
         } else {
             await update(userRef, { online: true, lastSeen: Date.now() });
         }
-        console.log('✅ User data saved');
         return true;
     } catch (e) { console.error('Save user error:', e); return false; }
 }
 
-// ============================================
-// UPDATE ONLINE STATUS
-// ============================================
+// ===== UPDATE ONLINE STATUS =====
 async function updateOnlineStatus(uid, isOnline) {
     if (!uid) return;
     try {
-        await update(ref(db, `users/${uid}`), { 
-            online: isOnline, 
-            lastSeen: Date.now()
-        });
-        console.log(`✅ Online status: ${uid} -> ${isOnline}`);
-        if (allUsersCache[uid]) {
-            allUsersCache[uid].online = isOnline;
-        }
+        await update(ref(db, `users/${uid}`), { online: isOnline, lastSeen: Date.now() });
+        if (allUsersCache[uid]) allUsersCache[uid].online = isOnline;
         renderFriends();
-        updateChatHeaderStatus();
-        updateCallButtons();
+        updateChatStatus();
         return true;
-    } catch (e) {
-        console.error('❌ Update online status error:', e);
-        return false;
-    }
+    } catch (e) { console.error('Online status error:', e); return false; }
 }
 
-// ============================================
-// UPDATE PROFILE
-// ============================================
+// ===== UPDATE PROFILE =====
 async function updateUserProfile(displayName, photoURL) {
     if (!currentUser) return;
     try {
         await update(ref(db, `users/${currentUser.uid}`), { displayName, photoURL });
         await firebaseUpdateProfile(auth.currentUser, { displayName, photoURL });
-        showToast('✅ প্রোফাইল আপডেট করা হয়েছে!');
+        showToast('✅ প্রোফাইল আপডেট!');
         updateUI(currentUser);
-    } catch (e) { showToast(`প্রোফাইল আপডেট ব্যর্থ: ${e.message}`, 'error'); }
+    } catch (e) { showToast(`আপডেট ব্যর্থ: ${e.message}`, 'error'); }
 }
 
-// ============================================
-// UPDATE UI
-// ============================================
+// ===== UPDATE UI =====
 function updateUI(user) {
     currentUser = user;
     if (user) {
-        DOM.userProfileMini.style.display = 'flex';
+        DOM.userProfile.style.display = 'flex';
         DOM.miniAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=User&background=00A884&color=fff';
         DOM.miniName.textContent = user.displayName || 'User';
         DOM.loginBtn.style.display = 'none';
@@ -499,23 +453,21 @@ function updateUI(user) {
         loadFriendsAndRequests();
         loadAllUsers();
         switchTab('chats');
-        // Update online status every 5 seconds
+        // Update online status every 10 seconds
         if (window._onlineInterval) clearInterval(window._onlineInterval);
         window._onlineInterval = setInterval(() => {
-            if (currentUser) {
-                updateOnlineStatus(currentUser.uid, true);
-            }
-        }, 5000);
+            if (currentUser) updateOnlineStatus(currentUser.uid, true);
+        }, 10000);
     } else {
         if (window._onlineInterval) clearInterval(window._onlineInterval);
-        DOM.userProfileMini.style.display = 'none';
+        DOM.userProfile.style.display = 'none';
         DOM.loginBtn.style.display = 'block';
         DOM.logoutBtn.style.display = 'none';
         DOM.messageInput.disabled = true;
         DOM.sendBtn.disabled = true;
         DOM.fileUpload.disabled = true;
         DOM.messages.innerHTML = `<div class="empty-state"><div class="icon">🔑</div><span>চ্যাট শুরু করতে লগইন করুন</span></div>`;
-        DOM.chatFriendInfo.innerHTML = `<span style="color:var(--whatsapp-text-secondary);font-weight:500;">💬 বন্ধু নির্বাচন করুন</span>`;
+        DOM.chatFriendInfo.innerHTML = `<span style="color:var(--text-secondary);font-weight:500;">💬 বন্ধু নির্বাচন করুন</span>`;
         DOM.friendList.innerHTML = `<div class="empty-state"><div class="icon">💬</div><span>কোনো বন্ধু নেই</span></div>`;
         DOM.friendCount.textContent = '0';
         DOM.requestCount.textContent = '0';
@@ -527,74 +479,31 @@ function updateUI(user) {
     }
 }
 
-// ============================================
-// LOAD ALL USERS
-// ============================================
+// ===== LOAD ALL USERS =====
 function loadAllUsers() {
     if (allUsersListener) { allUsersListener(); allUsersListener = null; }
-    const usersRef = ref(db, 'users');
-    allUsersListener = onValue(usersRef, (snapshot) => {
+    allUsersListener = onValue(ref(db, 'users'), (snapshot) => {
         const data = snapshot.val();
         if (data) {
             allUsersCache = data;
-            console.log('📊 Users loaded:', Object.keys(data).length);
             Object.keys(friends).forEach(uid => {
                 if (friends[uid] && allUsersCache[uid]) {
                     friends[uid].online = allUsersCache[uid].online || false;
                 }
             });
             renderFriends();
-            updateChatHeaderStatus();
-            updateCallButtons();
+            updateChatStatus();
         }
     });
 }
 
-// ============================================
-// UPDATE CHAT HEADER STATUS
-// ============================================
-function updateChatHeaderStatus() {
-    if (!currentChatFriend || !allUsersCache[currentChatFriend]) return;
-    const isOnline = allUsersCache[currentChatFriend]?.online || false;
-    const statusEl = document.getElementById('chatStatus');
-    if (statusEl) {
-        statusEl.textContent = isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন';
-        statusEl.className = `status ${isOnline ? 'online' : ''}`;
-    }
-}
-
-// ============================================
-// UPDATE CALL BUTTONS
-// ============================================
-function updateCallButtons() {
-    const voiceBtn = document.getElementById('voiceCallBtn');
-    const videoBtn = document.getElementById('videoCallBtn');
-    
-    if (!currentChatFriend || !allUsersCache[currentChatFriend]) {
-        if (voiceBtn) voiceBtn.style.display = 'none';
-        if (videoBtn) videoBtn.style.display = 'none';
-        return;
-    }
-    
-    const isOnline = allUsersCache[currentChatFriend]?.online || false;
-    const show = isOnline;
-    
-    if (voiceBtn) voiceBtn.style.display = show ? 'flex' : 'none';
-    if (videoBtn) videoBtn.style.display = show ? 'flex' : 'none';
-    
-    console.log(`Call buttons ${show ? '✅ shown' : '❌ hidden'} for ${currentChatFriend} - Online: ${isOnline}`);
-}
-
-// ============================================
-// LOAD FRIENDS & REQUESTS
-// ============================================
+// ===== LOAD FRIENDS & REQUESTS =====
 function loadFriendsAndRequests() {
     if (!currentUser) return;
     if (friendsListener) { friendsListener(); friendsListener = null; }
     if (requestsListener) { requestsListener(); requestsListener = null; }
     
-    const friendsRef = ref(db, `friends/${currentUser.uid}`);
-    friendsListener = onValue(friendsRef, (snapshot) => {
+    friendsListener = onValue(ref(db, `friends/${currentUser.uid}`), (snapshot) => {
         const data = snapshot.val() || {};
         friends = {};
         Object.keys(data).forEach(uid => {
@@ -609,8 +518,7 @@ function loadFriendsAndRequests() {
         loadUnreadCounts();
     });
     
-    const requestsRef = ref(db, `friendRequests/${currentUser.uid}`);
-    requestsListener = onValue(requestsRef, (snapshot) => {
+    requestsListener = onValue(ref(db, `friendRequests/${currentUser.uid}`), (snapshot) => {
         requests = snapshot.val() || {};
         const count = Object.keys(requests).filter(k => requests[k].status === 'pending').length;
         DOM.requestCount.textContent = count;
@@ -619,22 +527,17 @@ function loadFriendsAndRequests() {
     });
 }
 
-// ============================================
-// LOAD UNREAD
-// ============================================
+// ===== LOAD UNREAD =====
 function loadUnreadCounts() {
     if (!currentUser) return;
-    const unreadRef = ref(db, `unread/${currentUser.uid}`);
-    onValue(unreadRef, (snapshot) => {
+    onValue(ref(db, `unread/${currentUser.uid}`), (snapshot) => {
         unreadCounts = snapshot.val() || {};
         const activeTab = document.querySelector('.tab.active');
         if (activeTab && activeTab.dataset.tab === 'chats') renderFriends();
     });
 }
 
-// ============================================
-// MARK AS READ
-// ============================================
+// ===== MARK AS READ =====
 async function markAsRead(friendUid) {
     if (!currentUser || !friendUid) return;
     await remove(ref(db, `unread/${currentUser.uid}/${friendUid}`));
@@ -642,9 +545,7 @@ async function markAsRead(friendUid) {
     renderFriends();
 }
 
-// ============================================
-// RENDER FRIENDS
-// ============================================
+// ===== RENDER FRIENDS =====
 function renderFriends() {
     const searchTerm = DOM.searchFriend.value.toLowerCase();
     let html = '';
@@ -669,7 +570,7 @@ function renderFriends() {
                     </div>
                     <div class="meta">
                         <span class="time">${isOnline ? 'অনলাইন' : 'অফলাইন'}</span>
-                        ${unread > 0 ? `<span class="unread-badge danger">${unread}</span>` : ''}
+                        ${unread > 0 ? `<span class="unread danger">${unread}</span>` : ''}
                     </div>
                 </div>
             `;
@@ -684,9 +585,18 @@ function renderFriends() {
     });
 }
 
-// ============================================
-// TYPING
-// ============================================
+// ===== UPDATE CHAT STATUS =====
+function updateChatStatus() {
+    if (!currentChatFriend || !allUsersCache[currentChatFriend]) return;
+    const isOnline = allUsersCache[currentChatFriend]?.online || false;
+    const statusEl = document.querySelector('.chat-header .status');
+    if (statusEl) {
+        statusEl.textContent = isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন';
+        statusEl.className = `status ${isOnline ? 'online' : ''}`;
+    }
+}
+
+// ===== TYPING =====
 function handleTyping() {
     if (!currentUser || !currentChatFriend) return;
     const typingRef = ref(db, `typing/${currentChatFriend}/${currentUser.uid}`);
@@ -695,425 +605,21 @@ function handleTyping() {
     typingTimeout = setTimeout(() => remove(typingRef), 2000);
 }
 
-// ============================================
-// SIMPLE CALL SYSTEM (No PeerJS)
-// ============================================
-let localStream = null;
-let currentCall = null;
-let isMuted = false;
-let callTimerInterval = null;
-let callStartTime = null;
-let incomingCallData = null;
-
-// ============================================
-// START CALL - Simple WebRTC
-// ============================================
-async function startCall(receiverId, callType = 'voice') {
-    if (!currentUser) {
-        showToast('প্রথমে লগইন করুন!', 'error');
-        return;
-    }
-    
-    try {
-        // Get receiver's data
-        const snap = await get(ref(db, `users/${receiverId}`));
-        const receiverData = snap.val();
-        
-        if (!receiverData) {
-            showToast('ব্যবহারকারী পাওয়া যায়নি!', 'error');
-            return;
-        }
-        
-        if (!receiverData.online) {
-            showToast('ব্যবহারকারী অফলাইনে!', 'error');
-            return;
-        }
-
-        // Get media stream
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            audio: true, 
-            video: callType === 'video' 
-        });
-        
-        localStream = stream;
-        
-        if (callType === 'video') {
-            DOM.videoContainer.style.display = 'block';
-            DOM.localVideo.srcObject = stream;
-        }
-
-        // Show call UI
-        showCallUI(receiverData, 'calling', callType);
-        
-        // Create an offer
-        const pc = new RTCPeerConnection({
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-        });
-        
-        currentCall = pc;
-        
-        // Add local stream
-        stream.getTracks().forEach(track => {
-            pc.addTrack(track, stream);
-        });
-        
-        // Handle remote stream
-        pc.ontrack = (event) => {
-            const remoteStream = event.streams[0];
-            if (callType === 'video') {
-                DOM.videoContainer.style.display = 'block';
-                DOM.remoteVideo.srcObject = remoteStream;
-            } else {
-                const audio = new Audio();
-                audio.srcObject = remoteStream;
-                audio.play();
-            }
-            updateCallStatus('answered');
-            DOM.callAnswer.style.display = 'none';
-            startCallTimer();
-        };
-        
-        // Create offer
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        
-        // Send offer to receiver via Firebase
-        const callRef = ref(db, `calls/${receiverId}/${currentUser.uid}`);
-        await set(callRef, {
-            offer: offer,
-            callerName: currentUser.displayName || 'ইউজার',
-            callerPhoto: currentUser.photoURL || '',
-            callType: callType,
-            timestamp: Date.now()
-        });
-        
-        // Listen for answer
-        const answerRef = ref(db, `calls/${currentUser.uid}/${receiverId}`);
-        onValue(answerRef, async (snapshot) => {
-            const data = snapshot.val();
-            if (data && data.answer) {
-                await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-                remove(answerRef);
-                updateCallStatus('answered');
-                DOM.callAnswer.style.display = 'none';
-                startCallTimer();
-            }
-            if (data && data.rejected) {
-                endCall();
-                showToast('কল রিজেক্ট করা হয়েছে', 'error');
-                remove(answerRef);
-            }
-        }, { onlyOnce: true });
-        
-        // Auto reject after 30 seconds
-        setTimeout(() => {
-            if (currentCall && DOM.callOverlay.classList.contains('active')) {
-                endCall();
-                showToast('কল রিজেক্ট (টাইমআউট)', 'error');
-                remove(ref(db, `calls/${receiverId}/${currentUser.uid}`));
-            }
-        }, 30000);
-        
-    } catch (e) {
-        console.error('Call error:', e);
-        showToast('কল শুরু করতে ব্যর্থ! মাইক্রোফোন/ক্যামেরা পারমিশন চেক করুন', 'error');
-        endCall();
-    }
-}
-
-// ============================================
-// LISTEN FOR INCOMING CALLS
-// ============================================
-function listenForCalls() {
-    if (!currentUser) return;
-    const callsRef = ref(db, `calls/${currentUser.uid}`);
-    onValue(callsRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-        
-        Object.keys(data).forEach(callerId => {
-            const callData = data[callerId];
-            if (callData.offer && !callData.answered && !callData.rejected) {
-                // Show incoming call
-                incomingCallData = {
-                    callerId: callerId,
-                    callerName: callData.callerName || 'ইউজার',
-                    callerPhoto: callData.callerPhoto || '',
-                    callType: callData.callType || 'voice',
-                    offer: callData.offer
-                };
-                showIncomingCall(callData.callerName, callData.callerPhoto, callData.offer, callerId);
-            }
-        });
-    });
-}
-
-// ============================================
-// SHOW INCOMING CALL
-// ============================================
-function showIncomingCall(name, photo, offer, callerId) {
-    if (DOM.callOverlay.classList.contains('active')) {
-        return;
-    }
-    
-    DOM.callAvatar.src = photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
-    DOM.callName.textContent = name;
-    DOM.callStatus.textContent = '📞 ইনকামিং কল...';
-    DOM.callStatus.className = 'call-status ringing';
-    DOM.callTimer.textContent = '00:00';
-    DOM.videoContainer.style.display = 'none';
-    DOM.callAnswer.style.display = 'flex';
-    DOM.callMute.style.display = 'none';
-    DOM.callOverlay.classList.add('active');
-    
-    if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
-    playRingtone();
-    
-    // Store for answering
-    window._incomingCallerId = callerId;
-    window._incomingOffer = offer;
-    
-    setTimeout(() => {
-        if (DOM.callOverlay.classList.contains('active')) {
-            endCall();
-            // Reject call
-            const rejectRef = ref(db, `calls/${currentUser.uid}/${callerId}`);
-            set(rejectRef, { rejected: true });
-            showToast('কল রিজেক্ট (টাইমআউট)', 'error');
-        }
-    }, 30000);
-}
-
-// ============================================
-// ANSWER CALL
-// ============================================
-async function answerCall() {
-    const callerId = window._incomingCallerId;
-    const offer = window._incomingOffer;
-    
-    if (!callerId || !offer) {
-        showToast('কল গ্রহণ ব্যর্থ!', 'error');
-        return;
-    }
-    
-    try {
-        const callType = incomingCallData?.callType || 'voice';
-        
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            audio: true, 
-            video: callType === 'video' 
-        });
-        
-        localStream = stream;
-        
-        if (callType === 'video') {
-            DOM.videoContainer.style.display = 'block';
-            DOM.localVideo.srcObject = stream;
-        }
-        
-        const pc = new RTCPeerConnection({
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-        });
-        
-        currentCall = pc;
-        
-        stream.getTracks().forEach(track => {
-            pc.addTrack(track, stream);
-        });
-        
-        pc.ontrack = (event) => {
-            const remoteStream = event.streams[0];
-            if (callType === 'video') {
-                DOM.videoContainer.style.display = 'block';
-                DOM.remoteVideo.srcObject = remoteStream;
-            } else {
-                const audio = new Audio();
-                audio.srcObject = remoteStream;
-                audio.play();
-            }
-            updateCallStatus('answered');
-            DOM.callAnswer.style.display = 'none';
-            startCallTimer();
-        };
-        
-        await pc.setRemoteDescription(new RTCSessionDescription(offer));
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        
-        // Send answer back
-        const answerRef = ref(db, `calls/${callerId}/${currentUser.uid}`);
-        await set(answerRef, { answer: answer });
-        
-        // Mark as answered
-        const callRef = ref(db, `calls/${currentUser.uid}/${callerId}`);
-        await update(callRef, { answered: true });
-        
-        DOM.callAnswer.style.display = 'none';
-        DOM.callMute.style.display = 'flex';
-        DOM.callMute.textContent = '🔊';
-        DOM.callMute.classList.remove('active');
-        isMuted = false;
-        
-        stopRingtone();
-        
-    } catch (e) {
-        console.error('Answer call error:', e);
-        showToast('কল গ্রহণ ব্যর্থ!', 'error');
-        endCall();
-    }
-}
-
-// ============================================
-// CALL UI FUNCTIONS
-// ============================================
-function showCallUI(userData, status, callType = 'voice') {
-    DOM.callAvatar.src = userData.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.displayName || 'User') + '&background=00A884&color=fff';
-    DOM.callName.textContent = userData.displayName || 'ইউজার';
-    DOM.callTimer.textContent = '00:00';
-    DOM.callStatus.textContent = status === 'calling' ? '🔔 কল হচ্ছে...' : '📞 ইনকামিং কল...';
-    DOM.callStatus.className = 'call-status ringing';
-    DOM.callAnswer.style.display = 'none';
-    DOM.callMute.style.display = 'flex';
-    DOM.callMute.textContent = '🔊';
-    DOM.callMute.classList.remove('active');
-    isMuted = false;
-    DOM.videoContainer.style.display = callType === 'video' ? 'block' : 'none';
-    DOM.callOverlay.classList.add('active');
-}
-
-function updateCallStatus(status) {
-    const map = { 
-        'ringing': '🔔 রিং হচ্ছে...', 
-        'answered': '📞 সংযুক্ত', 
-        'rejected': '❌ রিজেক্ট', 
-        'ended': '📞 শেষ' 
-    };
-    DOM.callStatus.textContent = map[status] || status;
-    DOM.callStatus.className = 'call-status';
-    if (status === 'ringing') DOM.callStatus.classList.add('ringing');
-}
-
-function startCallTimer() {
-    callStartTime = Date.now();
-    if (callTimerInterval) clearInterval(callTimerInterval);
-    callTimerInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
-        DOM.callTimer.textContent = `${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;
-    }, 1000);
-}
-
-function endCall() {
-    if (localStream) { 
-        localStream.getTracks().forEach(t => t.stop()); 
-        localStream = null; 
-    }
-    if (currentCall) { 
-        try { currentCall.close(); } catch(e) {} 
-        currentCall = null; 
-    }
-    incomingCallData = null;
-    DOM.callOverlay.classList.remove('active');
-    DOM.videoContainer.style.display = 'none';
-    DOM.callAnswer.style.display = 'none';
-    DOM.callMute.style.display = 'flex';
-    if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
-    stopRingtone();
-    DOM.remoteVideo.srcObject = null;
-    DOM.localVideo.srcObject = null;
-    if (navigator.vibrate) navigator.vibrate(0);
-    window._incomingCallerId = null;
-    window._incomingOffer = null;
-}
-
-function toggleMute() {
-    if (!localStream) return;
-    isMuted = !isMuted;
-    localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
-    DOM.callMute.textContent = isMuted ? '🔇' : '🔊';
-    DOM.callMute.classList.toggle('active', isMuted);
-}
-
-// ============================================
-// RINGTONE
-// ============================================
-let ringtoneCtx = null;
-let ringtoneInterval = null;
-
-function playRingtone() {
-    try {
-        ringtoneCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let count = 0;
-        ringtoneInterval = setInterval(() => {
-            if (count >= 20 || !ringtoneCtx) { 
-                clearInterval(ringtoneInterval); 
-                return; 
-            }
-            try {
-                const osc = ringtoneCtx.createOscillator();
-                const gain = ringtoneCtx.createGain();
-                osc.connect(gain); 
-                gain.connect(ringtoneCtx.destination);
-                osc.frequency.value = 440; 
-                osc.type = 'sine';
-                gain.gain.setValueAtTime(0.2, ringtoneCtx.currentTime);
-                osc.start(); 
-                osc.stop(ringtoneCtx.currentTime + 0.3);
-                setTimeout(() => {
-                    if (!ringtoneCtx) return;
-                    const osc2 = ringtoneCtx.createOscillator();
-                    const gain2 = ringtoneCtx.createGain();
-                    osc2.connect(gain2); 
-                    gain2.connect(ringtoneCtx.destination);
-                    osc2.frequency.value = 440; 
-                    osc2.type = 'sine';
-                    gain2.gain.setValueAtTime(0.2, ringtoneCtx.currentTime);
-                    osc2.start(); 
-                    osc2.stop(ringtoneCtx.currentTime + 0.3);
-                }, 400);
-            } catch(e) {}
-            count += 2;
-        }, 1000);
-    } catch(e) { console.log('Ringtone error:', e); }
-}
-
-function stopRingtone() {
-    if (ringtoneInterval) { 
-        clearInterval(ringtoneInterval); 
-        ringtoneInterval = null; 
-    }
-    if (ringtoneCtx) { 
-        try { ringtoneCtx.close(); } catch(e) {} 
-        ringtoneCtx = null; 
-    }
-}
-
-// ============================================
-// START CHAT
-// ============================================
+// ===== START CHAT =====
 function startChat(friendUid) {
-    if (!friends[friendUid]) { 
-        showToast('এই ইউজার আপনার বন্ধু নয়!', 'error'); 
-        return; 
-    }
+    if (!friends[friendUid]) { showToast('এই ইউজার আপনার বন্ধু নয়!', 'error'); return; }
     
     currentChatFriend = friendUid;
     const friend = friends[friendUid];
     const name = friend.displayName || 'ইউজার';
     const photo = friend.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=00A884&color=fff';
-    
     const isOnline = allUsersCache[friendUid]?.online || false;
     
     DOM.chatFriendInfo.innerHTML = `
         <img src="${photo}" alt="${name}" />
         <div class="details">
             <div class="name">${name}</div>
-            <div class="status ${isOnline ? 'online' : ''}" id="chatStatus">${isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন'}</div>
+            <div class="status ${isOnline ? 'online' : ''}">${isOnline ? '🟢 অনলাইন' : '⚪ অফলাইন'}</div>
         </div>
     `;
     
@@ -1130,12 +636,11 @@ function startChat(friendUid) {
     DOM.fileUpload.disabled = false;
     DOM.messageInput.focus();
     
-    setTimeout(addCallButtons, 500);
-    
+    // Listen for typing
     const typingRef = ref(db, `typing/${currentUser.uid}/${friendUid}`);
     onValue(typingRef, (snapshot) => {
         const isTyping = snapshot.val();
-        const statusEl = document.getElementById('chatStatus');
+        const statusEl = document.querySelector('.chat-header .status');
         if (isTyping) {
             statusEl.textContent = '✍️ টাইপ করছে...';
             statusEl.className = 'status typing';
@@ -1147,54 +652,7 @@ function startChat(friendUid) {
     });
 }
 
-// ============================================
-// ADD CALL BUTTONS
-// ============================================
-function addCallButtons() {
-    const oldVoice = document.getElementById('voiceCallBtn');
-    const oldVideo = document.getElementById('videoCallBtn');
-    if (oldVoice) oldVoice.remove();
-    if (oldVideo) oldVideo.remove();
-    
-    if (!currentChatFriend || !friends[currentChatFriend]) return;
-    
-    const isOnline = allUsersCache[currentChatFriend]?.online || false;
-    
-    console.log(`Friend ${currentChatFriend} - Online: ${isOnline}`);
-    
-    if (!isOnline) {
-        console.log('❌ Call buttons hidden - friend offline');
-        return;
-    }
-    
-    const voiceBtn = document.createElement('button');
-    voiceBtn.id = 'voiceCallBtn';
-    voiceBtn.textContent = '📞';
-    voiceBtn.title = 'ভয়েস কল';
-    voiceBtn.style.cssText = 'background:none;border:none;color:var(--whatsapp-text-secondary);font-size:18px;padding:6px 10px;cursor:pointer;border-radius:50%;display:flex;align-items:center;';
-    voiceBtn.onclick = (e) => { 
-        e.stopPropagation(); 
-        if (currentChatFriend) startCall(currentChatFriend, 'voice'); 
-    };
-    
-    const videoBtn = document.createElement('button');
-    videoBtn.id = 'videoCallBtn';
-    videoBtn.textContent = '📹';
-    videoBtn.title = 'ভিডিও কল';
-    videoBtn.style.cssText = 'background:none;border:none;color:var(--whatsapp-text-secondary);font-size:18px;padding:6px 10px;cursor:pointer;border-radius:50%;display:flex;align-items:center;';
-    videoBtn.onclick = (e) => { 
-        e.stopPropagation(); 
-        if (currentChatFriend) startCall(currentChatFriend, 'video'); 
-    };
-    
-    DOM.headerActions.appendChild(voiceBtn);
-    DOM.headerActions.appendChild(videoBtn);
-    console.log('✅ Call buttons added successfully!');
-}
-
-// ============================================
-// LOAD MESSAGES
-// ============================================
+// ===== LOAD MESSAGES =====
 function loadPrivateMessages(friendUid) {
     if (messageListener) { messageListener(); messageListener = null; }
     const chatId = [currentUser.uid, friendUid].sort().join('_');
@@ -1212,7 +670,7 @@ function loadPrivateMessages(friendUid) {
         if (el) {
             const textEl = el.querySelector('.msg-text');
             if (textEl) {
-                if (msg.image) textEl.innerHTML = `<div class="image-container"><img src="${msg.image}" onclick="window.openImagePreview('${msg.image}')" /></div>`;
+                if (msg.image) textEl.innerHTML = `<img src="${msg.image}" onclick="window.openImagePreview('${msg.image}')" />`;
                 else textEl.innerHTML = msg.text + (msg.edited ? ' <span style="font-size:10px;opacity:0.5;">(edited)</span>' : '');
             }
         }
@@ -1223,6 +681,7 @@ function loadPrivateMessages(friendUid) {
     });
 }
 
+// ===== APPEND MESSAGE =====
 function appendMessage(key, msg) {
     const isOwn = msg.uid === currentUser.uid;
     const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' }) : '';
@@ -1232,7 +691,7 @@ function appendMessage(key, msg) {
     const avatar = msg.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(msg.displayName || 'U') + '&background=00A884&color=fff';
     let content = '';
     if (msg.image) {
-        content = `<div class="image-container"><img src="${msg.image}" onclick="window.openImagePreview('${msg.image}')" /></div>`;
+        content = `<img src="${msg.image}" onclick="window.openImagePreview('${msg.image}')" />`;
     } else {
         content = msg.text + (msg.edited ? ' <span style="font-size:10px;opacity:0.5;">(edited)</span>' : '');
     }
@@ -1253,17 +712,13 @@ function appendMessage(key, msg) {
     }
 }
 
-// ============================================
-// GLOBAL IMAGE PREVIEW
-// ============================================
+// ===== GLOBAL IMAGE PREVIEW =====
 window.openImagePreview = function(src) {
     DOM.previewImage.src = src;
     DOM.imagePreview.classList.add('active');
 };
 
-// ============================================
-// DELETE / EDIT MESSAGE
-// ============================================
+// ===== DELETE / EDIT MESSAGE =====
 async function deleteMessage(key) {
     if (!currentUser || !currentChatFriend || !confirm('মেসেজ ডিলিট করতে চান?')) return;
     const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
@@ -1283,9 +738,7 @@ async function editMessage(key, oldText) {
     } catch(e) { showToast('এডিট ব্যর্থ!', 'error'); }
 }
 
-// ============================================
-// SEND MESSAGE
-// ============================================
+// ===== SEND MESSAGE =====
 async function sendPrivateMessage() {
     const text = DOM.messageInput.value.trim();
     if (!text || !currentUser || !currentChatFriend) return;
@@ -1302,9 +755,31 @@ async function sendPrivateMessage() {
     DOM.messageInput.focus();
 }
 
-// ============================================
-// FILE UPLOAD
-// ============================================
+// ===== SEND IMAGE =====
+async function sendImageMessage(file) {
+    if (!file || !currentUser || !currentChatFriend) { showToast('ছবি পাঠাতে ব্যর্থ!', 'error'); return; }
+    try {
+        showToast('📤 ছবি প্রস্তুত হচ্ছে...', 'success');
+        const base64 = await imageToBase64(file);
+        const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
+        const newMsgRef = push(ref(db, `privateChats/${chatId}/messages`));
+        await set(newMsgRef, {
+            text: '📷',
+            image: base64,
+            uid: currentUser.uid,
+            displayName: currentUser.displayName || 'ইউজার',
+            photoURL: currentUser.photoURL || '',
+            timestamp: Date.now(),
+            fileName: file.name
+        });
+        const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
+        const snap = await get(unreadRef);
+        await set(unreadRef, (snap.val() || 0) + 1);
+        showToast('✅ ছবি পাঠানো হয়েছে!');
+    } catch (e) { showToast(`ছবি পাঠাতে ব্যর্থ: ${e.message}`, 'error'); }
+}
+
+// ===== FILE UPLOAD =====
 DOM.fileUpload.addEventListener('click', () => {
     if (!currentUser || !currentChatFriend) { showToast('প্রথমে চ্যাট নির্বাচন করুন!', 'error'); return; }
     DOM.fileInput.click();
@@ -1312,51 +787,18 @@ DOM.fileUpload.addEventListener('click', () => {
 DOM.fileInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) { showToast('শুধু ছবি আপলোড করতে পারবেন!', 'error'); DOM.fileInput.value = ''; return; }
+    if (!file.type.startsWith('image/')) { showToast('শুধু ছবি আপলোড করুন!', 'error'); DOM.fileInput.value = ''; return; }
     if (file.size > 2 * 1024 * 1024) { showToast('ছবি 2MB এর কম হতে হবে!', 'error'); DOM.fileInput.value = ''; return; }
-    await sendImageMessageBase64(file);
+    await sendImageMessage(file);
     DOM.fileInput.value = '';
 });
 
-// ============================================
-// SEND IMAGE
-// ============================================
-async function sendImageMessageBase64(file) {
-    if (!file || !currentUser || !currentChatFriend) { showToast('ছবি পাঠাতে ব্যর্থ!', 'error'); return; }
-    try {
-        showToast('📤 ছবি প্রস্তুত হচ্ছে...', 'success');
-        const base64Image = await imageToBase64(file);
-        const chatId = [currentUser.uid, currentChatFriend].sort().join('_');
-        const messagesRef = ref(db, `privateChats/${chatId}/messages`);
-        const newMsgRef = push(messagesRef);
-        const fileExt = file.name.split('.').pop() || 'jpg';
-        const fileName = `image_${Date.now()}.${fileExt}`;
-        await set(newMsgRef, {
-            text: '📷',
-            image: base64Image,
-            uid: currentUser.uid,
-            displayName: currentUser.displayName || 'ইউজার',
-            photoURL: currentUser.photoURL || '',
-            timestamp: Date.now(),
-            isBase64: true,
-            fileName: fileName
-        });
-        const unreadRef = ref(db, `unread/${currentChatFriend}/${currentUser.uid}`);
-        const snapshot = await get(unreadRef);
-        await set(unreadRef, (snapshot.val() || 0) + 1);
-        showToast('✅ ছবি পাঠানো হয়েছে!');
-    } catch (e) { showToast(`ছবি পাঠাতে ব্যর্থ: ${e.message}`, 'error'); }
-}
-
-// ============================================
-// SWITCH TAB
-// ============================================
+// ===== SWITCH TAB =====
 function switchTab(tabName) {
     tabs.forEach(t => t.classList.remove('active'));
     const target = document.querySelector(`[data-tab="${tabName}"]`);
     if (target) target.classList.add('active');
     if (isMobile) { DOM.chatList.classList.remove('hidden'); DOM.chatList.style.display = 'flex'; }
-    else { DOM.chatList.classList.remove('hidden'); DOM.chatList.style.display = 'flex'; }
     if (tabName === 'chats') renderFriends();
     else if (tabName === 'requests') renderRequestsTab();
     else if (tabName === 'search') renderSearchTab();
@@ -1364,9 +806,7 @@ function switchTab(tabName) {
 
 tabs.forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
 
-// ============================================
-// RENDER REQUESTS TAB
-// ============================================
+// ===== RENDER REQUESTS TAB =====
 function renderRequestsTab() {
     let html = '';
     const pending = Object.keys(requests).filter(k => requests[k].status === 'pending');
@@ -1380,29 +820,27 @@ function renderRequestsTab() {
             html += `
                 <div class="friend-item" style="cursor:default;" data-uid="${uid}">
                     <img src="${photo}" class="avatar" loading="lazy" />
-                    <div class="info"><div class="name">${name}</div><div class="last-msg" style="color:var(--whatsapp-text-secondary);">📨 রিকোয়েস্ট</div></div>
+                    <div class="info"><div class="name">${name}</div><div class="last-msg" style="color:var(--text-secondary);">📨 রিকোয়েস্ট</div></div>
                     <div class="meta" style="flex-direction:row;gap:4px;">
-                        <button class="btn-accept" style="background:var(--whatsapp-green);color:white;border:none;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;" data-uid="${uid}">✅ গ্রহণ</button>
-                        <button class="btn-reject" style="background:#FF3B30;color:white;border:none;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;" data-uid="${uid}">❌ বাতিল</button>
+                        <button class="btn btn-primary" style="padding:4px 12px;font-size:12px;" data-uid="${uid}">✅ গ্রহণ</button>
+                        <button class="btn btn-danger" style="padding:4px 12px;font-size:12px;" data-uid="${uid}">❌ বাতিল</button>
                     </div>
                 </div>
             `;
         });
     }
     DOM.friendList.innerHTML = html;
-    document.querySelectorAll('.btn-accept').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); acceptFriendRequest(b.dataset.uid); }));
-    document.querySelectorAll('.btn-reject').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); rejectFriendRequest(b.dataset.uid); }));
+    document.querySelectorAll('.btn-primary[data-uid]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); acceptFriendRequest(b.dataset.uid); }));
+    document.querySelectorAll('.btn-danger[data-uid]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); rejectFriendRequest(b.dataset.uid); }));
 }
 
-// ============================================
-// RENDER SEARCH TAB
-// ============================================
+// ===== RENDER SEARCH TAB =====
 function renderSearchTab() {
     let html = `
         <div style="padding:12px;">
             <div style="display:flex;gap:8px;margin-bottom:12px;">
-                <input type="text" id="searchUserInput" placeholder="ইমেইল বা নাম..." style="flex:1;background:var(--whatsapp-dark-tertiary);border:none;border-radius:8px;padding:8px 14px;color:var(--whatsapp-text-primary);font-size:14px;font-family:inherit;outline:none;" />
-                <button id="searchUserBtn" style="background:var(--whatsapp-green);color:white;border:none;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer;">খুঁজুন</button>
+                <input type="text" id="searchUserInput" placeholder="ইমেইল বা নাম..." style="flex:1;background:var(--bg-tertiary);border:none;border-radius:8px;padding:8px 14px;color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;" />
+                <button id="searchUserBtn" class="btn btn-primary" style="padding:8px 16px;font-size:12px;">খুঁজুন</button>
             </div>
             <div id="searchResults"></div>
         </div>
@@ -1420,7 +858,7 @@ function renderSearchTab() {
             return name.includes(query) || email.includes(query);
         });
         const results = $('searchResults');
-        if (found.length === 0) { results.innerHTML = `<div style="color:var(--whatsapp-text-secondary);text-align:center;padding:20px;">কোনো ইউজার পাওয়া যায়নি</div>`; return; }
+        if (found.length === 0) { results.innerHTML = `<div style="color:var(--text-secondary);text-align:center;padding:20px;">কোনো ইউজার পাওয়া যায়নি</div>`; return; }
         let html2 = '';
         found.forEach(uid => {
             const u = allUsersCache[uid];
@@ -1428,24 +866,22 @@ function renderSearchTab() {
             const isRequested = requests[uid] && requests[uid].status === 'pending';
             const photo = u.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.displayName || 'U') + '&background=00A884&color=fff';
             html2 += `
-                <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--whatsapp-border);">
+                <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-color);">
                     <img src="${photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" loading="lazy" />
                     <span style="flex:1;font-size:14px;font-weight:500;">${u.displayName || 'ইউজার'}</span>
-                    ${isFriend ? '<span style="color:var(--whatsapp-green);font-size:12px;font-weight:600;">✅ বন্ধু</span>' :
+                    ${isFriend ? '<span style="color:var(--primary);font-size:12px;font-weight:600;">✅ বন্ধু</span>' :
                     isRequested ? '<span style="color:#F59E0B;font-size:12px;font-weight:600;">⏳ রিকোয়েস্ট পাঠানো</span>' :
-                    `<button class="send-request-btn" style="background:var(--whatsapp-green);color:white;border:none;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:600;cursor:pointer;" data-uid="${uid}">➕ বন্ধু করুন</button>`
+                    `<button class="btn btn-primary" style="padding:4px 14px;font-size:12px;" data-uid="${uid}">➕ বন্ধু করুন</button>`
                     }
                 </div>
             `;
         });
         results.innerHTML = html2;
-        document.querySelectorAll('.send-request-btn').forEach(b => b.addEventListener('click', () => sendFriendRequest(b.dataset.uid)));
+        document.querySelectorAll('#searchResults .btn-primary').forEach(b => b.addEventListener('click', () => sendFriendRequest(b.dataset.uid)));
     });
 }
 
-// ============================================
-// FRIEND REQUESTS
-// ============================================
+// ===== FRIEND REQUESTS =====
 async function acceptFriendRequest(fromUid) {
     if (!currentUser) return;
     try {
@@ -1492,24 +928,17 @@ async function sendFriendRequest(toUid) {
             timestamp: Date.now()
         });
         showToast('ফ্রেন্ড রিকোয়েস্ট পাঠানো হয়েছে! 📨');
-        $('searchResults').innerHTML = `<div style="color:var(--whatsapp-green);text-align:center;padding:8px;">✅ রিকোয়েস্ট পাঠানো হয়েছে</div>`;
+        $('searchResults').innerHTML = `<div style="color:var(--primary);text-align:center;padding:8px;">✅ রিকোয়েস্ট পাঠানো হয়েছে</div>`;
     } catch(e) { showToast(`রিকোয়েস্ট ব্যর্থ: ${e.message}`, 'error'); }
 }
 
-// ============================================
-// EVENT LISTENERS
-// ============================================
+// ===== EVENT LISTENERS =====
 DOM.sendBtn.onclick = sendPrivateMessage;
 DOM.messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendPrivateMessage(); });
 DOM.messageInput.addEventListener('input', handleTyping);
 DOM.backBtn.addEventListener('click', () => { DOM.chatList.classList.remove('hidden'); DOM.chatList.style.display = 'flex'; });
-DOM.callEnd.addEventListener('click', endCall);
-DOM.callAnswer.addEventListener('click', answerCall);
-DOM.callMute.addEventListener('click', toggleMute);
 
-// ============================================
-// LOGIN
-// ============================================
+// ===== LOGIN =====
 DOM.loginBtn.onclick = async () => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
@@ -1518,8 +947,6 @@ DOM.loginBtn.onclick = async () => {
         const user = result.user;
         await saveUserData(user);
         showToast(`স্বাগতম ${user.displayName || 'ইউজার'}! 🎉`);
-        // Start listening for calls after login
-        setTimeout(listenForCalls, 1000);
     } catch (e) {
         if (e.code !== 'auth/popup-closed-by-user') {
             showToast(`লগইন ব্যর্থ: ${e.message}`, 'error');
@@ -1528,36 +955,26 @@ DOM.loginBtn.onclick = async () => {
     }
 };
 
-// ============================================
-// LOGOUT
-// ============================================
+// ===== LOGOUT =====
 DOM.logoutBtn.onclick = async () => {
     try {
-        if (currentUser) {
-            await updateOnlineStatus(currentUser.uid, false);
-        }
+        if (currentUser) await updateOnlineStatus(currentUser.uid, false);
         await signOut(auth);
         showToast('সাইন আউট করা হয়েছে।');
-        endCall();
     } catch(e) { showToast(`সাইন আউট ব্যর্থ: ${e.message}`, 'error'); }
 };
 
-// ============================================
-// AUTH STATE
-// ============================================
+// ===== AUTH STATE =====
 onAuthStateChanged(auth, async (user) => {
     updateUI(user);
     if (user) {
         await saveUserData(user);
         await updateOnlineStatus(user.uid, true);
-        setTimeout(listenForCalls, 2000);
     }
 });
 
-// ============================================
-// PROFILE MODAL
-// ============================================
-DOM.userProfileMini.addEventListener('click', () => {
+// ===== PROFILE MODAL =====
+DOM.userProfile.addEventListener('click', () => {
     if (!currentUser) return;
     DOM.modalPic.src = currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=00A884&color=fff';
     DOM.modalName.value = currentUser.displayName || '';
@@ -1595,9 +1012,7 @@ DOM.modalSave.addEventListener('click', async () => {
 });
 DOM.profileModal.addEventListener('click', (e) => { if (e.target === DOM.profileModal) DOM.profileModal.classList.remove('active'); });
 
-// ============================================
-// IMAGE PREVIEW
-// ============================================
+// ===== IMAGE PREVIEW =====
 DOM.downloadPreview.addEventListener('click', () => {
     const src = DOM.previewImage.src;
     if (src) downloadImage(src);
@@ -1605,27 +1020,19 @@ DOM.downloadPreview.addEventListener('click', () => {
 DOM.closePreview.addEventListener('click', () => DOM.imagePreview.classList.remove('active'));
 DOM.imagePreview.addEventListener('click', (e) => { if (e.target === DOM.imagePreview) DOM.imagePreview.classList.remove('active'); });
 
-// ============================================
-// WINDOW RESIZE
-// ============================================
+// ===== WINDOW RESIZE =====
 window.addEventListener('resize', () => {
     isMobile = window.innerWidth <= 768;
     if (!isMobile) { DOM.chatList.classList.remove('hidden'); DOM.chatList.style.display = 'flex'; }
 });
 
-// ============================================
-// BEFORE UNLOAD
-// ============================================
+// ===== BEFORE UNLOAD =====
 window.addEventListener('beforeunload', () => {
     if (currentUser) updateOnlineStatus(currentUser.uid, false);
-    if (localStream) localStream.getTracks().forEach(t => t.stop());
-    if (currentCall) { try { currentCall.close(); } catch(e) {} }
 });
 
-console.log('📱 ConnectBD WhatsApp Style Ready!');
-console.log('📞 Call System - Simple WebRTC (No PeerJS)');
-console.log('🔍 Search works with email and name!');
-console.log('✅ Online status updates every 5 seconds!');
+console.log('✅ ConnectBD Ready!');
+console.log('📱 চ্যাট, বন্ধু, রিকোয়েস্ট সব কাজ করবে!');
 </script>
 </body>
 </html>
